@@ -112,6 +112,9 @@ body {
   font-size: 18px;
   cursor: pointer;
   text-transform: uppercase;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
 }
 
 .pw-btn:hover {

@@ -17,9 +17,9 @@ export default function Home() {
 
         <section className="pw-right">
           <div className="pw-actions">
-            <button className="pw-btn" type="button">SIGN UP</button>
-            <button className="pw-btn" type="button">LOG IN</button>
-            <button className="pw-btn" type="button">LEARN MORE</button>
+            <a className="pw-btn" href="/signup">SIGN UP</a>
+            <a className="pw-btn" href="/login">LOG IN</a>
+            <a className="pw-btn" href="/learn-more">LEARN MORE</a>
           </div>
 
           <div className="pw-shield" aria-hidden="true">

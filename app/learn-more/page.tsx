@@ -1,60 +1,202 @@
+import Link from "next/link";
+
 export default function LearnMorePage() {
   return (
-    <main style={{ minHeight: "100vh", padding: 24, maxWidth: 900, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 34, marginBottom: 6 }}>What is PhishWise?</h1>
-      <p style={{ marginTop: 0, opacity: 0.85, lineHeight: 1.7 }}>
-        PhishWise is a training website that helps you get better at spotting phishing scams.
-        Phishing scams are fake emails that try to trick you into clicking a link, giving away a password,
-        or sharing private information.
-      </p>
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <header className="border-b border-gray-700 bg-phish-navy/50 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="text-2xl font-bold text-gray-300">
+            PhishWise
+          </Link>
+          <nav className="flex gap-6">
+            <Link href="/login" className="text-gray-300 hover:text-white transition-colors">
+              Log In
+            </Link>
+            <Link href="/signup" className="text-gray-300 hover:text-white transition-colors">
+              Sign Up
+            </Link>
+          </nav>
+        </div>
+      </header>
 
-      <h2 style={{ marginTop: 22 }}>What you’ll see</h2>
-      <ul style={{ opacity: 0.85, lineHeight: 1.8 }}>
-        <li><b>Practice emails</b> sent to your inbox at random times.</li>
-        <li><b>Instant feedback</b> if you click a bad link.</li>
-        <li><b>Short lessons</b> that explain what to look for next time.</li>
-        <li><b>Progress tracking</b> so you can see improvement over time.</li>
-      </ul>
+      {/* Main Content */}
+      <main className="flex-1 px-6 py-12">
+        <div className="max-w-4xl mx-auto space-y-12">
+          {/* Hero Section */}
+          <div className="text-center space-y-4">
+            <h1 className="text-5xl font-bold text-gray-200">
+              What is PhishWise?
+            </h1>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              A personal phishing awareness training platform designed for individuals, 
+              families, and small groups.
+            </p>
+          </div>
 
-      <h2 style={{ marginTop: 22 }}>How it works (simple)</h2>
-      <ol style={{ opacity: 0.85, lineHeight: 1.8 }}>
-        <li><b>Sign in with Google.</b> You don’t need a new password.</li>
-        <li><b>Pick your setup.</b> Join a group (a “school”) or create your own.</li>
-        <li><b>Receive practice emails.</b> They look real, but they’re safe.</li>
-        <li><b>If you click a link, you’ll get feedback.</b> PhishWise shows what signs you missed.</li>
-        <li><b>Finish the short lesson.</b> It covers the scam type and quick prevention steps.</li>
-        <li><b>Check your progress.</b> Your dashboard shows history and improvement.</li>
-      </ol>
+          {/* Problem Section */}
+          <section className="space-y-4">
+            <h2 className="text-3xl font-semibold text-gray-300">The Problem</h2>
+            <p className="text-gray-400 leading-relaxed">
+              Phishing attacks are one of the most common cybersecurity threats today. 
+              An estimated <strong className="text-white">3.4 billion phishing emails</strong> are 
+              sent every day. While large corporations use expensive training platforms like 
+              KnowBe4, everyday users don't have access to affordable, practical tools to 
+              protect themselves.
+            </p>
+            <p className="text-gray-400 leading-relaxed">
+              Older adults are particularly vulnerable, with the FBI reporting nearly 150,000 
+              cybercrime complaints from individuals aged 60+ in 2024, resulting in losses 
+              approaching <strong className="text-white">$5 billion</strong>.
+            </p>
+          </section>
 
-      <h2 style={{ marginTop: 22 }}>What is a “school”?</h2>
-      <p style={{ opacity: 0.85, lineHeight: 1.7 }}>
-        A school is just a group. It can be a real school, a family, or a small team.
-        A manager can view group progress and adjust how often practice emails are sent.
-      </p>
+          {/* Solution Section */}
+          <section className="space-y-4">
+            <h2 className="text-3xl font-semibold text-gray-300">Our Solution</h2>
+            <p className="text-gray-400 leading-relaxed">
+              PhishWise sends you realistic phishing simulations based on common scam patterns. 
+              If you click on a simulated phishing link, you'll immediately:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-400 ml-4">
+              <li>Be redirected to an instant feedback page showing what you missed</li>
+              <li>Receive a short training module explaining the attack type</li>
+              <li>Learn to recognize similar threats in the future</li>
+            </ul>
+            <p className="text-gray-400 leading-relaxed mt-4">
+              Unlike quiz-based tools, PhishWise delivers real emails to your inbox at 
+              unpredictable times—just like real phishing attacks.
+            </p>
+          </section>
 
-      <h2 style={{ marginTop: 22 }}>Privacy (plain language)</h2>
-      <ul style={{ opacity: 0.85, lineHeight: 1.8 }}>
-        <li>PhishWise uses Google sign-in, so it does not store your password.</li>
-        <li>PhishWise tracks training results so you can see your progress.</li>
-        <li>Practice emails are simulations. They are not real attacks.</li>
-      </ul>
+          {/* How It Works Section */}
+          <section className="space-y-4">
+            <h2 className="text-3xl font-semibold text-gray-300">How It Works</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-phish-blue/20 p-6 rounded-lg border border-gray-700">
+                <div className="text-4xl font-bold text-phish-accent mb-3">1</div>
+                <h3 className="text-xl font-semibold text-gray-300 mb-2">Sign Up</h3>
+                <p className="text-gray-400">
+                  Create an account using Google OAuth. Join an existing "school" or 
+                  create your own to manage a group.
+                </p>
+              </div>
+              
+              <div className="bg-phish-blue/20 p-6 rounded-lg border border-gray-700">
+                <div className="text-4xl font-bold text-phish-accent mb-3">2</div>
+                <h3 className="text-xl font-semibold text-gray-300 mb-2">Receive Emails</h3>
+                <p className="text-gray-400">
+                  Get simulated phishing emails at random intervals based on your 
+                  group's training frequency.
+                </p>
+              </div>
+              
+              <div className="bg-phish-blue/20 p-6 rounded-lg border border-gray-700">
+                <div className="text-4xl font-bold text-phish-accent mb-3">3</div>
+                <h3 className="text-xl font-semibold text-gray-300 mb-2">Learn & Improve</h3>
+                <p className="text-gray-400">
+                  If you click a phishing link, get instant feedback and targeted 
+                  training. Track your progress over time.
+                </p>
+              </div>
+            </div>
+          </section>
 
-      <div style={{ marginTop: 26, display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <a href="/" style={linkBtnStyle}>Home</a>
-        <a href="/signup" style={linkBtnStyle}>Sign up</a>
-        <a href="/login" style={linkBtnStyle}>Log in</a>
-        <a href="/setup" style={linkBtnStyle}>First-time setup</a>
-      </div>
-    </main>
+          {/* Features Section */}
+          <section className="space-y-4">
+            <h2 className="text-3xl font-semibold text-gray-300">Features</h2>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <svg className="w-6 h-6 text-phish-accent mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-300">Realistic Simulations</h3>
+                  <p className="text-gray-400">
+                    Emails based on real-world phishing tactics and social engineering techniques
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <svg className="w-6 h-6 text-phish-accent mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-300">Instant Feedback</h3>
+                  <p className="text-gray-400">
+                    Learn immediately what red flags you missed when you fail a simulation
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <svg className="w-6 h-6 text-phish-accent mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-300">Progress Tracking</h3>
+                  <p className="text-gray-400">
+                    Monitor your improvement over time with detailed analytics dashboards
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <svg className="w-6 h-6 text-phish-accent mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <h3 className="text-lg font-medium text-gray-300">Group Management</h3>
+                  <p className="text-gray-400">
+                    Create "schools" to train family members or small teams together
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Who It's For Section */}
+          <section className="space-y-4">
+            <h2 className="text-3xl font-semibold text-gray-300">Who It's For</h2>
+            <p className="text-gray-400 leading-relaxed">
+              PhishWise is designed for anyone who wants to improve their cybersecurity awareness:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-gray-400 ml-4">
+              <li>Individuals concerned about online scams</li>
+              <li>Families wanting to protect older relatives</li>
+              <li>Small businesses without enterprise security budgets</li>
+              <li>Students learning about cybersecurity</li>
+              <li>Anyone who's been affected by phishing before</li>
+            </ul>
+          </section>
+
+          {/* CTA Section */}
+          <section className="text-center space-y-6 py-8">
+            <h2 className="text-3xl font-semibold text-gray-300">Ready to Get Started?</h2>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/signup"
+                className="px-8 py-4 text-lg font-medium text-white bg-phish-accent rounded-lg hover:bg-phish-accent/80 transition-all duration-200"
+              >
+                Sign Up Now
+              </Link>
+              <Link
+                href="/login"
+                className="px-8 py-4 text-lg font-medium text-white border-2 border-gray-400 rounded-lg hover:bg-white hover:text-phish-navy transition-all duration-200"
+              >
+                Log In
+              </Link>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-700 py-6 text-center text-gray-500 text-sm">
+        <p>University of Arkansas - CSCE Capstone 2025</p>
+        <p className="mt-1">Built by Team 20: Tribble, Pumford, Smith, Norden, Berrios, Olvey</p>
+      </footer>
+    </div>
   );
 }
-
-const linkBtnStyle: React.CSSProperties = {
-  display: "inline-block",
-  padding: "10px 14px",
-  borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.22)",
-  background: "rgba(255,255,255,0.06)",
-  color: "white",
-  textDecoration: "none"
-};

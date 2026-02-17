@@ -15,10 +15,11 @@ import { Progress } from "@/components/ui/progress";
 import {
   Users,
   Mail,
-  MousePointerClick,
-  BookCheck,
   TrendingDown,
+  BookCheck,
   ShieldAlert,
+  Copy,
+  Check,
 } from "lucide-react";
 
 type SchoolUser = {
@@ -28,17 +29,32 @@ type SchoolUser = {
   metrics: { totalSent: number; totalClicked: number; totalCompleted: number } | null;
 };
 
-export default function ManagerDashboard() {
-  const { data: session, status } = useSession();
+type School = {
+  id: string;
+  name: string;
+  inviteCode: string;
+};
 
+export default function ManagerDashboard() {
+  const { data: session, status, update } = useSession();
+
+  const [school, setSchool] = useState<School | null>(null);
   const [schoolUsers, setSchoolUsers] = useState<SchoolUser[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+
+  const [schoolName, setSchoolName] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  const [showInvite, setShowInvite] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (status !== "authenticated") return;
     fetch("/api/users")
       .then((r) => r.json())
       .then((data) => {
+        setSchool(data.user?.school ?? null);
         setSchoolUsers(data.schoolUsers ?? []);
         setDataLoading(false);
       });
@@ -56,6 +72,34 @@ export default function ManagerDashboard() {
     redirect("/login");
   }
 
+  async function handleCreateSchool(e: React.FormEvent) {
+    e.preventDefault();
+    setCreating(true);
+    setCreateError(null);
+    const res = await fetch("/api/schools", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: schoolName }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setCreateError(data.error ?? "Failed to create school");
+      setCreating(false);
+      return;
+    }
+    await update();
+    setSchool(data.school);
+    setShowInvite(true);
+    setCreating(false);
+  }
+
+  function handleCopy() {
+    if (!school) return;
+    navigator.clipboard.writeText(school.inviteCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   const totalUsers = schoolUsers.length;
   const totalSimulations = schoolUsers.reduce((s, u) => s + (u.metrics?.totalSent ?? 0), 0);
   const avgClickRate =
@@ -68,16 +112,73 @@ export default function ManagerDashboard() {
           }, 0) / totalUsers
         )
       : 0;
-  const totalTrainingCompleted = schoolUsers.reduce((s, u) => s + (u.metrics?.totalCompleted ?? 0), 0);
+  const totalTrainingCompleted = schoolUsers.reduce(
+    (s, u) => s + (u.metrics?.totalCompleted ?? 0),
+    0
+  );
+
+  // No school yet — show create form
+  if (!school) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-200">School Overview</h1>
+          <p className="mt-1 text-gray-400">
+            Manage your school&apos;s phishing awareness training
+          </p>
+        </div>
+        <Card className="border-gray-700 bg-phish-blue/30">
+          <CardHeader>
+            <CardTitle className="text-gray-200">Create Your School</CardTitle>
+            <CardDescription className="text-gray-400">
+              Give your school a name to get started. You&apos;ll receive an invite code to share with users.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form
+              onSubmit={handleCreateSchool}
+              className="flex flex-col gap-4 sm:flex-row sm:items-end"
+            >
+              <div className="flex-1 space-y-1">
+                <label
+                  className="text-sm font-medium text-gray-400"
+                  htmlFor="school-name"
+                >
+                  School name
+                </label>
+                <input
+                  id="school-name"
+                  type="text"
+                  required
+                  value={schoolName}
+                  onChange={(e) => setSchoolName(e.target.value)}
+                  placeholder="e.g. University of Arkansas"
+                  className="w-full rounded-md border border-gray-600 bg-gray-900 px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:border-primary-500 focus:outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={creating}
+                className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
+              >
+                {creating ? "Creating..." : "Create School"}
+              </button>
+            </form>
+            {createError && (
+              <p className="mt-2 text-sm text-danger-400">{createError}</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-200">
-            School Overview
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-200">{school.name}</h1>
           <p className="mt-1 text-gray-400">
             Manage your school&apos;s phishing awareness training
           </p>
@@ -86,11 +187,44 @@ export default function ManagerDashboard() {
           <button className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700">
             Send Simulation
           </button>
-          <button className="rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800">
+          <button
+            onClick={() => setShowInvite((v) => !v)}
+            className="rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800"
+          >
             Invite Users
           </button>
         </div>
       </div>
+
+      {/* Invite Code Banner */}
+      {showInvite && (
+        <Card className="border-primary-700 bg-primary-900/20">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-gray-400">
+              Invite Code
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center justify-between">
+            <span className="font-mono text-2xl font-bold tracking-widest text-primary-300">
+              {school.inviteCode}
+            </span>
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1 rounded-md border border-gray-600 px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-gray-800"
+            >
+              {copied ? (
+                <>
+                  <Check className="h-4 w-4 text-success-400" /> Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" /> Copy
+                </>
+              )}
+            </button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -102,9 +236,7 @@ export default function ManagerDashboard() {
             <Users className="h-4 w-4 text-primary-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-200">
-              {totalUsers}
-            </div>
+            <div className="text-2xl font-bold text-gray-200">{totalUsers}</div>
           </CardContent>
         </Card>
 
@@ -166,15 +298,9 @@ export default function ManagerDashboard() {
                 <tr className="border-b border-gray-700 text-left">
                   <th className="pb-3 pr-4 font-medium text-gray-400">User</th>
                   <th className="pb-3 pr-4 font-medium text-gray-400">Sent</th>
-                  <th className="pb-3 pr-4 font-medium text-gray-400">
-                    Clicked
-                  </th>
-                  <th className="pb-3 pr-4 font-medium text-gray-400">
-                    Click Rate
-                  </th>
-                  <th className="pb-3 pr-4 font-medium text-gray-400">
-                    Training Done
-                  </th>
+                  <th className="pb-3 pr-4 font-medium text-gray-400">Clicked</th>
+                  <th className="pb-3 pr-4 font-medium text-gray-400">Click Rate</th>
+                  <th className="pb-3 pr-4 font-medium text-gray-400">Training Done</th>
                   <th className="pb-3 font-medium text-gray-400">Risk</th>
                 </tr>
               </thead>
@@ -217,9 +343,7 @@ export default function ManagerDashboard() {
                             <span className="text-gray-300">{clickRate}%</span>
                           </div>
                         </td>
-                        <td className="py-3 pr-4 text-gray-400">
-                          {completed}
-                        </td>
+                        <td className="py-3 pr-4 text-gray-400">{completed}</td>
                         <td className="py-3">
                           {clickRate >= 30 ? (
                             <Badge variant="danger">

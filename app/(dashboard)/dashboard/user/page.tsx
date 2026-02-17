@@ -23,11 +23,16 @@ type SimEntry = {
 };
 
 export default function UserDashboard() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
 
   const [stats, setStats] = useState({ totalSent: 0, totalClicked: 0, totalCompleted: 0 });
   const [history, setHistory] = useState<SimEntry[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+
+  const [inviteCode, setInviteCode] = useState("");
+  const [joining, setJoining] = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
+  const [joinSuccess, setJoinSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -63,6 +68,26 @@ export default function UserDashboard() {
     redirect("/login");
   }
 
+  async function handleJoin(e: React.FormEvent) {
+    e.preventDefault();
+    setJoining(true);
+    setJoinError(null);
+    const res = await fetch("/api/schools/join", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ inviteCode }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setJoinError(data.error ?? "Failed to join school");
+      setJoining(false);
+      return;
+    }
+    setJoinSuccess(`Joined ${data.school.name}!`);
+    setJoining(false);
+    await update();
+  }
+
   const clickRate = stats.totalSent > 0 ? Math.round((stats.totalClicked / stats.totalSent) * 100) : 0;
   const completionRate =
     stats.totalSent > 0
@@ -84,6 +109,56 @@ export default function UserDashboard() {
           Here&apos;s your phishing awareness progress
         </p>
       </div>
+
+      {/* Join School — only shown when user has no school */}
+      {!session.user.schoolId && (
+        <Card className="border-gray-700 bg-phish-blue/30">
+          <CardHeader>
+            <CardTitle className="text-gray-200">Join a School</CardTitle>
+            <CardDescription className="text-gray-400">
+              Enter an invite code from your manager to join a school.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {joinSuccess ? (
+              <p className="text-sm text-success-400">{joinSuccess}</p>
+            ) : (
+              <form
+                onSubmit={handleJoin}
+                className="flex flex-col gap-4 sm:flex-row sm:items-end"
+              >
+                <div className="flex-1 space-y-1">
+                  <label
+                    className="text-sm font-medium text-gray-400"
+                    htmlFor="invite-code"
+                  >
+                    Invite code
+                  </label>
+                  <input
+                    id="invite-code"
+                    type="text"
+                    required
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                    placeholder="e.g. A3F7C21B"
+                    className="w-full rounded-md border border-gray-600 bg-gray-900 px-3 py-2 text-sm font-mono text-gray-200 placeholder-gray-500 focus:border-primary-500 focus:outline-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={joining}
+                  className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
+                >
+                  {joining ? "Joining..." : "Join School"}
+                </button>
+              </form>
+            )}
+            {joinError && (
+              <p className="mt-2 text-sm text-danger-400">{joinError}</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

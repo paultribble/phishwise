@@ -16,12 +16,23 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       // `user` is only present on the first call after sign-in
       if (user) {
         token.id = user.id;
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
+          select: { role: true, schoolId: true },
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.schoolId = dbUser.schoolId;
+        }
+      }
+      // Client called update() — re-sync role + schoolId from DB
+      if (trigger === "update" && token.id) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
           select: { role: true, schoolId: true },
         });
         if (dbUser) {

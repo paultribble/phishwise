@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import {
@@ -20,26 +21,30 @@ import {
   ShieldAlert,
 } from "lucide-react";
 
-// Placeholder data - will be replaced with real API calls
-const mockSchoolStats = {
-  totalUsers: 15,
-  totalSimulations: 180,
-  avgClickRate: 22,
-  totalTrainingCompleted: 42,
+type SchoolUser = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  metrics: { totalSent: number; totalClicked: number; totalCompleted: number } | null;
 };
-
-const mockUsers = [
-  { id: "1", name: "Alice Johnson", email: "alice@example.com", sent: 12, clicked: 2, completed: 2, clickRate: 17 },
-  { id: "2", name: "Bob Smith", email: "bob@example.com", sent: 12, clicked: 5, completed: 3, clickRate: 42 },
-  { id: "3", name: "Carol Davis", email: "carol@example.com", sent: 12, clicked: 1, completed: 1, clickRate: 8 },
-  { id: "4", name: "Dan Wilson", email: "dan@example.com", sent: 12, clicked: 4, completed: 2, clickRate: 33 },
-  { id: "5", name: "Eve Martinez", email: "eve@example.com", sent: 12, clicked: 0, completed: 0, clickRate: 0 },
-];
 
 export default function ManagerDashboard() {
   const { data: session, status } = useSession();
 
-  if (status === "loading") {
+  const [schoolUsers, setSchoolUsers] = useState<SchoolUser[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetch("/api/users")
+      .then((r) => r.json())
+      .then((data) => {
+        setSchoolUsers(data.schoolUsers ?? []);
+        setDataLoading(false);
+      });
+  }, [status]);
+
+  if (status === "loading" || dataLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
@@ -50,6 +55,20 @@ export default function ManagerDashboard() {
   if (!session) {
     redirect("/login");
   }
+
+  const totalUsers = schoolUsers.length;
+  const totalSimulations = schoolUsers.reduce((s, u) => s + (u.metrics?.totalSent ?? 0), 0);
+  const avgClickRate =
+    totalUsers > 0
+      ? Math.round(
+          schoolUsers.reduce((s, u) => {
+            const sent = u.metrics?.totalSent ?? 0;
+            const clicked = u.metrics?.totalClicked ?? 0;
+            return s + (sent > 0 ? (clicked / sent) * 100 : 0);
+          }, 0) / totalUsers
+        )
+      : 0;
+  const totalTrainingCompleted = schoolUsers.reduce((s, u) => s + (u.metrics?.totalCompleted ?? 0), 0);
 
   return (
     <div className="space-y-8">
@@ -84,7 +103,7 @@ export default function ManagerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-200">
-              {mockSchoolStats.totalUsers}
+              {totalUsers}
             </div>
           </CardContent>
         </Card>
@@ -98,7 +117,7 @@ export default function ManagerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-200">
-              {mockSchoolStats.totalSimulations}
+              {totalSimulations}
             </div>
           </CardContent>
         </Card>
@@ -112,7 +131,7 @@ export default function ManagerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-warning-400">
-              {mockSchoolStats.avgClickRate}%
+              {avgClickRate}%
             </div>
           </CardContent>
         </Card>
@@ -126,7 +145,7 @@ export default function ManagerDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success-400">
-              {mockSchoolStats.totalTrainingCompleted}
+              {totalTrainingCompleted}
             </div>
           </CardContent>
         </Card>
@@ -160,49 +179,63 @@ export default function ManagerDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {mockUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="border-b border-gray-700/50 last:border-0"
-                  >
-                    <td className="py-3 pr-4">
-                      <div>
-                        <div className="font-medium text-gray-300">
-                          {user.name}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {user.email}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3 pr-4 text-gray-400">{user.sent}</td>
-                    <td className="py-3 pr-4 text-gray-400">{user.clicked}</td>
-                    <td className="py-3 pr-4">
-                      <div className="flex items-center gap-2">
-                        <Progress
-                          value={user.clickRate}
-                          className="h-2 w-16 bg-gray-700"
-                        />
-                        <span className="text-gray-300">{user.clickRate}%</span>
-                      </div>
-                    </td>
-                    <td className="py-3 pr-4 text-gray-400">
-                      {user.completed}
-                    </td>
-                    <td className="py-3">
-                      {user.clickRate >= 30 ? (
-                        <Badge variant="danger">
-                          <ShieldAlert className="mr-1 h-3 w-3" />
-                          High
-                        </Badge>
-                      ) : user.clickRate >= 15 ? (
-                        <Badge variant="warning">Medium</Badge>
-                      ) : (
-                        <Badge variant="success">Low</Badge>
-                      )}
+                {schoolUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-6 text-center text-gray-500">
+                      No users in this school yet
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  schoolUsers.map((user) => {
+                    const sent = user.metrics?.totalSent ?? 0;
+                    const clicked = user.metrics?.totalClicked ?? 0;
+                    const completed = user.metrics?.totalCompleted ?? 0;
+                    const clickRate = sent > 0 ? Math.round((clicked / sent) * 100) : 0;
+                    return (
+                      <tr
+                        key={user.id}
+                        className="border-b border-gray-700/50 last:border-0"
+                      >
+                        <td className="py-3 pr-4">
+                          <div>
+                            <div className="font-medium text-gray-300">
+                              {user.name ?? "Unknown"}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {user.email ?? ""}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3 pr-4 text-gray-400">{sent}</td>
+                        <td className="py-3 pr-4 text-gray-400">{clicked}</td>
+                        <td className="py-3 pr-4">
+                          <div className="flex items-center gap-2">
+                            <Progress
+                              value={clickRate}
+                              className="h-2 w-16 bg-gray-700"
+                            />
+                            <span className="text-gray-300">{clickRate}%</span>
+                          </div>
+                        </td>
+                        <td className="py-3 pr-4 text-gray-400">
+                          {completed}
+                        </td>
+                        <td className="py-3">
+                          {clickRate >= 30 ? (
+                            <Badge variant="danger">
+                              <ShieldAlert className="mr-1 h-3 w-3" />
+                              High
+                            </Badge>
+                          ) : clickRate >= 15 ? (
+                            <Badge variant="warning">Medium</Badge>
+                          ) : (
+                            <Badge variant="success">Low</Badge>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import {
@@ -13,56 +14,44 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Mail, MousePointerClick, BookCheck, TrendingDown } from "lucide-react";
 
-// Placeholder data - will be replaced with real API calls
-const mockStats = {
-  totalSent: 12,
-  totalClicked: 3,
-  totalCompleted: 2,
-  clickRate: 25,
+type SimEntry = {
+  id: string;
+  subject: string;
+  sentAt: string;
+  clicked: boolean;
+  completedAt: string | null;
 };
-
-const mockHistory = [
-  {
-    id: "1",
-    subject: "Urgent: Verify your account",
-    sentAt: "2025-02-10",
-    clicked: true,
-    completed: true,
-  },
-  {
-    id: "2",
-    subject: "You have a new payment",
-    sentAt: "2025-02-05",
-    clicked: false,
-    completed: false,
-  },
-  {
-    id: "3",
-    subject: "Re: Meeting tomorrow",
-    sentAt: "2025-01-28",
-    clicked: true,
-    completed: true,
-  },
-  {
-    id: "4",
-    subject: "Password reset request",
-    sentAt: "2025-01-20",
-    clicked: true,
-    completed: false,
-  },
-  {
-    id: "5",
-    subject: "Shared document notification",
-    sentAt: "2025-01-15",
-    clicked: false,
-    completed: false,
-  },
-];
 
 export default function UserDashboard() {
   const { data: session, status } = useSession();
 
-  if (status === "loading") {
+  const [stats, setStats] = useState({ totalSent: 0, totalClicked: 0, totalCompleted: 0 });
+  const [history, setHistory] = useState<SimEntry[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    Promise.all([
+      fetch("/api/users").then((r) => r.json()),
+      fetch("/api/simulations?limit=5").then((r) => r.json()),
+    ]).then(([userData, simData]) => {
+      if (userData.metrics) setStats(userData.metrics);
+      if (simData.simulations) {
+        setHistory(
+          simData.simulations.map((s: { id: string; template: { subject: string }; sentAt: string; clicked: boolean; completedAt: string | null }) => ({
+            id: s.id,
+            subject: s.template.subject,
+            sentAt: new Date(s.sentAt).toLocaleDateString(),
+            clicked: s.clicked,
+            completedAt: s.completedAt,
+          }))
+        );
+      }
+      setDataLoading(false);
+    });
+  }, [status]);
+
+  if (status === "loading" || dataLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
@@ -74,11 +63,12 @@ export default function UserDashboard() {
     redirect("/login");
   }
 
+  const clickRate = stats.totalSent > 0 ? Math.round((stats.totalClicked / stats.totalSent) * 100) : 0;
   const completionRate =
-    mockStats.totalSent > 0
+    stats.totalSent > 0
       ? Math.round(
-          ((mockStats.totalSent - mockStats.totalClicked) /
-            mockStats.totalSent) *
+          ((stats.totalSent - stats.totalClicked) /
+            stats.totalSent) *
             100
         )
       : 0;
@@ -106,7 +96,7 @@ export default function UserDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-200">
-              {mockStats.totalSent}
+              {stats.totalSent}
             </div>
           </CardContent>
         </Card>
@@ -120,7 +110,7 @@ export default function UserDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-danger-400">
-              {mockStats.totalClicked}
+              {stats.totalClicked}
             </div>
           </CardContent>
         </Card>
@@ -134,7 +124,7 @@ export default function UserDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success-400">
-              {mockStats.totalCompleted}
+              {stats.totalCompleted}
             </div>
           </CardContent>
         </Card>
@@ -148,7 +138,7 @@ export default function UserDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-200">
-              {mockStats.clickRate}%
+              {clickRate}%
             </div>
           </CardContent>
         </Card>
@@ -195,35 +185,43 @@ export default function UserDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {mockHistory.map((sim) => (
-                  <tr
-                    key={sim.id}
-                    className="border-b border-gray-700/50 last:border-0"
-                  >
-                    <td className="py-3 pr-4 text-gray-300">{sim.subject}</td>
-                    <td className="py-3 pr-4 text-gray-400">{sim.sentAt}</td>
-                    <td className="py-3 pr-4">
-                      {sim.clicked ? (
-                        <Badge variant="danger">Clicked</Badge>
-                      ) : (
-                        <Badge variant="success">Safe</Badge>
-                      )}
-                    </td>
-                    <td className="py-3">
-                      {sim.clicked && sim.completed ? (
-                        <Badge variant="outline" className="text-success-400 border-success-500">
-                          Completed
-                        </Badge>
-                      ) : sim.clicked ? (
-                        <Badge variant="outline" className="text-warning-400 border-warning-500">
-                          Pending
-                        </Badge>
-                      ) : (
-                        <span className="text-gray-500">—</span>
-                      )}
+                {history.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="py-6 text-center text-gray-500">
+                      No simulations yet
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  history.map((sim) => (
+                    <tr
+                      key={sim.id}
+                      className="border-b border-gray-700/50 last:border-0"
+                    >
+                      <td className="py-3 pr-4 text-gray-300">{sim.subject}</td>
+                      <td className="py-3 pr-4 text-gray-400">{sim.sentAt}</td>
+                      <td className="py-3 pr-4">
+                        {sim.clicked ? (
+                          <Badge variant="danger">Clicked</Badge>
+                        ) : (
+                          <Badge variant="success">Safe</Badge>
+                        )}
+                      </td>
+                      <td className="py-3">
+                        {sim.clicked && sim.completedAt ? (
+                          <Badge variant="outline" className="text-success-400 border-success-500">
+                            Completed
+                          </Badge>
+                        ) : sim.clicked ? (
+                          <Badge variant="outline" className="text-warning-400 border-warning-500">
+                            Pending
+                          </Badge>
+                        ) : (
+                          <span className="text-gray-500">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

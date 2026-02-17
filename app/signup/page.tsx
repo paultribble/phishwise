@@ -46,7 +46,7 @@ export default function SignUpPage() {
               disabled={loading}
               onClick={() => {
                 setLoading(true);
-                signIn("google", { callbackUrl: "/dashboard/user" });
+                signIn("google", { callbackUrl: "/dashboard" });
               }}
               className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white text-gray-800 rounded-lg font-medium hover:bg-gray-100 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >

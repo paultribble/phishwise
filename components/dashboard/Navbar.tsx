@@ -6,6 +6,14 @@ import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Shield,
   LayoutDashboard,
   Users,
@@ -13,6 +21,7 @@ import {
   LogOut,
   Menu,
   X,
+  Settings,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -77,20 +86,52 @@ export function Navbar() {
         {/* User menu */}
         <div className="flex items-center gap-3">
           {session?.user && (
-            <div className="hidden items-center gap-3 md:flex">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={session.user.image ?? undefined} />
-                <AvatarFallback className="bg-primary-800 text-xs text-white">
-                  {initials ?? "U"}
-                </AvatarFallback>
-              </Avatar>
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm text-gray-400 transition-colors hover:text-gray-200"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="sr-only sm:not-sr-only">Sign out</span>
-              </button>
+            <div className="hidden md:flex">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="flex items-center gap-2 rounded-md p-1 transition-colors hover:bg-gray-800 focus:outline-none"
+                    aria-label="User menu"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={session.user.image ?? undefined} />
+                      <AvatarFallback className="bg-primary-800 text-xs text-white">
+                        {initials ?? "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium text-gray-200">
+                        {session.user.name ?? "User"}
+                      </p>
+                      <p className="truncate text-xs text-gray-500">
+                        {session.user.email ?? ""}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/dashboard/settings"
+                      className="flex cursor-pointer items-center gap-2 text-gray-300"
+                    >
+                      <Settings className="h-4 w-4" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => signOut({ callbackUrl: "/" })}
+                    className="cursor-pointer text-danger-400 focus:text-danger-300"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           )}
 
@@ -129,13 +170,23 @@ export function Navbar() {
             );
           })}
           {session?.user && (
-            <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="mt-2 flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-400 hover:text-gray-200"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </button>
+            <>
+              <Link
+                href="/dashboard/settings"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-400 hover:text-gray-200"
+              >
+                <Settings className="h-4 w-4" />
+                Settings
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="mt-1 flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-danger-400 hover:text-danger-300"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </button>
+            </>
           )}
         </nav>
       )}

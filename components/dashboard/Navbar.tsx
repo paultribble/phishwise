@@ -55,7 +55,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-gray-700 bg-phish-navy/90 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
+        <Link href={session ? "/dashboard" : "/"} className="flex items-center gap-2">
           <Shield className="h-6 w-6 text-primary-500" />
           <span className="text-xl font-bold text-gray-200">PhishWise</span>
         </Link>

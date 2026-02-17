@@ -13,8 +13,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { PhishWiseLogo } from "@/components/ui/PhishWiseLogo";
 import {
-  Shield,
   LayoutDashboard,
   Users,
   BookOpen,
@@ -56,7 +56,7 @@ export function Navbar() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <Link href={session ? "/dashboard" : "/"} className="flex items-center gap-2">
-          <Shield className="h-6 w-6 text-primary-500" />
+          <PhishWiseLogo className="h-6 w-6 text-primary-500" />
           <span className="text-xl font-bold text-gray-200">PhishWise</span>
         </Link>
 

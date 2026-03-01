@@ -109,6 +109,8 @@ export default function UserDashboard() {
           Here&apos;s your phishing awareness progress
         </p>
       </div>
+      /*<div className="min-h-screen flex flex-col">
+
 
       {/* Join School — only shown when user has no school */}
       {!session.user.schoolId && (
@@ -235,7 +237,163 @@ export default function UserDashboard() {
           <Progress value={completionRate} className="bg-gray-700" />
         </CardContent>
       </Card>
+      {/* new stuff from sarah */}
+<div className="min-h-screen flex flex-col">
+      {/* header */}
+      <header className="border-b border-gray-700 bg-phish-navy/50 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <Link
+            href="/"
+            className="flex items-end gap-1 leading-none"
+            >
+            <span className={`text-4xl tracking-widest text-gray-200 ${bebas.className}`}>
+                PHISH
+            </span>
+            <span className={`text-5xl italic text-gray-400 ${playfair.className}`}>
+                WISE
+            </span>
+        </Link>
 
+          <nav className="flex gap-6 items-center">
+            <Link href="/learn-more" className="text-gray-300 hover:text-white transition-colors">
+              Learn More
+            </Link>
+            <Link href="/dashboard/user" className="text-gray-300 hover:text-white transition-colors">
+              User
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main */}
+      <main className="flex-1 px-6 py-12">
+        <div className="max-w-6xl mx-auto space-y-10">
+          {/* Top row */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-200">
+                Welcome back, {mockUser.name}
+              </h1>
+              <p className="mt-1 text-gray-400">
+                Here&apos;s your phishing awareness progress
+              </p>
+            </div>
+
+            {/* Logo Icon */}
+            <div className={`${cardClass} p-3 flex items-center justify-center`}>
+                <Image
+                    src="/logo.png"  
+                    alt="PhishWise logo"
+                    width={48}
+                    height={48}
+                    className="object-contain"
+                />
+            </div>
+          </div>
+          
+            {/* analytics  */}
+        <section className={`${cardClass} p-8 space-y-6`}>
+            <div>
+            <p className="text-sm uppercase tracking-wider text-gray-400">Analytics</p>
+            <h2 className="text-xl font-semibold text-gray-200 mt-1">User Progress</h2>
+            </div>
+
+            {/* mini chart placeholder */}
+            <div className="rounded-lg border border-gray-700 bg-black/20 p-6 flex items-center justify-center">
+            <div className="text-gray-500 text-sm">Chart placeholder</div>
+            </div>
+
+            {/* summary */}
+            <div className="pt-2 border-t border-gray-700">
+            <p className="text-sm uppercase tracking-wider text-gray-400 mt-4">Summary</p>
+            <p className="text-gray-300 mt-2">
+                Awareness Score: <span className="font-semibold">{safeRate}%</span>
+            </p>
+            <p className="text-gray-400 text-sm mt-2">
+                Emails: {mockStats.totalSent} · Clicks: {mockStats.totalClicked} · Training Completed:{" "}
+                {mockStats.totalCompleted}
+            </p>
+            </div>
+        </section>
+
+        {/* columns */}
+        <div className="grid gap-8 lg:grid-cols-2 items-start">
+        {/* LEFT column: Next Hit + Recent Activity */}
+        <div className="space-y-8">
+            {/* next hit */}
+            <section className={`${cardClass} p-8`}>
+            <p className="text-sm uppercase tracking-wider text-gray-400">Next Hit</p>
+            <div className="mt-4 space-y-2 text-gray-200">
+                <div className="flex justify-between border-b border-gray-700 pb-2">
+                <span className="text-gray-400">Date</span>
+                <span>{mockNextHit.date}</span>
+                </div>
+                <div className="flex justify-between pt-2">
+                <span className="text-gray-400">Method</span>
+                <span>{mockNextHit.method}</span>
+                </div>
+            </div>
+            </section>
+
+            {/* recent activity */}
+            <section className={`${cardClass} p-8`}>
+            <p className="text-sm uppercase tracking-wider text-gray-400">User Summary</p>
+            <h2 className="text-xl font-semibold text-gray-200 mt-1">Recent Simulations</h2>
+
+            <div className="mt-6 overflow-x-auto">
+                <table className="w-full text-sm">
+                <thead>
+                    <tr className="text-left border-b border-gray-700">
+                    <th className="py-2 pr-4 text-gray-400 font-medium">Subject</th>
+                    <th className="py-2 pr-4 text-gray-400 font-medium">Date</th>
+                    <th className="py-2 text-gray-400 font-medium">Clicked</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {mockHistory.map((h) => (
+                    <tr key={h.id} className="border-b border-gray-700/50 last:border-0">
+                        <td className="py-3 pr-4 text-gray-300">{h.subject}</td>
+                        <td className="py-3 pr-4 text-gray-400">{h.sentAt}</td>
+                        <td className="py-3 text-gray-300">{h.clicked ? "Yes" : "No"}</td>
+                    </tr>
+                    ))}
+                </tbody>
+                </table>
+            </div>
+            </section>
+        </div>
+
+        {/* RIGHT column: Associated Users */}
+        <div className="space-y-8">
+            <section className={`${cardClass} p-8`}>
+            <p className="text-sm uppercase tracking-wider text-gray-400">Associated Users</p>
+            <h2 className="text-xl font-semibold text-gray-200 mt-1">Your Team / Group</h2>
+
+            <div className="mt-6 space-y-4">
+                {mockAssociatedUsers.map((u) => (
+                <div
+                    key={u.id}
+                    className="flex items-center justify-between rounded-lg border border-gray-700 bg-black/20 px-4 py-3"
+                >
+                    <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-full bg-gray-600/40 border border-gray-700" />
+                    <div className="leading-tight">
+                        <div className="text-gray-200 font-medium">{u.name}</div>
+                        <div className="text-gray-400 text-xs">{u.email}</div>
+                    </div>
+                    </div>
+
+                    <span className="text-xs uppercase tracking-wider text-gray-400 border border-gray-700 rounded-md px-2 py-1">
+                    {u.role}
+                    </span>
+                </div>
+                ))}
+            </div>
+            </section>
+        </div>
+        </div>
+          </div>
+          {/* end new stuff */}
       {/* Recent Simulations */}
       <Card className="border-gray-700 bg-phish-blue/30">
         <CardHeader>

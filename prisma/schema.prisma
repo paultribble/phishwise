@@ -60,6 +60,7 @@ model User {
   sessions        Session[]
   simulations     SimulationEmail[]
   trainingHistory UserTraining[]
+  history         UserHistory[]
   metrics         UserMetrics?
 }
 
@@ -157,6 +158,16 @@ model UserMetrics {
   totalReported  Int       @default(0)
   totalCompleted Int       @default(0)
   lastActivity   DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserHistory {
+  id         String   @id @default(cuid())
+  userId     String
+  actionType String
+  detail     String   @db.Text
+  timestamp  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

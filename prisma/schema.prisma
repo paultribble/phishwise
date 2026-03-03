@@ -86,9 +86,11 @@ model SimulationEmail {
   userId     String
   campaignId String
   templateId String
+  token      String    @unique
   sentAt     DateTime  @default(now())
   opened     Boolean   @default(false)
   clicked    Boolean   @default(false)
+  clickedAt DateTime?
   reportedAt DateTime?
   completedAt DateTime?
 

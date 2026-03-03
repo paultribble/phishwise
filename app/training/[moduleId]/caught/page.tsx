@@ -2,32 +2,49 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, Shield, ArrowRight, Mail } from "lucide-react";
+import { AlertTriangle, Shield, ArrowRight, Mail, Loader2 } from "lucide-react";
 
-interface SimulationData {
+interface RedFlagData {
   subject: string;
   sender: string;
   redFlags: string[];
 }
 
-const mockSimulationData: SimulationData = {
-  subject: "Urgent: Verify your account",
-  sender: "security@amaz0n-verify.com",
-  redFlags: [
-    "The sender address uses 'amaz0n' (zero) instead of 'amazon'",
-    "Urgent language creates false pressure to act quickly",
-    "Generic greeting instead of your name",
-    "Link leads to a fake login page",
-  ],
-};
-
 export default function CaughtPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<RedFlagData | null>(null);
 
-  const simulation = token ? mockSimulationData : null;
+  useEffect(() => {
+    async function fetchRedFlags() {
+      try {
+        if (token) {
+          const res = await fetch(`/api/training/caught-data?token=${token}`);
+          if (res.ok) {
+            const json = await res.json();
+            setData(json);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch caught data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRedFlags();
+  }, [token]);
+
+  const redFlags = data?.redFlags || [
+    "The email asks you to click a link to log in or reset your password.",
+    "The sender's address looks slightly off or unfamiliar.",
+    "The message does not use your name.",
+    "The link leads to a page that looks real but has a strange web address.",
+    "The email creates panic or demands immediate action.",
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -63,16 +80,20 @@ export default function CaughtPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {simulation ? (
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                </div>
+              ) : data ? (
                 <>
                   <div className="space-y-2">
                     <div className="flex justify-between border-b border-gray-700 pb-2">
                       <span className="text-gray-400">Subject:</span>
-                      <span className="text-gray-200">{simulation.subject}</span>
+                      <span className="text-gray-200">{data.subject}</span>
                     </div>
                     <div className="flex justify-between border-b border-gray-700 pb-2">
                       <span className="text-gray-400">From:</span>
-                      <span className="text-gray-200">{simulation.sender}</span>
+                      <span className="text-gray-200">{data.sender}</span>
                     </div>
                   </div>
 
@@ -81,7 +102,7 @@ export default function CaughtPage() {
                       Red Flags You Missed
                     </h3>
                     <ul className="space-y-3">
-                      {simulation.redFlags.map((flag, i) => (
+                      {redFlags.map((flag, i) => (
                         <li key={i} className="flex items-start gap-3">
                           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-danger-500/20 text-danger-400 text-sm">
                             {i + 1}
@@ -93,10 +114,34 @@ export default function CaughtPage() {
                   </div>
                 </>
               ) : (
-                <p className="text-gray-400">
-                  Simulation data not available. Click the button below to
-                  start the training module.
-                </p>
+                <>
+                  <div className="space-y-2">
+                    <div className="flex justify-between border-b border-gray-700 pb-2">
+                      <span className="text-gray-400">Subject:</span>
+                      <span className="text-gray-200">Unusual Sign-In Attempt Detected</span>
+                    </div>
+                    <div className="flex justify-between border-b border-gray-700 pb-2">
+                      <span className="text-gray-400">From:</span>
+                      <span className="text-gray-200">security@amaz0n-verify.com</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <h3 className="text-sm font-medium uppercase tracking-wider text-gray-400 mb-3">
+                      Red Flags You Missed
+                    </h3>
+                    <ul className="space-y-3">
+                      {redFlags.slice(0, 4).map((flag, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-danger-500/20 text-danger-400 text-sm">
+                            {i + 1}
+                          </span>
+                          <span className="text-gray-300">{flag}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>

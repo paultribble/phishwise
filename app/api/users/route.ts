@@ -27,6 +27,24 @@ export async function GET() {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
+  // Get pending training modules
+  const pendingTraining = await prisma.userTraining.findMany({
+    where: {
+      userId: session.user.id,
+      completedAt: null,
+    },
+    include: {
+      module: {
+        select: { id: true, name: true },
+      },
+    },
+  });
+
+  const pendingTrainingFormatted = pendingTraining.map((ut) => ({
+    id: ut.module.id,
+    name: ut.module.name,
+  }));
+
   // If manager, include school members
   if (
     (user.role === "MANAGER" || user.role === "ADMIN") &&
@@ -42,8 +60,8 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ user, schoolUsers });
+    return NextResponse.json({ user, schoolUsers, pendingTraining: pendingTrainingFormatted });
   }
 
-  return NextResponse.json({ user });
+  return NextResponse.json({ user, pendingTraining: pendingTrainingFormatted });
 }

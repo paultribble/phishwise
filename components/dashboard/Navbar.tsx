@@ -28,7 +28,7 @@ import { useState } from "react";
 
 const userNav = [
   { label: "Dashboard", href: "/dashboard/user", icon: LayoutDashboard },
-  { label: "Training", href: "/dashboard/user/training", icon: BookOpen },
+  { label: "Training", href: "/training/module-3-account-password-traps", icon: BookOpen },
 ];
 
 const managerNav = [

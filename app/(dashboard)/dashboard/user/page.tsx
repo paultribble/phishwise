@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Mail, MousePointerClick, BookCheck, TrendingDown } from "lucide-react";
+import { Mail, MousePointerClick, BookCheck, TrendingDown, CheckCircle2 } from "lucide-react";
 
 type SimEntry = {
   id: string;
@@ -22,12 +23,15 @@ type SimEntry = {
   completedAt: string | null;
 };
 
-export default function UserDashboard() {
+function UserDashboardContent() {
+  const searchParams = useSearchParams();
   const { data: session, status, update } = useSession();
 
   const [stats, setStats] = useState({ totalSent: 0, totalClicked: 0, totalCompleted: 0 });
   const [history, setHistory] = useState<SimEntry[]>([]);
+  const [pendingTraining, setPendingTraining] = useState<{ id: string; name: string }[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   const [inviteCode, setInviteCode] = useState("");
   const [joining, setJoining] = useState(false);
@@ -52,9 +56,32 @@ export default function UserDashboard() {
           }))
         );
       }
+      if (userData.pendingTraining) {
+        setPendingTraining(userData.pendingTraining);
+      }
       setDataLoading(false);
     });
   }, [status]);
+
+  async function handleSendDemoEmail() {
+    setSendingEmail(true);
+    try {
+      const res = await fetch("/api/demo/send-test-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: session?.user?.email }),
+      });
+      if (res.ok) {
+        alert("Demo phishing email sent! Check your inbox.");
+      } else {
+        alert("Failed to send email. Check console for details.");
+      }
+    } catch {
+      alert("Error sending email");
+    } finally {
+      setSendingEmail(false);
+    }
+  }
 
   if (status === "loading" || dataLoading) {
     return (
@@ -109,6 +136,41 @@ export default function UserDashboard() {
           Here&apos;s your phishing awareness progress
         </p>
       </div>
+
+      {/* Training Complete Success Banner */}
+      {searchParams.get("completed") === "true" && (
+        <Card className="border-success-500/50 bg-success-500/10">
+          <CardContent className="flex items-center gap-3 py-4">
+            <CheckCircle2 className="h-5 w-5 text-success-400" />
+            <p className="text-success-300">Training completed! Your progress has been updated.</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Pending Training */}
+      {pendingTraining.length > 0 && (
+        <Card className="border-warning-500/50 bg-warning-500/10">
+          <CardHeader>
+            <CardTitle className="text-warning-300">Pending Training</CardTitle>
+            <CardDescription className="text-warning-200/80">
+              Complete these modules to improve your awareness score
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {pendingTraining.map((mod) => (
+              <div key={mod.id} className="flex items-center justify-between rounded-lg border border-warning-500/30 bg-black/20 px-4 py-3">
+                <span className="text-gray-200">{mod.name}</span>
+                <Link
+                  href={`/training/${mod.id}`}
+                  className="text-sm font-medium text-warning-400 hover:text-warning-300"
+                >
+                  Complete Training →
+                </Link>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Join School — only shown when user has no school */}
       {!session.user.schoolId && (
@@ -302,6 +364,33 @@ export default function UserDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Demo Email Send Button */}
+      <div className="text-center">
+        <button
+          onClick={handleSendDemoEmail}
+          disabled={sendingEmail}
+          className="text-xs text-gray-500 hover:text-gray-400 underline disabled:opacity-50"
+        >
+          {sendingEmail ? "Sending..." : "Send me a demo phishing email"}
+        </button>
+      </div>
     </div>
+  );
+}
+
+function LoadingState() {
+  return (
+    <div className="flex items-center justify-center py-20">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+    </div>
+  );
+}
+
+export default function UserDashboard() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <UserDashboardContent />
+    </Suspense>
   );
 }

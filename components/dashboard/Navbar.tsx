@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
@@ -56,8 +57,14 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-gray-700 bg-phish-navy/90 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
-        <Link href={session ? "/dashboard" : "/"} className="flex items-end gap-1 leading-none">
-          <PhishWiseLogo className="h-6 w-6 text-primary-500 mb-1" />
+        <Link href={session ? "/dashboard" : "/"} className="flex items-end gap-2 leading-none">
+          <Image
+            src="/logo.webp"
+            alt="PhishWise shield"
+            width={36}
+            height={36}
+            className="object-contain mb-1"
+          />
           <span className={`text-3xl tracking-widest text-gray-200 ${bebas.className}`}>PHISH</span>
           <span className={`text-4xl italic text-gray-400 ${playfair.className}`}>WISE</span>
         </Link>

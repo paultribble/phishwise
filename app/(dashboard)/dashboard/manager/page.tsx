@@ -126,27 +126,16 @@ export default function ManagerDashboard() {
   if (!school) {
     return (
       <div className="space-y-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-200">
-              Welcome back,{" "}
-              <span className={`${bebas.className} tracking-widest text-4xl`}>
-                {session?.user?.name ?? "Manager"}
-              </span>
-            </h1>
-            <p className="mt-1 text-gray-400">
-              Manage your school&apos;s phishing awareness training
-            </p>
-          </div>
-          <div className={`${cardClass} p-3 flex items-center justify-center`}>
-            <Image
-              src="/logo.webp"
-              alt="PhishWise logo"
-              width={48}
-              height={48}
-              className="object-contain"
-            />
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-200">
+            Welcome back,{" "}
+            <span className={`${bebas.className} tracking-widest text-4xl`}>
+              {session?.user?.name ?? "Manager"}
+            </span>
+          </h1>
+          <p className="mt-1 text-gray-400">
+            Manage your school&apos;s phishing awareness training
+          </p>
         </div>
         <Card className="border-gray-700 bg-phish-blue/30">
           <CardHeader>
@@ -231,46 +220,7 @@ export default function ManagerDashboard() {
             </div>
           </div>
         </div>
-        <div className={`${cardClass} p-3 flex items-center justify-center shrink-0`}>
-          <Image
-            src="/logo.webp"
-            alt="PhishWise logo"
-            width={48}
-            height={48}
-            className="object-contain"
-          />
-        </div>
       </div>
-
-      {/* Invite Code Banner */}
-      {showInvite && (
-        <Card className="border-primary-700 bg-primary-900/20">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-400">
-              Invite Code
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex items-center justify-between">
-            <span className="font-mono text-2xl font-bold tracking-widest text-primary-300">
-              {school.inviteCode}
-            </span>
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-1 rounded-md border border-gray-600 px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-gray-800"
-            >
-              {copied ? (
-                <>
-                  <Check className="h-4 w-4 text-success-400" /> Copied
-                </>
-              ) : (
-                <>
-                  <Copy className="h-4 w-4" /> Copy
-                </>
-              )}
-            </button>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

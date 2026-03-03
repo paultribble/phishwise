@@ -1,0 +1,62 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { TrainingModuleContent } from "@/types/training";
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ moduleId: string }> }
+) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { moduleId } = await params;
+
+  const trainingModule = await prisma.trainingModule.findUnique({
+    where: { id: moduleId },
+  });
+
+  if (!trainingModule) {
+    return NextResponse.json({ error: "Module not found" }, { status: 404 });
+  }
+
+  const userTraining = await prisma.userTraining.findUnique({
+    where: {
+      userId_moduleId: {
+        userId: session.user.id,
+        moduleId: moduleId,
+      },
+    },
+  });
+
+  const incompleteAssignment = await prisma.userTraining.findFirst({
+    where: {
+      userId: session.user.id,
+      moduleId: moduleId,
+      completedAt: null,
+    },
+  });
+
+  const content: TrainingModuleContent = JSON.parse(trainingModule.content);
+
+  return NextResponse.json({
+    module: {
+      id: trainingModule.id,
+      name: trainingModule.name,
+      description: trainingModule.description,
+      content,
+    },
+    userStatus: userTraining
+      ? {
+          completed: !!userTraining.completedAt,
+          completedAt: userTraining.completedAt,
+          assignedAt: userTraining.assignedAt,
+        }
+      : null,
+    isRequired: !!incompleteAssignment,
+  });
+}

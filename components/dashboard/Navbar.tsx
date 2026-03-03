@@ -34,7 +34,7 @@ const userNav = [
 const managerNav = [
   { label: "Overview", href: "/dashboard/manager", icon: LayoutDashboard },
   { label: "Users", href: "/dashboard/manager/users", icon: Users },
-  { label: "Training", href: "/dashboard/manager/training", icon: BookOpen },
+  { label: "Training", href: "/training/module-3-account-password-traps", icon: BookOpen },
 ];
 
 export function Navbar() {

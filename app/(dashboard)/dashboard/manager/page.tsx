@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import {
   Card,
@@ -212,6 +213,12 @@ export default function ManagerDashboard() {
               </p>
             </div>
             <div className="flex gap-2 shrink-0">
+              <Link 
+                href="/training/module-3-account-password-traps"
+                className="rounded-md bg-success-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-success-700"
+              >
+                Training Module
+              </Link>
               <button className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700">
                 Send Simulation
               </button>
@@ -321,6 +328,24 @@ export default function ManagerDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Manager's Own Training */}
+      <Card className="border-warning-500/50 bg-warning-500/10">
+        <CardHeader>
+          <CardTitle className="text-warning-300">Your Training</CardTitle>
+          <CardDescription className="text-warning-200/80">
+            Complete the training module to stay protected
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link
+            href="/training/module-3-account-password-traps"
+            className="inline-flex items-center justify-center rounded-md bg-success-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-success-700"
+          >
+            Start Training Module
+          </Link>
+        </CardContent>
+      </Card>
 
       {/* User Performance Table */}
       <Card className="border-gray-700 bg-phish-blue/30">

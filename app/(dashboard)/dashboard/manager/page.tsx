@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -21,6 +22,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
+import { bebas, playfair } from "@/lib/fonts";
 
 type SchoolUser = {
   id: string;
@@ -117,15 +119,33 @@ export default function ManagerDashboard() {
     0
   );
 
+  const cardClass = "bg-phish-blue/20 border border-gray-700 rounded-lg backdrop-blur-sm";
+
   // No school yet — show create form
   if (!school) {
     return (
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-200">School Overview</h1>
-          <p className="mt-1 text-gray-400">
-            Manage your school&apos;s phishing awareness training
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-200">
+              Welcome back,{" "}
+              <span className={`${bebas.className} tracking-widest text-4xl`}>
+                {session?.user?.name ?? "Manager"}
+              </span>
+            </h1>
+            <p className="mt-1 text-gray-400">
+              Manage your school&apos;s phishing awareness training
+            </p>
+          </div>
+          <div className={`${cardClass} p-3 flex items-center justify-center`}>
+            <Image
+              src="/logo.webp"
+              alt="PhishWise logo"
+              width={48}
+              height={48}
+              className="object-contain"
+            />
+          </div>
         </div>
         <Card className="border-gray-700 bg-phish-blue/30">
           <CardHeader>
@@ -176,23 +196,42 @@ export default function ManagerDashboard() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-200">{school.name}</h1>
-          <p className="mt-1 text-gray-400">
-            Manage your school&apos;s phishing awareness training
-          </p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-200">
+                Welcome back,{" "}
+                <span className={`${bebas.className} tracking-widest text-4xl`}>
+                  {session?.user?.name ?? "Manager"}
+                </span>
+              </h1>
+              <p className="mt-1 text-gray-400">
+                <span className={`${playfair.className} text-gray-300`}>{school.name}</span>
+                {" "}— phishing awareness overview
+              </p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              <button className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700">
+                Send Simulation
+              </button>
+              <button
+                onClick={() => setShowInvite((v) => !v)}
+                className="rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800"
+              >
+                Invite Users
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <button className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700">
-            Send Simulation
-          </button>
-          <button
-            onClick={() => setShowInvite((v) => !v)}
-            className="rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800"
-          >
-            Invite Users
-          </button>
+        <div className={`${cardClass} p-3 flex items-center justify-center shrink-0`}>
+          <Image
+            src="/logo.webp"
+            alt="PhishWise logo"
+            width={48}
+            height={48}
+            className="object-contain"
+          />
         </div>
       </div>
 

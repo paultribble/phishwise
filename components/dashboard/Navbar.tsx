@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PhishWiseLogo } from "@/components/ui/PhishWiseLogo";
+import { bebas, playfair } from "@/lib/fonts";
 import {
   LayoutDashboard,
   Users,
@@ -55,9 +56,10 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-gray-700 bg-phish-navy/90 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
-        <Link href={session ? "/dashboard" : "/"} className="flex items-center gap-2">
-          <PhishWiseLogo className="h-6 w-6 text-primary-500" />
-          <span className="text-xl font-bold text-gray-200">PhishWise</span>
+        <Link href={session ? "/dashboard" : "/"} className="flex items-end gap-1 leading-none">
+          <PhishWiseLogo className="h-6 w-6 text-primary-500 mb-1" />
+          <span className={`text-3xl tracking-widest text-gray-200 ${bebas.className}`}>PHISH</span>
+          <span className={`text-4xl italic text-gray-400 ${playfair.className}`}>WISE</span>
         </Link>
 
         {/* Desktop nav */}

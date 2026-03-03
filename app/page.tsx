@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import { bebas, playfair } from "@/lib/fonts";
 
 export default function HomePage() {
   return (
@@ -8,11 +10,18 @@ export default function HomePage() {
         <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Side - Branding */}
           <div className="space-y-12">
-            <div>
-              <h1 className="text-7xl lg:text-8xl font-bold tracking-tight leading-none">
+            <div className="flex items-end gap-4">
+              <Image
+                src="/logo.webp"
+                alt="PhishWise shield"
+                width={100}
+                height={100}
+                className="object-contain"
+              />
+              <h1 className={`text-7xl lg:text-8xl font-bold tracking-tight leading-none ${bebas.className}`}>
                 <span className="text-gray-200">PHISH</span>
                 <br />
-                <span className="text-gray-300 italic font-serif">WISE</span>
+                <span className={`text-gray-300 italic ${playfair.className}`}>WISE</span>
               </h1>
             </div>
             
@@ -23,18 +32,6 @@ export default function HomePage() {
               <p className="text-2xl lg:text-3xl text-gray-300 font-light">
                 Prevent Tomorrow.
               </p>
-            </div>
-
-            {/* Shield Icon */}
-            <div className="flex justify-start pt-4">
-              <svg 
-                className="w-16 h-16 text-gray-600" 
-                fill="currentColor" 
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-              </svg>
             </div>
           </div>
 

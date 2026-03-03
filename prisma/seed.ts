@@ -108,8 +108,8 @@ async function main() {
     update: {},
     create: {
       email: "phishwise0@gmail.com",
-      name: "Demo User",
-      role: "USER",
+      name: "Demo Manager",
+      role: "MANAGER",
     },
   });
   console.log("Created demo user:", demoUser.email);

@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { bebas, playfair } from "@/lib/fonts";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
@@ -11,8 +13,20 @@ export default function LoginPage() {
       {/* Header */}
       <header className="border-b border-gray-700 bg-phish-navy/50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-gray-300">
-            PhishWise
+          <Link href="/" className="flex items-end gap-2 leading-none">
+            <Image
+              src="/logo.webp"
+              alt="PhishWise shield"
+              width={44}
+              height={44}
+              className="object-contain mb-1"
+            />
+            <span className={`text-4xl tracking-widest text-gray-200 ${bebas.className}`}>
+              PHISH
+            </span>
+            <span className={`text-5xl italic text-gray-400 ${playfair.className}`}>
+              WISE
+            </span>
           </Link>
           <nav className="flex gap-6">
             <Link href="/learn-more" className="text-gray-300 hover:text-white transition-colors">

@@ -29,9 +29,9 @@ export async function GET(req: NextRequest) {
     const recentActivity = await prisma.userHistory.findMany({
       where: {
         actionType: "simulation_sent",
-        timestamp: { gte: sevenDaysAgo },
+        createdAt: { gte: sevenDaysAgo },
       },
-      orderBy: { timestamp: "desc" },
+      orderBy: { createdAt: "desc" },
       take: 50,
       include: {
         user: { select: { name: true, email: true } },
@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
         userName: activity.user.name,
         userEmail: activity.user.email,
         action: activity.actionType,
-        timestamp: activity.timestamp,
+        timestamp: activity.createdAt,
       })),
     });
   } catch (error) {

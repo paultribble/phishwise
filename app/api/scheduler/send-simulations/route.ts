@@ -105,7 +105,6 @@ export async function POST(req: NextRequest) {
             campaignId: campaign.id,
             templateId: template.id,
             token,
-            status: "sent",
           },
         });
 
@@ -116,24 +115,13 @@ export async function POST(req: NextRequest) {
           subject: template.subject,
           htmlBody: template.body,
           trackingToken: token,
-          fromAddress: template.fromAddress ?? undefined,
         });
 
         if (!sendResult.success) {
-          await prisma.simulationEmail.update({
-            where: { id: simEmail.id },
-            data: { status: "failed" },
-          });
           results.errors.push(`Failed to send email to ${user.email}: ${sendResult.error}`);
           results.failed++;
           continue;
         }
-
-        // Update user's lastSimulation timestamp
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { lastSimulation: new Date() },
-        });
 
         // Update metrics
         await prisma.userMetrics.upsert({

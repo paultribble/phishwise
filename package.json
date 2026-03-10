@@ -4,15 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "dotenv -e .env.local prisma db push --skip-generate && next build",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
+    "db:push": "dotenv -e .env.local prisma db push --accept-data-loss",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:seed-demo": "tsx prisma/seed-demo.ts",
+    "db:seed": "dotenv -e .env.local tsx prisma/seed.ts",
+    "seed:demo": "dotenv -e .env.local tsx prisma/seed.ts",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -46,6 +46,7 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "autoprefixer": "^10.4.20",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.22",
     "postcss": "^8.5.1",

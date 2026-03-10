@@ -42,19 +42,25 @@ export async function selectEligibleUsers() {
         id: true,
         email: true,
         name: true,
-        lastSimulation: true,
       },
     });
 
     for (const user of users) {
+      // Get the user's last simulation from SimulationEmail records
+      const lastSim = await prisma.simulationEmail.findFirst({
+        where: { userId: user.id },
+        orderBy: { sentAt: "desc" },
+        select: { sentAt: true },
+      });
+
       // If user has never had a simulation, send them one
-      if (!user.lastSimulation) {
+      if (!lastSim) {
         eligibleUsers.push({ ...user, schoolId: school.id });
         continue;
       }
 
       // Check if enough time has passed since last simulation (with ±20% randomization window)
-      const lastSimMs = user.lastSimulation.getTime();
+      const lastSimMs = lastSim.sentAt.getTime();
       const timeSinceLastSim = now.getTime() - lastSimMs;
 
       // User is eligible if time since last sim is within the window

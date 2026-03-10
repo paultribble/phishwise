@@ -2,305 +2,263 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const module3Content = {
+const trainingModuleContent = {
   overview:
-    "Some phishing emails try to steal your username, password, or login codes. These messages usually pretend there is a problem with one of your accounts and ask you to fix it right away. These scams are common because passwords give attackers direct access to email, banking, shopping, and social media accounts.",
+    "Learn to identify phishing emails that attempt to steal your login credentials through fake security alerts and urgent requests.",
   tactics: [
     {
       name: "Urgency",
-      description:
-        "Phrases like 'Immediate action required' or 'Your account will be locked.'",
+      description: "Creates pressure with phrases like 'Immediate action required' or 'Your account will be locked.'",
     },
     {
-      name: "Fear",
-      description: "Claims of suspicious activity or unauthorized sign-ins.",
-    },
-    {
-      name: "Authority",
-      description:
-        "Pretending to be a security team, IT department, or trusted company.",
-    },
-    {
-      name: "Convenience",
-      description: "Promising a fast, one-click solution to the problem.",
+      name: "Fear & Authority",
+      description: "Uses official-sounding company names and security team impersonation.",
     },
   ],
   redFlags: [
-    "The email asks you to click a link to log in or reset your password.",
-    "The sender's address looks slightly off or unfamiliar.",
-    "The message does not use your name.",
-    "The link leads to a page that looks real but has a strange web address.",
-    "The email creates panic or demands immediate action.",
+    "Email asks you to click a link to log in or verify identity",
+    "Sender address looks slightly different from the real company",
+    "Generic greeting instead of your name",
+    "Suspicious URL that doesn't match the company domain",
   ],
   objective:
-    "The goal is to steal your login information. If you enter your username and password on a fake page, the attacker can take over your account, lock you out, use your account to scam others, or access personal or financial information.",
+    "Steal your login credentials to access your accounts and personal information.",
   examples: [
     {
       title: "Fake Security Alert",
-      body: '"We detected unusual activity on your account. For your protection, please verify your identity immediately to avoid suspension."',
-      redFlags: [
-        "Urgency",
-        "Vague 'unusual activity'",
-        "Login link in the email",
-      ],
-    },
-    {
-      title: "Password Reset Request",
-      body: '"Your password expires today. Click here to reset now."',
-      redFlags: [
-        "Pressure to act quickly",
-        "Generic language",
-        "Unexpected reset request",
-      ],
+      body: '"Unusual activity detected. Verify your account now."',
+      redFlags: ["Urgency", "Login link"],
     },
   ],
   preventionSteps: [
-    "Pause before clicking. Do not act on fear or urgency.",
-    "Check the sender. Look closely at the email address.",
-    "Verify safely. Open a new browser tab and go directly to the website instead of using the email link.",
-    "Use strong security. Enable multi-factor authentication (MFA) where available.",
-    "Report and delete. If it looks suspicious, report it and remove the email.",
+    "Pause before clicking any links",
+    "Verify the sender by checking the email address carefully",
+    "Go directly to the website instead of clicking email links",
+    "Enable two-factor authentication for extra security",
   ],
   quiz: {
-    question:
-      "You receive an email saying your account has suspicious activity and asking you to click a link to log in. What is the safest action?",
+    question: "You get an email asking you to verify your account. What should you do?",
     options: [
-      "Click the link and log in quickly",
+      "Click the link immediately",
+      "Open a new browser tab and go directly to the official website",
       "Reply to the email asking for more details",
-      "Open a new browser tab and sign in directly to the official website",
-      "Forward the email to friends to warn them",
+      "Forward it to your contacts",
     ],
-    correctIndex: 2,
-    explanation:
-      "Going directly to the website in a new tab avoids any fake login pages. Never click links in security alert emails.",
+    correctIndex: 1,
+    explanation: "Always verify by going directly to the official website in a new tab, never clicking email links.",
   },
 };
 
-const MODULE_ID = "module-3-account-password-traps";
-
 async function main() {
-  console.log("Seeding database...");
+  console.log("🌱 Seeding database...");
 
   // Create training module
-  const module3 = await prisma.trainingModule.upsert({
-    where: { id: MODULE_ID },
-    update: {
-      name: "Module 3: Account & Password Traps",
-      description:
-        "Learn to identify phishing emails that attempt to steal your login credentials.",
-      content: JSON.stringify(module3Content),
-      isActive: true,
-    },
+  const module = await prisma.trainingModule.upsert({
+    where: { id: "module-1-phishing-basics" },
+    update: {},
     create: {
-      id: MODULE_ID,
-      name: "Module 3: Account & Password Traps",
-      description:
-        "Learn to identify phishing emails that attempt to steal your login credentials.",
-      content: JSON.stringify(module3Content),
+      id: "module-1-phishing-basics",
+      name: "Module 1: Phishing Basics",
+      description: "Learn to identify phishing emails and protect your accounts.",
+      content: JSON.stringify(trainingModuleContent),
       isActive: true,
     },
   });
-  console.log("Created training module:", module3.name);
+  console.log("✅ Created training module:", module.name);
 
-  // Create demo user
-  const demoUser = await prisma.user.upsert({
+  // Create demo manager
+  const manager = await prisma.user.upsert({
     where: { email: "phishwise0@gmail.com" },
-    update: {},
+    update: { role: "MANAGER" },
     create: {
       email: "phishwise0@gmail.com",
-      name: "Demo Manager",
+      name: "Sarah Johnson",
       role: "MANAGER",
     },
   });
-  console.log("Created demo user:", demoUser.email);
+  console.log("✅ Created manager:", manager.email);
 
   // Create demo school
-  const demoSchool = await prisma.school.upsert({
-    where: { inviteCode: "DEMO2025" },
+  const school = await prisma.school.upsert({
+    where: { inviteCode: "SPRINGDALE25" },
     update: {},
     create: {
-      name: "PhishWise Demo School",
-      inviteCode: "DEMO2025",
-      createdBy: demoUser.id,
+      name: "Springdale Community Group",
+      inviteCode: "SPRINGDALE25",
+      createdBy: manager.id,
+      frequency: "weekly",
     },
   });
-  console.log("Created demo school:", demoSchool.name);
+  console.log("✅ Created school:", school.name);
 
-  // Link user to school
+  // Link manager to school
   await prisma.user.update({
-    where: { id: demoUser.id },
-    data: { schoolId: demoSchool.id },
+    where: { id: manager.id },
+    data: { schoolId: school.id },
   });
 
   // Create demo campaign
-  const demoCampaign = await prisma.campaign.upsert({
-    where: { id: "demo-campaign-001" },
+  const campaign = await prisma.campaign.upsert({
+    where: { id: "campaign-1" },
     update: {},
     create: {
-      id: "demo-campaign-001",
-      name: "Demo Campaign",
-      schoolId: demoSchool.id,
-      scheduleType: "random",
+      id: "campaign-1",
+      name: "Ongoing Security Awareness",
+      schoolId: school.id,
+      scheduleType: "weekly",
       status: "active",
     },
   });
-  console.log("Created demo campaign:", demoCampaign.name);
+  console.log("✅ Created campaign:", campaign.name);
 
-  // Create demo template
-  const demoTemplate = await prisma.template.upsert({
-    where: { id: "demo-template-001" },
+  // Create email templates
+  const template1 = await prisma.template.upsert({
+    where: { id: "template-1" },
     update: {},
     create: {
-      id: "demo-template-001",
-      moduleId: MODULE_ID,
+      id: "template-1",
+      moduleId: module.id,
       name: "Security Alert Template",
       subject: "Unusual Sign-In Attempt Detected",
-      body: `<div style="font-family: sans-serif; max-width: 500px; margin: 0 auto;">
-        <p>Hello,</p>
-        <p>We detected an unusual sign-in attempt on your account from a new device.</p>
-        <p>For your protection, access to your account has been temporarily limited. 
-        Please verify your identity to restore full access.</p>
-        <p><a href="{{tracking_url}}" style="background:#1d4ed8;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;">
-          Verify your account now
+      body: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2>Security Alert</h2>
+        <p>We detected an unusual sign-in attempt on your account from a new location.</p>
+        <p>For your protection, please verify your identity:</p>
+        <p><a href="{{tracking_url}}" style="background:#2563eb;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
+          Verify Account
         </a></p>
-        <p>If no action is taken within 24 hours, your account may be suspended.</p>
-        <p>Account Security Team</p>
+        <p style="color:#666;font-size:12px;">If you did not make this request, ignore this email.</p>
       </div>`,
       difficulty: 1,
       isActive: true,
     },
   });
-  console.log("Created demo template:", demoTemplate.name);
 
-  // Create demo simulation email (already clicked)
-  const existingSimEmail = await prisma.simulationEmail.findFirst({
-    where: { token: "demo-token-001" },
+  const template2 = await prisma.template.upsert({
+    where: { id: "template-2" },
+    update: {},
+    create: {
+      id: "template-2",
+      moduleId: module.id,
+      name: "Password Reset Template",
+      subject: "Your password has expired",
+      body: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2>Password Update Required</h2>
+        <p>Your password will expire today. Please update it now.</p>
+        <p><a href="{{tracking_url}}" style="background:#2563eb;color:white;padding:10px 20px;text-decoration:none;border-radius:4px;display:inline-block;">
+          Reset Password
+        </a></p>
+      </div>`,
+      difficulty: 1,
+      isActive: true,
+    },
   });
 
-  if (!existingSimEmail) {
-    await prisma.simulationEmail.create({
-      data: {
-        userId: demoUser.id,
-        campaignId: demoCampaign.id,
-        templateId: demoTemplate.id,
-        token: "demo-token-001",
-        clicked: true,
-        clickedAt: new Date("2025-02-10T10:23:00Z"),
-        sentAt: new Date("2025-02-10T08:00:00Z"),
-        opened: true,
-      },
-    });
-    console.log("Created demo simulation email (clicked)");
-  }
+  console.log("✅ Created email templates");
 
-  // Create additional demo simulation emails (not clicked) for history
-  const additionalEmails = [
-    { token: "demo-token-002", sentAt: new Date("2025-02-15T08:00:00Z"), clicked: false },
-    { token: "demo-token-003", sentAt: new Date("2025-02-20T08:00:00Z"), clicked: false },
-    { token: "demo-token-004", sentAt: new Date("2025-02-25T08:00:00Z"), clicked: false },
+  // Create 7 demo students (including ptribble@outlook.com)
+  const students = [
+    { email: "ptribble@outlook.com", name: "Your Demo Account", clickRate: 0.4 },
+    { email: "alice.thompson@springdale.org", name: "Alice Thompson", clickRate: 0.6 },
+    { email: "bob.martinez@springdale.org", name: "Bob Martinez", clickRate: 0.2 },
+    { email: "carol.williams@springdale.org", name: "Carol Williams", clickRate: 0.4 },
+    { email: "david.chen@springdale.org", name: "David Chen", clickRate: 0.1 },
+    { email: "emma.taylor@springdale.org", name: "Emma Taylor", clickRate: 0.5 },
+    { email: "frank.johnson@springdale.org", name: "Frank Johnson", clickRate: 0.3 },
   ];
 
-  for (const email of additionalEmails) {
-    const existing = await prisma.simulationEmail.findFirst({
-      where: { token: email.token },
+  for (const studentData of students) {
+    const user = await prisma.user.upsert({
+      where: { email: studentData.email },
+      update: {},
+      create: {
+        email: studentData.email,
+        name: studentData.name,
+        role: "USER",
+        schoolId: school.id,
+      },
     });
-    if (!existing) {
+
+    // Create 8 simulations over 45 days
+    const now = new Date();
+    let sent = 0;
+    let clicked = 0;
+
+    for (let i = 0; i < 8; i++) {
+      const daysAgo = Math.floor(Math.random() * 45);
+      const sentAt = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+      const isClicked = Math.random() < studentData.clickRate;
+      const template = i % 2 === 0 ? template1 : template2;
+
       await prisma.simulationEmail.create({
         data: {
-          userId: demoUser.id,
-          campaignId: demoCampaign.id,
-          templateId: demoTemplate.id,
-          token: email.token,
-          clicked: email.clicked,
-          sentAt: email.sentAt,
-          opened: false,
+          userId: user.id,
+          campaignId: campaign.id,
+          templateId: template.id,
+          token: `sim-${user.id}-${i}-${Date.now()}`,
+          sentAt,
+          clicked: isClicked,
+          clickedAt: isClicked ? new Date(sentAt.getTime() + Math.random() * 3600000) : null,
+          opened: Math.random() < 0.7,
         },
       });
+
+      sent++;
+      if (isClicked) clicked++;
     }
-  }
-  console.log("Created additional demo simulation emails");
 
-  // Create demo user training (incomplete - pending)
-  const existingTraining = await prisma.userTraining.findFirst({
-    where: { userId: demoUser.id, moduleId: MODULE_ID },
-  });
-
-  if (!existingTraining) {
-    await prisma.userTraining.create({
-      data: {
-        userId: demoUser.id,
-        moduleId: MODULE_ID,
-        assignedAt: new Date("2025-02-10T10:30:00Z"),
-        completedAt: null,
+    // Create user metrics
+    await prisma.userMetrics.upsert({
+      where: { userId: user.id },
+      update: {
+        totalSent: sent,
+        totalClicked: clicked,
+        lastActivity: now,
       },
-    });
-    console.log("Created demo user training (incomplete)");
-  }
-
-  // Create demo user metrics
-  const existingMetrics = await prisma.userMetrics.findUnique({
-    where: { userId: demoUser.id },
-  });
-
-  if (!existingMetrics) {
-    await prisma.userMetrics.create({
-      data: {
-        userId: demoUser.id,
-        totalSent: 4,
-        totalClicked: 1,
-        totalReported: 0,
+      create: {
+        userId: user.id,
+        totalSent: sent,
+        totalClicked: clicked,
         totalCompleted: 0,
-        lastActivity: new Date("2025-02-10T10:23:00Z"),
+        lastActivity: now,
       },
     });
-    console.log("Created demo user metrics");
-  } else {
-    // Update existing metrics
-    await prisma.userMetrics.update({
-      where: { userId: demoUser.id },
-      data: {
-        totalSent: 4,
-        totalClicked: 1,
-        totalReported: 0,
-        totalCompleted: 0,
+
+    // Assign training (some completed)
+    const isCompleted = Math.random() < 0.5;
+    await prisma.userTraining.upsert({
+      where: {
+        userId_moduleId: {
+          userId: user.id,
+          moduleId: module.id,
+        },
+      },
+      update: {},
+      create: {
+        userId: user.id,
+        moduleId: module.id,
+        assignedAt: new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000),
+        completedAt: isCompleted ? new Date(now.getTime() - Math.random() * 20 * 24 * 60 * 60 * 1000) : null,
       },
     });
-    console.log("Updated demo user metrics");
   }
 
-  // Create another demo user for associated users display
-  const demoUser2 = await prisma.user.upsert({
-    where: { email: "john.doe@uark.edu" },
-    update: {},
-    create: {
-      email: "john.doe@uark.edu",
-      name: "John Doe",
-      role: "USER",
-      schoolId: demoSchool.id,
-    },
-  });
+  console.log(`✅ Created ${students.length} demo students with simulation history`);
 
-  const demoUser3 = await prisma.user.upsert({
-    where: { email: "jane.smith@uark.edu" },
-    update: {},
-    create: {
-      email: "jane.smith@uark.edu",
-      name: "Jane Smith",
-      role: "MANAGER",
-      schoolId: demoSchool.id,
-    },
-  });
-  console.log("Created additional demo users for team display");
-
-  console.log("\n=== Demo data seeding complete! ===");
-  console.log("Demo user email: phishwise0@gmail.com");
-  console.log("Demo school invite code: DEMO2025");
-  console.log("Demo tracking token: demo-token-001");
+  console.log("\n🎉 Demo data seeding complete!\n");
+  console.log("📧 Manager Account:");
+  console.log("   Email: phishwise0@gmail.com");
+  console.log("   School: Springdale Community Group");
+  console.log("   Invite Code: SPRINGDALE25");
+  console.log("\n👤 Your Demo Student Account:");
+  console.log("   Email: ptribble@outlook.com");
+  console.log("   (Use this for testing)");
+  console.log("\n✨ Ready to test!\n");
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("❌ Seeding failed:", e);
     process.exit(1);
   })
   .finally(async () => {

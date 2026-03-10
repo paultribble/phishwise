@@ -37,7 +37,6 @@ export async function GET(
         data: {
           clicked: true,
           clickedAt: new Date(),
-          status: "completed",
         },
       });
 

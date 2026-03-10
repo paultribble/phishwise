@@ -32,7 +32,6 @@ export async function GET(
         where: { id: simEmail.id },
         data: {
           opened: true,
-          openedAt: new Date(),
         },
       });
 

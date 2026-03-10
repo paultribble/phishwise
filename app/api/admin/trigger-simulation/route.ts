@@ -8,16 +8,13 @@ import { generateTrackingToken, getRecentTemplateIds, selectTemplate } from "@/l
 /**
  * POST /api/admin/trigger-simulation
  * Manually trigger a phishing simulation for a specific user.
- * Requires admin role or email in ADMIN_EMAILS.
+ * Requires MANAGER or ADMIN role, and must belong to the same school.
  */
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
-  // Check admin authorization
-  const adminEmails = process.env.ADMIN_EMAILS?.split(",") || [];
-  const isAdmin = session?.user?.role === "ADMIN" || adminEmails.includes(session?.user?.email || "");
-
-  if (!isAdmin) {
+  // Check authorization
+  if (!session?.user || !["MANAGER", "ADMIN"].includes(session.user.role)) {
     return NextResponse.json(
       { error: "Unauthorized" },
       { status: 403 }
@@ -54,6 +51,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // For managers, verify they belong to this school
+    if (session.user.role === "MANAGER") {
+      const manager = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { schoolId: true },
+      });
+      if (manager?.schoolId !== user.schoolId) {
+        return NextResponse.json(
+          { error: "You can only send simulations to users in your school" },
+          { status: 403 }
+        );
+      }
+    }
+
     // Select template
     const recentIds = await getRecentTemplateIds(user.id);
     const template = await selectTemplate(user.id, recentIds);
@@ -74,9 +85,8 @@ export async function POST(req: NextRequest) {
       campaign = await prisma.campaign.create({
         data: {
           schoolId: user.school.id,
-          name: `Manual Trigger Campaign - ${new Date().toISOString()}`,
+          name: `Ongoing Security Awareness`,
           scheduleType: "manual",
-          status: "active",
         },
       });
     }
@@ -89,7 +99,6 @@ export async function POST(req: NextRequest) {
         campaignId: campaign.id,
         templateId: template.id,
         token,
-        status: "sent",
       },
     });
 
@@ -100,40 +109,20 @@ export async function POST(req: NextRequest) {
       subject: template.subject,
       htmlBody: template.body,
       trackingToken: token,
-      fromAddress: template.fromAddress ?? undefined,
     });
 
     if (!sendResult.success) {
-      await prisma.simulationEmail.update({
-        where: { id: simEmail.id },
-        data: { status: "failed" },
-      });
-
       return NextResponse.json(
         { error: `Failed to send email: ${sendResult.error}` },
         { status: 500 }
       );
     }
 
-    // Update user's lastSimulation
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastSimulation: new Date() },
-    });
-
-    // Update metrics and history
+    // Update metrics
     await prisma.userMetrics.upsert({
       where: { userId: user.id },
       update: { totalSent: { increment: 1 }, lastActivity: new Date() },
       create: { userId: user.id, totalSent: 1 },
-    });
-
-    await prisma.userHistory.create({
-      data: {
-        userId: user.id,
-        actionType: "simulation_sent",
-        detail: "Manual trigger by admin",
-      },
     });
 
     return NextResponse.json({

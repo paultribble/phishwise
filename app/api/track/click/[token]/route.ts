@@ -12,7 +12,7 @@ export async function GET(
 ) {
   const token = params.token;
 
-  if (!token) {
+  if (!token || !token.startsWith("tk_")) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 

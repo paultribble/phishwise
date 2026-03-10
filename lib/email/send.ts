@@ -26,6 +26,14 @@ export async function sendPhishingEmail({
   clickTrackingUrl,
 }: PhishingEmailOptions) {
   try {
+    // Validate required fields
+    if (!to || !subject || !htmlBody || !trackingToken) {
+      return {
+        success: false,
+        error: "Missing required fields: to, subject, htmlBody, or trackingToken",
+      };
+    }
+
     // Build the click tracking URL if not provided
     const clickUrl = clickTrackingUrl || `/api/track/click/${trackingToken}`;
 

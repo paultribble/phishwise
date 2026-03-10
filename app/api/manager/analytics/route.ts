@@ -90,24 +90,41 @@ export async function GET(req: NextRequest) {
       ? templateStats.reduce((prev, curr) => (curr._count.id > prev._count.id ? curr : prev))
       : null;
 
-    // Get user performance
-    const userPerformance = schoolUsers.map((u) => {
-      const sent = u.metrics?.totalSent ?? 0;
-      const clicked = u.metrics?.totalClicked ?? 0;
-      const clickRate = sent > 0 ? Math.round((clicked / sent) * 100) : 0;
+    // Get user performance with trainings completed
+    const userPerformance = await Promise.all(
+      schoolUsers.map(async (u) => {
+        const sent = u.metrics?.totalSent ?? 0;
+        const clicked = u.metrics?.totalClicked ?? 0;
+        const clickRate = sent > 0 ? Math.round((clicked / sent) * 100) : 0;
 
-      return {
-        userId: u.id,
-        name: u.name ?? "Unknown",
-        email: u.email ?? "",
-        totalSent: sent,
-        totalClicked: clicked,
-        clickRate,
-        lastSimulation: u.lastSimulation ?? null,
-        trainingsCompleted: 0, // TODO: calculate from UserTraining
-        trend: 0, // TODO: calculate 30-day trend
-      };
-    });
+        // Count completed trainings
+        const trainingsCompleted = await prisma.userTraining.count({
+          where: { userId: u.id, completedAt: { not: null } },
+        });
+
+        // Calculate 30-day trend (simple: clicks in last 30 days / sent in last 30 days)
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const recentClicks = await prisma.simulationEmail.count({
+          where: { userId: u.id, clicked: true, sentAt: { gte: thirtyDaysAgo } },
+        });
+        const recentSent = await prisma.simulationEmail.count({
+          where: { userId: u.id, sentAt: { gte: thirtyDaysAgo } },
+        });
+        const trend = recentSent > 0 ? Math.round((recentClicks / recentSent) * 100) : 0;
+
+        return {
+          userId: u.id,
+          name: u.name ?? "Unknown",
+          email: u.email ?? "",
+          totalSent: sent,
+          totalClicked: clicked,
+          clickRate,
+          lastSimulation: u.lastSimulation ?? null,
+          trainingsCompleted,
+          trend,
+        };
+      })
+    );
 
     // Get recent activity
     const recentActivity = await prisma.userHistory.findMany({

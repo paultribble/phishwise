@@ -47,11 +47,20 @@ export async function selectEligibleUsers() {
     });
 
     for (const user of users) {
-      const lastSimMs = user.lastSimulation?.getTime() ?? 0;
-      if (lastSimMs < minTime || lastSimMs > maxTime) {
+      // If user has never had a simulation, send them one
+      if (!user.lastSimulation) {
+        eligibleUsers.push({ ...user, schoolId: school.id });
         continue;
       }
-      eligibleUsers.push({ ...user, schoolId: school.id });
+
+      // Check if enough time has passed since last simulation (with ±20% randomization window)
+      const lastSimMs = user.lastSimulation.getTime();
+      const timeSinceLastSim = now.getTime() - lastSimMs;
+
+      // User is eligible if time since last sim is within the window
+      if (timeSinceLastSim >= minTime && timeSinceLastSim <= maxTime) {
+        eligibleUsers.push({ ...user, schoolId: school.id });
+      }
     }
   }
 

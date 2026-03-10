@@ -1,0 +1,95 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+
+/**
+ * GET /api/track/click/[token]
+ * Handles click tracking for phishing simulation emails.
+ * Updates metrics, creates history, and redirects to training module.
+ */
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { token: string } }
+) {
+  const token = params.token;
+
+  if (!token) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
+  try {
+    const simEmail = await prisma.simulationEmail.findUnique({
+      where: { token },
+      include: {
+        template: { select: { moduleId: true } },
+        user: { select: { id: true, name: true } },
+      },
+    });
+
+    if (!simEmail) {
+      console.error("Simulation email not found for token:", token);
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    // Mark as clicked if not already
+    if (!simEmail.clicked) {
+      await prisma.simulationEmail.update({
+        where: { id: simEmail.id },
+        data: {
+          clicked: true,
+          clickedAt: new Date(),
+          status: "completed",
+        },
+      });
+
+      // Create history record
+      await prisma.userHistory.create({
+        data: {
+          userId: simEmail.userId,
+          actionType: "simulation_clicked",
+          detail: `Clicked simulation email (template: ${simEmail.template.moduleId})`,
+        },
+      });
+
+      // Update metrics
+      await prisma.userMetrics.upsert({
+        where: { userId: simEmail.userId },
+        update: {
+          totalClicked: { increment: 1 },
+          lastActivity: new Date(),
+        },
+        create: {
+          userId: simEmail.userId,
+          totalClicked: 1,
+        },
+      });
+
+      // Create/update UserTraining record
+      const existingTraining = await prisma.userTraining.findUnique({
+        where: {
+          userId_moduleId: {
+            userId: simEmail.userId,
+            moduleId: simEmail.template.moduleId,
+          },
+        },
+      });
+
+      if (!existingTraining) {
+        await prisma.userTraining.create({
+          data: {
+            userId: simEmail.userId,
+            moduleId: simEmail.template.moduleId,
+            assignedAt: new Date(),
+          },
+        });
+      }
+    }
+
+    // Redirect to training module
+    return NextResponse.redirect(
+      new URL(`/training/${simEmail.template.moduleId}?token=${token}`, req.url)
+    );
+  } catch (error) {
+    console.error("Click tracking error:", error);
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+}

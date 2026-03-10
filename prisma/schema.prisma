@@ -52,6 +52,7 @@ model User {
   role          Role      @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  lastSimulation DateTime?
 
   schoolId String?
   school   School? @relation(fields: [schoolId], references: [id])
@@ -76,6 +77,8 @@ model School {
   inviteCode String   @unique
   createdBy  String
   createdAt  DateTime @default(now())
+  frequency  String   @default("weekly")
+  autoAssignTraining Boolean @default(false)
 
   users     User[]
   campaigns Campaign[]
@@ -89,8 +92,10 @@ model SimulationEmail {
   token      String    @unique
   sentAt     DateTime  @default(now())
   opened     Boolean   @default(false)
+  openedAt   DateTime?
   clicked    Boolean   @default(false)
   clickedAt DateTime?
+  status     String    @default("sent")
   reportedAt DateTime?
   completedAt DateTime?
 
@@ -105,6 +110,7 @@ model Template {
   name       String
   subject    String
   body       String @db.Text
+  fromAddress String?
   difficulty Int    @default(1)
   isActive   Boolean @default(true)
   createdAt  DateTime @default(now())

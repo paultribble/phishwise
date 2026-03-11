@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma db push --skip-generate && next build",
+    "build": "npm run db:migrate && next build",
+    "postbuild": "npm run db:seed",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint",
+    "db:migrate": "prisma db push --force-reset || true",
     "db:generate": "prisma generate",
     "db:push": "dotenv -e .env.local prisma db push --accept-data-loss",
     "db:studio": "prisma studio",

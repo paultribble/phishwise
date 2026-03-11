@@ -8,7 +8,12 @@
       "Bash(npx next build)",
       "Bash(cd /c/Users/Ptribble/Desktop/Github\\\\ Linked\\\\ Projects/phishwise && npm run lint 2>&1 | head -100)",
       "Bash(cd /c/Users/Ptribble/Desktop/Github\\\\ Linked\\\\ Projects/phishwise && find . -name \"*.ts\" -path \"*/api/*\" -exec grep -l \"getServerSession\" {} \\\\; | head -15)",
-      "Bash(cd /c/Users/Ptribble/Desktop/Github\\\\ Linked\\\\ Projects/phishwise && grep -n \"as Role\" lib/auth.ts app/api/**/*.ts 2>/dev/null | head -10)"
+      "Bash(cd /c/Users/Ptribble/Desktop/Github\\\\ Linked\\\\ Projects/phishwise && grep -n \"as Role\" lib/auth.ts app/api/**/*.ts 2>/dev/null | head -10)",
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && npm run db:migrate 2>&1 | head -50)",
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && npm run db:seed 2>&1)",
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && npm run db:migrate 2>&1)",
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && rm prisma/seed.ts)",
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && npm run db:migrate 2>&1 && echo \"✅ Migration successful\")"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -205,3 +205,17 @@ model UserMetrics {
 
   @@index([userId])
 }
+
+model UserHistory {
+  id         String   @id @default(cuid())
+  userId     String
+  actionType String
+  detail     String?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([actionType])
+  @@index([createdAt])
+}

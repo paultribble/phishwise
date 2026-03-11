@@ -31,6 +31,7 @@ async function main() {
 
   console.log('🧹 Cleaning existing data...');
   await prisma.userMetrics.deleteMany();
+  await prisma.userHistory.deleteMany();
   await prisma.userTraining.deleteMany();
   await prisma.simulationEmail.deleteMany();
   await prisma.campaign.deleteMany();

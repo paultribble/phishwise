@@ -73,6 +73,7 @@ model User {
   school          School?           @relation(fields: [schoolId], references: [id], onDelete: SetNull)
   simulations     SimulationEmail[]
   trainingHistory UserTraining[]
+  history         UserHistory[]
   metrics         UserMetrics?
 
   @@index([email])

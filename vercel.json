@@ -1,13 +1,4 @@
 {
   "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "crons": [
-    {
-      "path": "/api/scheduler/send-simulations",
-      "schedule": "0 */6 * * *"
-    }
-  ],
-  "env": {
-    "SCHEDULER_SECRET": "@scheduler_secret"
-  }
+  "installCommand": "npm install"
 }

@@ -238,3 +238,64 @@ curl -X POST https://phishwise.vercel.app/api/scheduler/send-simulations \
 
 **Last Updated:** March 13, 2026
 **Deployment Model:** Vercel Prisma Postgres with branch-specific auto-detection
+
+---
+
+## GitHub Actions Scheduler Setup
+
+Instead of Vercel Cron (limited on Hobby plan), the scheduler runs via **GitHub Actions** — free and unlimited.
+
+### How it Works
+
+1. **GitHub Actions workflow** (`.github/workflows/scheduler.yml`) runs every 6 hours
+2. Makes HTTP request to `/api/scheduler/send-simulations` endpoint
+3. Passes `SCHEDULER_SECRET` in Authorization header
+4. Works on Hobby plan (no upgrade needed)
+
+### Setup (One-Time)
+
+1. **Add GitHub Secrets**
+   - Go to: **GitHub repo** → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+   - Create two secrets:
+     - `SCHEDULER_SECRET_PROD` = [your production 32-byte secret]
+     - `SCHEDULER_SECRET_STAGING` = [your staging 32-byte secret]
+
+2. **Verify Workflow**
+   - Go to **Actions** tab in GitHub
+   - See "PhishWise Email Scheduler" workflow
+   - It runs automatically every 6 hours (UTC)
+
+3. **Manual Trigger** (for testing)
+   - Go to **Actions** → **PhishWise Email Scheduler**
+   - Click **Run workflow** → **Run workflow**
+   - Check results in workflow logs
+
+### What the Workflow Does
+
+- **On `main` branch**: Calls `https://phishwise.vercel.app/api/scheduler/send-simulations` with `SCHEDULER_SECRET_PROD`
+- **On `Pauls-Branch`**: Calls `https://phishwise-pauls-branch.vercel.app/api/scheduler/send-simulations` with `SCHEDULER_SECRET_STAGING`
+- Runs every 6 hours automatically
+- Can be triggered manually from Actions tab
+
+### Monitoring
+
+1. Go to **GitHub** → **Actions** tab
+2. Click **PhishWise Email Scheduler**
+3. See past runs and their status
+4. Click a run to see logs and API response
+
+### If Emails Aren't Sending
+
+1. Check **Actions** logs for errors
+2. Verify `SCHEDULER_SECRET_PROD` and `SCHEDULER_SECRET_STAGING` are set in GitHub Secrets
+3. Confirm Vercel deployment URLs are correct
+4. Check Vercel logs for `/api/scheduler/send-simulations` errors
+
+---
+
+**Scheduler Summary**
+- ✅ No Vercel Cron subscription needed
+- ✅ Free and unlimited on GitHub Actions
+- ✅ Runs every 6 hours automatically
+- ✅ Can be triggered manually anytime
+- ✅ Works on Hobby plan

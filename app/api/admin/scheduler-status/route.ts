@@ -28,8 +28,10 @@ export async function GET(req: NextRequest) {
 
     const recentActivity = await prisma.userHistory.findMany({
       where: {
-        actionType: "simulation_sent",
-        createdAt: { gte: sevenDaysAgo },
+        AND: [
+          { actionType: "simulation_sent" },
+          { createdAt: { gte: sevenDaysAgo } },
+        ],
       },
       orderBy: { createdAt: "desc" },
       take: 50,

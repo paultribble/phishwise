@@ -28,7 +28,12 @@
       "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && DATABASE_URL=\"postgresql://user:pass@localhost/db\" npx tsc --noEmit app/api/auth/register/route.ts --skipLibCheck 2>&1 || echo \"Note: tsc verification \\(may fail due to missing types\\)\")",
       "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && npm run lint 2>&1)",
       "Bash(/tmp/oauth_refactor_summary.md:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && DATABASE_URL=\"postgresql://user:pass@localhost/db\" npx next build 2>&1 | grep -A 5 \"error\\\\|Error\\\\|failed\\\\|Failed\" | head -50)",
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && DATABASE_URL=\"postgresql://user:pass@localhost/db\" npx next build 2>&1 | tail -30)",
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && npm run db:generate)",
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && DATABASE_URL=\"postgresql://user:pass@localhost/db\" npx next build 2>&1 | tail -20)",
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && DATABASE_URL=\"postgresql://user:pass@localhost/db\" NEXTAUTH_SECRET=\"test-secret-for-build\" npx next build 2>&1 | tail -20)"
     ]
   },
   "enableAllProjectMcpServers": true,

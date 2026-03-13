@@ -93,13 +93,20 @@ Learn from actual phishing attempts that have compromised organizations.`,
   ];
 
   const createdModules = await Promise.all(
-    modules.map((module) =>
-      prisma.trainingModule.upsert({
+    modules.map(async (module) => {
+      const existing = await prisma.trainingModule.findFirst({
         where: { name: module.name },
-        update: module,
-        create: module,
-      })
-    )
+      });
+      if (existing) {
+        return prisma.trainingModule.update({
+          where: { id: existing.id },
+          data: module,
+        });
+      }
+      return prisma.trainingModule.create({
+        data: module,
+      });
+    })
   );
 
   console.log(`✅ Created ${createdModules.length} training modules`);
@@ -204,17 +211,12 @@ IT Support`,
   ];
 
   const createdTemplates = await Promise.all(
-    templates.map((template) =>
-      prisma.template.upsert({
-        where: { id: template.name }, // Using name as a proxy identifier
-        update: template,
-        create: template,
-      }).catch(() =>
-        prisma.template.create({
-          data: template,
-        })
-      )
-    )
+    templates.map(async (template) => {
+      // Create template (no upsert needed for demo data)
+      return prisma.template.create({
+        data: template,
+      });
+    })
   );
 
   console.log(`✅ Created ${createdTemplates.length} email templates`);

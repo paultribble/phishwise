@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
         userId: user.id,
         campaignId: campaign.id,
         templateId: template.id,
-        token,
+        trackingToken: token,
       },
     });
 
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
       userName: user.name || "User",
       subject: template.subject,
       htmlBody: template.body,
-      trackingToken: token,
+      trackingToken: trackingToken: token,
     });
 
     if (!sendResult.success) {

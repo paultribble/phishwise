@@ -1,26 +1,23 @@
 import { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { Role } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import * as bcryptjs from "bcryptjs";
 
 /**
  * NextAuth Configuration for PhishWise
  *
- * Setup:
- * 1. Google OAuth credentials from Google Cloud Console
- * 2. Environment variables:
- *    - NEXTAUTH_URL: Auto-set by Vercel per deployment
- *    - NEXTAUTH_SECRET: Random 32-byte secret (same across environments)
- *    - GOOGLE_CLIENT_ID: From Google Cloud Console
- *    - GOOGLE_CLIENT_SECRET: From Google Cloud Console
+ * Authentication: Email + Password with bcryptjs hashing
+ * Session: JWT strategy (stateless, no database sessions)
  *
- * See OAUTH_SETUP.md for detailed setup instructions
+ * Environment variables:
+ * - NEXTAUTH_URL: Auto-set by Vercel per deployment
+ * - NEXTAUTH_SECRET: Random 32-byte secret (same across environments)
  */
 
 // Validate required environment variables
 const validateEnvVars = () => {
-  const required = ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "NEXTAUTH_SECRET"];
+  const required = ["NEXTAUTH_SECRET"];
   const missing = required.filter((key) => !process.env[key]);
 
   if (missing.length > 0) {
@@ -35,21 +32,54 @@ const validateEnvVars = () => {
 validateEnvVars();
 
 export const authOptions: NextAuthOptions = {
-  // Use PrismaAdapter to store sessions/accounts in database
-  adapter: PrismaAdapter(prisma) as NextAuthOptions["adapter"],
-
   // JWT strategy for stateless sessions
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
-  // Google OAuth provider
+  // Credentials provider for email + password
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      allowDangerousEmailAccountLinking: false, // Prevent account takeover
+    CredentialsProvider({
+      id: "credentials",
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+            select: { id: true, email: true, name: true, password: true, role: true, schoolId: true },
+          });
+
+          if (!user || !user.password) {
+            return null;
+          }
+
+          const isValidPassword = await bcryptjs.compare(credentials.password, user.password);
+
+          if (!isValidPassword) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            schoolId: user.schoolId,
+          };
+        } catch (error) {
+          console.error("[NextAuth] Authorization error:", error);
+          return null;
+        }
+      },
     }),
   ],
 

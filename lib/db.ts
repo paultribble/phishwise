@@ -3,6 +3,10 @@ import { PrismaClient } from "@prisma/client";
 /**
  * Auto-detect and set DATABASE_URL based on environment
  * This runs before Prisma client is instantiated
+ *
+ * Vercel Prisma Postgres creates:
+ * - Production: PRISMA_DATABASE_URL
+ * - Staging: STAGING_PRISMA_DATABASE_URL
  */
 function setupDatabaseUrl() {
   // If DATABASE_URL is already set, use it (highest priority)
@@ -13,19 +17,19 @@ function setupDatabaseUrl() {
   const environment = process.env.ENVIRONMENT || "development";
 
   if (environment === "production") {
-    // Production (main branch)
-    process.env.DATABASE_URL = process.env.DATABASE_URL_PROD || "";
+    // Production (main branch) - use PRISMA_DATABASE_URL from phishwise-prod
+    process.env.DATABASE_URL = process.env.PRISMA_DATABASE_URL || "";
   } else if (environment === "staging") {
-    // Staging (branch deployments)
-    process.env.DATABASE_URL = process.env.DATABASE_URL_STAGING || "";
+    // Staging (branch deployments) - use STAGING_PRISMA_DATABASE_URL from phishwise-staging
+    process.env.DATABASE_URL = process.env.STAGING_PRISMA_DATABASE_URL || "";
   } else {
-    // Development (local)
-    process.env.DATABASE_URL = process.env.DATABASE_URL_PROD || "";
+    // Development (local) - prefer PRISMA_DATABASE_URL for testing
+    process.env.DATABASE_URL = process.env.PRISMA_DATABASE_URL || "";
   }
 
   if (!process.env.DATABASE_URL) {
     throw new Error(
-      `No database URL configured. Set DATABASE_URL, DATABASE_URL_PROD, or DATABASE_URL_STAGING`
+      `No database URL configured. Set PRISMA_DATABASE_URL or STAGING_PRISMA_DATABASE_URL`
     );
   }
 }

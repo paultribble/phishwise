@@ -6,18 +6,21 @@ This guide covers deploying PhishWise to Vercel with separate databases for `mai
 
 ## Quick Start: Vercel Deployment (One-Time Setup)
 
-### 1. Create Prisma Postgres Databases
+### 1. Prisma Postgres Databases Already Created
 
-1. **Go to Vercel Dashboard** → Select PhishWise project
-2. **Storage** → **Create** → **Prisma Postgres**
-3. **Create first database:**
-   - Name: `phishwise-prod`
-   - Region: Closest to you
-   - Copy `PRISMA_DATABASE_URL` value → Save as `DB_PROD`
-4. **Create second database:**
-   - Name: `phishwise-staging`
-   - Region: Same as prod
-   - Copy `STAGING_PRISMA_DATABASE_URL` value → Save as `DB_STAGING`
+Vercel Prisma Postgres has created these environment variables for both databases:
+
+**Production (phishwise-prod):**
+- `PRISMA_DATABASE_URL` — Connection string
+- `POSTGRES_URL` — Alternative connection string
+- `DATABASE_URL` — Standard Prisma env var
+
+**Staging (phishwise-staging):**
+- `STAGING_PRISMA_DATABASE_URL` — Connection string
+- `STAGING_POSTGRES_URL` — Alternative connection string
+- `STAGING_DATABASE_URL` — Standard env var
+
+The project auto-selects based on `ENVIRONMENT` variable (see Step 3).
 
 ### 2. Configure Google OAuth
 
@@ -45,11 +48,12 @@ openssl rand -base64 32  # SCHEDULER_SECRET_STAGING
 
 ### 4. Set Environment Variables in Vercel
 
-**Project Settings** → **Environment Variables** → Add these:
+**Project Settings** → **Environment Variables**
 
-**For `main` branch (applies to Production environment):**
+The production and staging database variables are already created. Just add the rest:
+
+**For `main` branch (Production environment):**
 ```
-DATABASE_URL_PROD = [DB_PROD value from phishwise-prod]
 ENVIRONMENT = production
 GOOGLE_CLIENT_ID = [your Client ID]
 GOOGLE_CLIENT_SECRET = [your Client Secret]
@@ -59,22 +63,13 @@ RESEND_API_KEY = [your Resend API key]
 ADMIN_EMAILS = phishwise0@gmail.com
 ```
 
-**For `Pauls-Branch` (applies to Preview environment):**
+**For `Pauls-Branch` (Preview environment):**
 ```
-DATABASE_URL_STAGING = [DB_STAGING value from phishwise-staging]
 ENVIRONMENT = staging
 GOOGLE_CLIENT_ID = [same as main]
 GOOGLE_CLIENT_SECRET = [same as main]
 NEXTAUTH_SECRET = [NEXTAUTH_SECRET_STAGING]
 SCHEDULER_SECRET = [SCHEDULER_SECRET_STAGING]
-RESEND_API_KEY = [your Resend API key]
-ADMIN_EMAILS = phishwise0@gmail.com
-```
-
-**For ALL branches (shared):**
-```
-GOOGLE_CLIENT_ID = [your Client ID]
-GOOGLE_CLIENT_SECRET = [your Client Secret]
 RESEND_API_KEY = [your Resend API key]
 ADMIN_EMAILS = phishwise0@gmail.com
 ```
@@ -85,12 +80,12 @@ ADMIN_EMAILS = phishwise0@gmail.com
 # Push main branch
 git push origin main
 # Vercel auto-deploys to https://phishwise.vercel.app
-# Uses phishwise-prod database + production env vars
+# Uses PRISMA_DATABASE_URL (phishwise-prod) + production env vars
 
 # Push Pauls-Branch
 git push origin Pauls-Branch
 # Vercel auto-deploys to https://phishwise-[hash].vercel.app
-# Uses phishwise-staging database + staging env vars
+# Uses STAGING_PRISMA_DATABASE_URL (phishwise-staging) + staging env vars
 ```
 
 ---
@@ -114,9 +109,9 @@ Click **Continue with Google** and sign in with either account.
 The project automatically detects which database to use based on the `ENVIRONMENT` variable:
 
 ```
-ENVIRONMENT=production  → Uses DATABASE_URL_PROD (phishwise-prod)
-ENVIRONMENT=staging     → Uses DATABASE_URL_STAGING (phishwise-staging)
-ENVIRONMENT=development → Uses DATABASE_URL (local only)
+ENVIRONMENT=production  → Uses PRISMA_DATABASE_URL (phishwise-prod)
+ENVIRONMENT=staging     → Uses STAGING_PRISMA_DATABASE_URL (phishwise-staging)
+ENVIRONMENT=development → Uses PRISMA_DATABASE_URL (local only)
 ```
 
 **No code changes needed.** Set the environment variables per branch in Vercel, and the app connects to the right database automatically.
@@ -193,14 +188,14 @@ curl -X POST https://phishwise.vercel.app/api/scheduler/send-simulations \
 - Check NEXTAUTH_SECRET is set (and different per branch)
 
 ### "Database connection failed"
-- Verify DATABASE_URL_PROD and DATABASE_URL_STAGING are set in Vercel
+- Verify PRISMA_DATABASE_URL and STAGING_PRISMA_DATABASE_URL are available in Vercel
 - Check ENVIRONMENT variable is set correctly (production vs staging)
 - Confirm Prisma Postgres databases are created in Vercel Storage
 
 ### Demo accounts missing
-- Check `/api/scheduler/send-simulations` for errors (Vercel Logs)
+- Check Vercel Logs for `/api/scheduler/send-simulations` errors
 - Verify Resend API key is valid
-- Manually seed: `npm run db:seed` (local environment)
+- Manually seed: `npm run db:seed` (requires local .env.local setup)
 
 ### Scheduler not sending emails
 - Verify SCHEDULER_SECRET is set in Vercel
@@ -211,35 +206,35 @@ curl -X POST https://phishwise.vercel.app/api/scheduler/send-simulations \
 
 ## Environment Variables Reference
 
-| Variable | Dev | Main (Prod) | Pauls-Branch (Staging) |
-|----------|-----|-------------|----------------------|
-| `ENVIRONMENT` | development | production | staging |
-| `DATABASE_URL` | From DB_PROD | (auto-selected) | (auto-selected) |
-| `DATABASE_URL_PROD` | DB_PROD | DB_PROD | DB_PROD |
-| `DATABASE_URL_STAGING` | DB_PROD | — | DB_STAGING |
-| `GOOGLE_CLIENT_ID` | Your Client ID | Same | Same |
-| `GOOGLE_CLIENT_SECRET` | Your Secret | Same | Same |
-| `NEXTAUTH_SECRET` | Unique 32-byte | Unique value | Different unique value |
-| `SCHEDULER_SECRET` | Unique 32-byte | Unique value | Different unique value |
-| `RESEND_API_KEY` | Your API key | Same | Same |
-| `ADMIN_EMAILS` | phishwise0@gmail.com | Same | Same |
+| Variable | Purpose | Prod Value | Staging Value |
+|----------|---------|-----------|---------------|
+| `ENVIRONMENT` | Env selector | `production` | `staging` |
+| `PRISMA_DATABASE_URL` | Prod database | Auto-created | Available |
+| `STAGING_PRISMA_DATABASE_URL` | Staging database | Available | Auto-created |
+| `GOOGLE_CLIENT_ID` | OAuth | Your Client ID | Same |
+| `GOOGLE_CLIENT_SECRET` | OAuth | Your Secret | Same |
+| `NEXTAUTH_SECRET` | Session encryption | Unique 32-byte | Different 32-byte |
+| `SCHEDULER_SECRET` | Cron auth | Unique 32-byte | Different 32-byte |
+| `RESEND_API_KEY` | Email sending | Your API key | Same |
+| `ADMIN_EMAILS` | Admin access | phishwise0@gmail.com | Same |
 
 ---
 
 ## Next Steps
 
-- ✅ Vercel project created
-- ✅ Databases set up (prod + staging)
-- ✅ Google OAuth configured
-- ✅ Environment variables configured
+- ✅ Prisma Postgres databases created
+- ✅ Database env variables auto-created by Vercel
+- ⏳ Configure remaining environment variables
 - ⏳ Deploy and test
 
-**Test the deployments:**
-1. Push `main` → Test at https://phishwise.vercel.app
-2. Push `Pauls-Branch` → Test at https://phishwise-[hash].vercel.app
-3. Both should use different databases and not interfere with each other
+**To complete setup:**
+1. Set ENVIRONMENT, NEXTAUTH_SECRET, SCHEDULER_SECRET for each branch
+2. Set GOOGLE_CLIENT_ID/SECRET (same for both)
+3. Set RESEND_API_KEY and ADMIN_EMAILS
+4. Push main and Pauls-Branch
+5. Test login at both deployment URLs
 
 ---
 
 **Last Updated:** March 13, 2026
-**Deployment Model:** Vercel Postgres with branch-specific auto-detection
+**Deployment Model:** Vercel Prisma Postgres with branch-specific auto-detection

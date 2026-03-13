@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
             userId: user.id,
             campaignId: campaign.id,
             templateId: template.id,
-            token,
+            trackingToken: token,
           },
         });
 

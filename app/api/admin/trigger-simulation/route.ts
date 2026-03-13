@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
       userName: user.name || "User",
       subject: template.subject,
       htmlBody: template.body,
-      trackingToken: trackingToken: token,
+      trackingToken: token,
     });
 
     if (!sendResult.success) {

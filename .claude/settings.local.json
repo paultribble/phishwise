@@ -38,7 +38,9 @@
       "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\\\\Modules\" && for doc in *.docx; do echo \"=== $doc ===\"; unzip -q \"$doc\" -d temp_extract 2>/dev/null && cat temp_extract/word/document.xml | sed 's/<[^>]*>//g' | sed 's/&[a-z]*;//g' | head -200; rm -rf temp_extract; echo; done)",
       "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && DATABASE_URL=\"postgresql://user:pass@localhost/db\" NEXTAUTH_SECRET=\"test-secret\" npx next build 2>&1 | tail -20)",
       "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && npm run lint 2>&1 && echo \"✅ Lint passed\")",
-      "Bash(ls -la \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\\" 2>/dev/null || ls -la \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\\\\app\")"
+      "Bash(ls -la \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\\" 2>/dev/null || ls -la \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\\\\app\")",
+      "Bash(cat > \"/c/Users/Ptribble/Desktop/Github Linked Projects/phishwise/.github/workflows/scheduler.yml\" << 'EOF'\nname: Phishing Simulation Scheduler\n\non:\n  schedule:\n    # Run every Monday, Wednesday, and Friday at 9:00 AM UTC\n    - cron: '0 9 * * 1,3,5'\n  # Also allow manual trigger via workflow_dispatch\n  workflow_dispatch:\n\njobs:\n  send-simulations:\n    runs-on: ubuntu-latest\n    steps:\n      - name: Send phishing simulations\n        run: |\n          curl -X POST \\\\\n            -H \"Content-Type: application/json\" \\\\\n            -H \"x-scheduler-secret: ${{ secrets.SCHEDULER_SECRET }}\" \\\\\n            \"${{ secrets.NEXTAUTH_URL }}/api/admin/scheduler/send\"\n        env:\n          SCHEDULER_SECRET: ${{ secrets.SCHEDULER_SECRET }}\n          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}\nEOF)",
+      "Bash(openssl rand:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

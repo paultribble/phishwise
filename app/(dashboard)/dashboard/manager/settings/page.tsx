@@ -26,6 +26,7 @@ type School = {
   inviteCode: string;
   frequency: string;
   autoAssignTraining: boolean;
+  enableScheduler: boolean;
 };
 
 export default function ManagerSettings() {
@@ -36,6 +37,7 @@ export default function ManagerSettings() {
   const [schoolName, setSchoolName] = useState("");
   const [frequency, setFrequency] = useState("weekly");
   const [autoAssignTraining, setAutoAssignTraining] = useState(false);
+  const [enableScheduler, setEnableScheduler] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -55,6 +57,7 @@ export default function ManagerSettings() {
           setSchoolName(data.user.school.name);
           setFrequency(data.user.school.frequency || "weekly");
           setAutoAssignTraining(data.user.school.autoAssignTraining || false);
+          setEnableScheduler(data.user.school.enableScheduler !== false);
         }
         setLoading(false);
       });
@@ -115,6 +118,17 @@ export default function ManagerSettings() {
       );
     }
 
+    // Save enableScheduler if changed
+    if (enableScheduler !== school.enableScheduler) {
+      updatePromises.push(
+        fetch(`/api/schools/${school.id}/scheduler`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ enableScheduler }),
+        })
+      );
+    }
+
     try {
       const results = await Promise.all(updatePromises);
       const failed = results.filter((r) => !r.ok);
@@ -125,7 +139,7 @@ export default function ManagerSettings() {
         setSaveSuccess(true);
         setSchool((prev) =>
           prev
-            ? { ...prev, name: schoolName, frequency, autoAssignTraining }
+            ? { ...prev, name: schoolName, frequency, autoAssignTraining, enableScheduler }
             : null
         );
         setTimeout(() => setSaveSuccess(false), 3000);
@@ -275,6 +289,20 @@ export default function ManagerSettings() {
               />
               <label htmlFor="auto-assign" className="text-sm font-medium text-gray-400">
                 Auto-assign training on first failure
+              </label>
+            </div>
+
+            {/* Enable Scheduler */}
+            <div className="flex items-center gap-3">
+              <input
+                id="enable-scheduler"
+                type="checkbox"
+                checked={enableScheduler}
+                onChange={(e) => setEnableScheduler(e.target.checked)}
+                className="h-4 w-4 cursor-pointer rounded border-gray-600 bg-gray-900 text-primary-600"
+              />
+              <label htmlFor="enable-scheduler" className="text-sm font-medium text-gray-400">
+                Enable automated phishing simulations
               </label>
             </div>
 

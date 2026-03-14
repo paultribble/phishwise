@@ -54,12 +54,10 @@ export async function GET(req: NextRequest) {
         },
       });
 
-      const existingTraining = await prisma.userTraining.findUnique({
+      const existingTraining = await prisma.userTraining.findFirst({
         where: {
-          userId_moduleId: {
-            userId: simEmail.userId,
-            moduleId,
-          },
+          userId: simEmail.userId,
+          moduleId,
         },
       });
 

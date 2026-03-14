@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,8 +14,10 @@ interface RedFlagData {
 }
 
 export default function CaughtPage() {
+  const params = useParams();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const moduleId = params.moduleId as string;
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<RedFlagData | null>(null);
 
@@ -165,7 +167,7 @@ export default function CaughtPage() {
 
           <div className="flex justify-center">
             <Link
-              href={`/training/module-3-account-password-traps?token=${token || "direct"}`}
+              href={`/training/${moduleId}?token=${token || "direct"}`}
             >
               <Button
                 size="lg"

@@ -1,8 +1,5 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-
-const MODULE_ID = "module-3-account-password-traps";
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
@@ -16,7 +13,8 @@ export async function GET(req: NextRequest) {
 
   try {
     const simEmail = await prisma.simulationEmail.findUnique({
-      where: { token },
+      where: { trackingToken: token },
+      include: { template: { include: { module: true } } },
     });
 
     if (!simEmail) {
@@ -26,33 +24,12 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const template = await prisma.template.findUnique({
-      where: { id: simEmail.templateId },
-    });
-
-    if (!simEmail) {
-      return NextResponse.json(
-        { error: "Simulation not found" },
-        { status: 404 }
-      );
-    }
-
-    const trainingModule = await prisma.trainingModule.findUnique({
-      where: { id: MODULE_ID },
-    });
-
-    if (!trainingModule) {
-      return NextResponse.json(
-        { error: "Module not found" },
-        { status: 404 }
-      );
-    }
-
+    const trainingModule = simEmail.template.module;
     const content = JSON.parse(trainingModule.content);
 
     return NextResponse.json({
-      subject: template?.subject || "Security Alert",
-      sender: "security@amaz0n-verify.com",
+      subject: simEmail.template.subject || "Security Alert",
+      sender: simEmail.template.fromAddress || "security@verify-account.com",
       redFlags: content.redFlags || [],
     });
   } catch (error) {

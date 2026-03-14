@@ -1,8 +1,5 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-
-const MODULE_ID = "module-3-account-password-traps";
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
@@ -13,9 +10,11 @@ export async function GET(req: NextRequest) {
 
   try {
     const simEmail = await prisma.simulationEmail.findUnique({
-      where: { token },
+      where: { trackingToken: token },
       include: {
-        campaign: true,
+        template: {
+          include: { module: true },
+        },
       },
     });
 
@@ -23,6 +22,8 @@ export async function GET(req: NextRequest) {
       console.error("Simulation email not found for token:", token);
       return NextResponse.redirect(new URL("/", req.url));
     }
+
+    const moduleId = simEmail.template.module.id;
 
     if (!simEmail.clicked) {
       await prisma.simulationEmail.update({
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
         data: {
           userId: simEmail.userId,
           actionType: "simulation_clicked",
-          detail: `Clicked simulation email token: ${token}`,
+          detail: `Clicked simulation email: ${simEmail.template.name}`,
         },
       });
 
@@ -57,7 +58,7 @@ export async function GET(req: NextRequest) {
         where: {
           userId_moduleId: {
             userId: simEmail.userId,
-            moduleId: MODULE_ID,
+            moduleId,
           },
         },
       });
@@ -66,7 +67,7 @@ export async function GET(req: NextRequest) {
         await prisma.userTraining.create({
           data: {
             userId: simEmail.userId,
-            moduleId: MODULE_ID,
+            moduleId,
             assignedAt: new Date(),
             completedAt: null,
           },
@@ -75,7 +76,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.redirect(
-      new URL(`/training/${MODULE_ID}/caught?token=${token}`, req.url)
+      new URL(`/training/${moduleId}/caught?token=${token}`, req.url)
     );
   } catch (error) {
     console.error("Track endpoint error:", error);

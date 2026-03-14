@@ -310,10 +310,10 @@ export default function ManagerDashboard() {
             </div>
             <div className="flex gap-2 shrink-0 flex-wrap">
               <Link
-                href="/training/module-3-account-password-traps"
+                href="/training"
                 className="rounded-md bg-success-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-success-700"
               >
-                Training Module
+                Training Modules
               </Link>
               <button
                 onClick={() => setShowTriggerModal(true)}

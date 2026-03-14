@@ -20,11 +20,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { userIds, moduleId } = await req.json();
+    const { userIds, userId, moduleId } = await req.json();
 
-    if (!Array.isArray(userIds) || !moduleId) {
+    // Support both single user (userId) and batch (userIds)
+    const usersToAssign = userId ? [userId] : userIds;
+
+    if (!Array.isArray(usersToAssign) || usersToAssign.length === 0 || !moduleId) {
       return NextResponse.json(
-        { error: "userIds (array) and moduleId (string) are required" },
+        { error: "userId or userIds (array) and moduleId (string) are required" },
         { status: 400 }
       );
     }
@@ -43,15 +46,15 @@ export async function POST(req: NextRequest) {
 
     let assignedCount = 0;
 
-    for (const userId of userIds) {
+    for (const assignUserId of usersToAssign) {
       // Upsert UserTraining record
       await prisma.userTraining.upsert({
         where: {
-          userId_moduleId: { userId, moduleId },
+          userId_moduleId: { userId: assignUserId, moduleId },
         },
         update: { assignedAt: new Date() },
         create: {
-          userId,
+          userId: assignUserId,
           moduleId,
         },
       });
@@ -59,7 +62,7 @@ export async function POST(req: NextRequest) {
       // Create history record
       await prisma.userHistory.create({
         data: {
-          userId,
+          userId: assignUserId,
           actionType: "training_assigned",
           detail: `Assigned module: ${moduleId}`,
         },

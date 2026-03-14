@@ -58,9 +58,9 @@ export function Hero() {
                 transitionDelay: "0ms",
               }}
             >
-              <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-semibold text-violet-400">
-                <span className="h-px w-6 bg-violet-500 inline-block" />
-                Security Awareness Training
+              <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] font-semibold text-blue-400">
+                <span className="h-px w-6 bg-blue-500 inline-block" />
+                Phishing Awareness Training
               </span>
             </div>
 
@@ -75,7 +75,7 @@ export function Hero() {
             >
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white leading-[1.04] tracking-tight">
                 Turn Your Biggest{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-600">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
                   Vulnerability
                 </span>{" "}
                 Into Your Strongest Defense
@@ -93,8 +93,8 @@ export function Hero() {
             >
               <p className="text-lg text-slate-300 leading-relaxed max-w-md">
                 PhishWise simulates real phishing attacks, identifies at-risk
-                employees, and automatically delivers targeted training — before
-                a real breach happens.
+                members, and automatically delivers targeted training — before
+                anyone falls for the real thing.
               </p>
             </div>
 
@@ -109,7 +109,7 @@ export function Hero() {
             >
               <a
                 href="#how-it-works"
-                className="inline-flex items-center gap-2 text-violet-400 hover:text-violet-300 transition-colors duration-150 font-medium group"
+                className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors duration-150 font-medium group"
               >
                 See how it works
                 <span className="transition-transform duration-200 group-hover:translate-y-0.5">↓</span>
@@ -158,7 +158,7 @@ function FloatingParticles() {
       {particles.map((p, i) => (
         <div
           key={i}
-          className="absolute rounded-full bg-violet-400 anim-float-a"
+          className="absolute rounded-full bg-blue-400 anim-float-a"
           style={{
             top: p.top,
             left: p.left,
@@ -220,11 +220,11 @@ function HeroAnimation() {
       <svg viewBox="0 0 380 300" className="w-full h-auto drop-shadow-2xl" preserveAspectRatio="xMidYMid meet">
         {/* Outer glow ring */}
         <ellipse cx="190" cy="160" rx="170" ry="130" fill="none"
-          stroke="rgba(109,40,217,0.2)" strokeWidth="1" className="sv-glow" />
+          stroke="rgba(37,99,235,0.2)" strokeWidth="1" className="sv-glow" />
 
         {/* Inbox panel */}
         <rect x="40" y="30" width="300" height="240" rx="14"
-          fill="rgba(26,26,46,0.85)" stroke="rgba(109,40,217,0.35)" strokeWidth="1.5" />
+          fill="rgba(26,26,46,0.85)" stroke="rgba(37,99,235,0.35)" strokeWidth="1.5" />
 
         {/* Panel header bar */}
         <rect x="40" y="30" width="300" height="36" rx="14" fill="rgba(31,31,56,0.9)" />
@@ -237,15 +237,15 @@ function HeroAnimation() {
         {/* Email rows */}
         <g className="sv-email">
           <rect x="58" y="80" width="264" height="46" rx="8" fill="rgba(37,37,64,0.7)"
-            stroke="rgba(109,40,217,0.15)" strokeWidth="1" />
+            stroke="rgba(37,99,235,0.15)" strokeWidth="1" />
           <rect x="72" y="92" width="110" height="7" rx="2" fill="rgba(148,163,184,0.5)" />
           <rect x="72" y="106" width="180" height="5" rx="1" fill="rgba(71,85,105,0.4)" />
-          <rect x="290" y="91" width="22" height="9" rx="2" fill="rgba(109,40,217,0.25)" />
+          <rect x="290" y="91" width="22" height="9" rx="2" fill="rgba(37,99,235,0.25)" />
         </g>
 
         <g className="sv-email">
           <rect x="58" y="138" width="264" height="46" rx="8" fill="rgba(37,37,64,0.7)"
-            stroke="rgba(109,40,217,0.15)" strokeWidth="1" />
+            stroke="rgba(37,99,235,0.15)" strokeWidth="1" />
           <rect x="72" y="150" width="130" height="7" rx="2" fill="rgba(148,163,184,0.5)" />
           <rect x="72" y="164" width="160" height="5" rx="1" fill="rgba(71,85,105,0.4)" />
         </g>

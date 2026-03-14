@@ -92,12 +92,12 @@ export default function LoginPage() {
         >
           {/* Heading */}
           <div className="text-center mb-8">
-            <p className="text-xs uppercase tracking-[0.18em] font-semibold text-violet-400 mb-3">
+            <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-3">
               Welcome Back
             </p>
             <h1 className="text-4xl font-bold text-white mb-3">
               Sign in to{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
                 PhishWise
               </span>
             </h1>
@@ -107,13 +107,13 @@ export default function LoginPage() {
           </div>
 
           {/* Card */}
-          <div className="relative rounded-xl border border-white/[0.06] hover:border-violet-600/30 bg-[#1a1a2e]/80 backdrop-blur-sm p-8 transition-colors duration-300">
+          <div className="relative rounded-xl border border-white/[0.06] hover:border-blue-600/30 bg-[#1a1a2e]/80 backdrop-blur-sm p-8 transition-colors duration-300">
             {/* Shimmer top line */}
             <div
               className="absolute top-0 left-6 right-6 h-px"
               style={{
                 background:
-                  "linear-gradient(90deg, transparent, rgba(109,40,217,0.6) 50%, transparent)",
+                  "linear-gradient(90deg, transparent, rgba(37,99,235,0.6) 50%, transparent)",
               }}
             />
 
@@ -132,7 +132,7 @@ export default function LoginPage() {
                   {...register("email")}
                   placeholder="you@example.com"
                   className="w-full px-4 py-2.5 bg-[#252540] border border-white/10 rounded-lg text-gray-200 placeholder-slate-500 text-sm
-                    focus:outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600/50
+                    focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/50
                     transition-colors duration-200 disabled:opacity-50"
                   disabled={loading}
                 />
@@ -155,7 +155,7 @@ export default function LoginPage() {
                   {...register("password")}
                   placeholder="••••••••"
                   className="w-full px-4 py-2.5 bg-[#252540] border border-white/10 rounded-lg text-gray-200 placeholder-slate-500 text-sm
-                    focus:outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600/50
+                    focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/50
                     transition-colors duration-200 disabled:opacity-50"
                   disabled={loading}
                 />
@@ -175,9 +175,9 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full px-6 py-2.5 bg-violet-700 hover:bg-violet-600 text-white text-sm font-semibold rounded-lg
+                className="w-full px-6 py-2.5 bg-blue-700 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg
                   transition-all duration-150 cursor-pointer
-                  shadow-[0_0_20px_rgba(109,40,217,0.35)] hover:shadow-[0_0_28px_rgba(109,40,217,0.55)]
+                  shadow-[0_0_20px_rgba(37,99,235,0.35)] hover:shadow-[0_0_28px_rgba(37,99,235,0.55)]
                   disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 {loading ? "Signing in…" : "Sign In"}
@@ -190,7 +190,7 @@ export default function LoginPage() {
                 Don&apos;t have an account?{" "}
                 <Link
                   href="/signup"
-                  className="text-violet-400 hover:text-violet-300 font-medium transition-colors"
+                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
                 >
                   Sign up free
                 </Link>

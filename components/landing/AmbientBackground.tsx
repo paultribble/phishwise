@@ -10,31 +10,31 @@ export function AmbientBackground({ variant = "default" }: { variant?: "default"
       {/* Dot grid */}
       <div className="absolute inset-0 dot-grid opacity-100" />
 
-      {/* Orb 1 — large violet blob top-left */}
+      {/* Orb 1 — large blue blob top-left */}
       <div
         className="anim-float-a absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full"
         style={{
-          background: "radial-gradient(circle at center, rgba(109,40,217,0.18) 0%, rgba(109,40,217,0.05) 50%, transparent 70%)",
+          background: "radial-gradient(circle at center, rgba(37,99,235,0.18) 0%, rgba(37,99,235,0.05) 50%, transparent 70%)",
           filter: "blur(40px)",
         }}
       />
 
-      {/* Orb 2 — medium blue/sky bottom-right */}
+      {/* Orb 2 — medium navy bottom-right */}
       <div
         className="anim-float-b absolute -bottom-24 -right-24 w-[420px] h-[420px] rounded-full"
         style={{
-          background: "radial-gradient(circle at center, rgba(56,189,248,0.12) 0%, rgba(56,189,248,0.03) 50%, transparent 70%)",
+          background: "radial-gradient(circle at center, rgba(30,58,138,0.18) 0%, rgba(30,58,138,0.05) 50%, transparent 70%)",
           filter: "blur(50px)",
           animationDelay: "3s",
         }}
       />
 
-      {/* Orb 3 — small violet accent center-right */}
+      {/* Orb 3 — small blue accent center-right */}
       {variant !== "subtle" && (
         <div
           className="anim-float-c absolute top-1/2 right-1/4 w-[240px] h-[240px] rounded-full"
           style={{
-            background: "radial-gradient(circle at center, rgba(124,58,237,0.12) 0%, transparent 70%)",
+            background: "radial-gradient(circle at center, rgba(59,130,246,0.12) 0%, transparent 70%)",
             filter: "blur(30px)",
             animationDelay: "1.5s",
           }}
@@ -45,7 +45,7 @@ export function AmbientBackground({ variant = "default" }: { variant?: "default"
       <div
         className="anim-scanline absolute left-0 right-0 h-[2px] pointer-events-none"
         style={{
-          background: "linear-gradient(90deg, transparent 0%, rgba(109,40,217,0.15) 30%, rgba(124,58,237,0.25) 50%, rgba(109,40,217,0.15) 70%, transparent 100%)",
+          background: "linear-gradient(90deg, transparent 0%, rgba(37,99,235,0.15) 30%, rgba(59,130,246,0.25) 50%, rgba(37,99,235,0.15) 70%, transparent 100%)",
           animationDuration: "12s",
         }}
       />

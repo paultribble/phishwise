@@ -8,38 +8,38 @@ const features = [
   {
     icon: Shield,
     title: "Realistic Phishing Simulations",
-    description: "Send convincing phishing emails from a library of 20+ templates crafted to mirror real-world attacks.",
-    accent: "from-violet-500/20 to-violet-600/5",
+    description: "Send convincing phishing emails from a library of 20+ templates crafted to mirror real-world scams.",
+    accent: "from-blue-500/20 to-blue-600/5",
   },
   {
     icon: BarChart2,
-    title: "Manager Analytics Dashboard",
-    description: "Track open rates, click rates, and training completion across your organization in real time.",
+    title: "Group Analytics Dashboard",
+    description: "Track open rates, click rates, and training completion across your group in real time.",
     accent: "from-sky-500/20 to-sky-600/5",
   },
   {
     icon: GraduationCap,
     title: "Automated Training Assignment",
-    description: "Employees who click are instantly enrolled in targeted micro-learning modules — no follow-up needed.",
+    description: "Members who click a simulated link are instantly enrolled in targeted micro-learning modules — no follow-up needed.",
     accent: "from-emerald-500/20 to-emerald-600/5",
   },
   {
     icon: Calendar,
-    title: "Campaign Scheduling",
-    description: "Schedule simulations weeks in advance with flexible options to keep employees consistently alert.",
-    accent: "from-violet-500/20 to-violet-600/5",
+    title: "Flexible Scheduling",
+    description: "Schedule simulations weeks in advance with flexible options to keep your group consistently aware.",
+    accent: "from-blue-500/20 to-blue-600/5",
   },
   {
     icon: Lock,
     title: "Role-Based Access Control",
-    description: "Separate manager and employee views keep simulation data out of the wrong hands.",
+    description: "Separate manager and member views keep simulation data private and secure.",
     accent: "from-amber-500/20 to-amber-600/5",
   },
   {
     icon: TrendingUp,
-    title: "Progress Reporting",
-    description: "Exportable reports show security posture trends over time so you can demonstrate ROI to leadership.",
-    accent: "from-violet-500/20 to-violet-600/5",
+    title: "Progress Tracking",
+    description: "Reports show awareness trends over time so you can see how much your group has improved.",
+    accent: "from-blue-500/20 to-blue-600/5",
   },
 ];
 
@@ -110,14 +110,14 @@ export function Features() {
             transform: headingVisible ? "translateY(0)" : "translateY(20px)",
           }}
         >
-          <span className="text-xs uppercase tracking-[0.18em] font-semibold text-violet-400 mb-3 inline-block">
+          <span className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-3 inline-block">
             Platform Capabilities
           </span>
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Everything You Need to Build a Security-Aware Culture
+            Everything You Need to Keep Your Group Safe Online
           </h2>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-            Comprehensive tools designed for modern security teams
+            Accessible tools built for families, schools, and small groups — not just large enterprises
           </p>
         </div>
 
@@ -140,7 +140,7 @@ export function Features() {
               >
                 <div className="group relative h-full p-6 rounded-xl overflow-hidden cursor-default
                   border border-white/[0.06] bg-[#1a1a2e]
-                  hover:border-violet-600/40
+                  hover:border-blue-600/40
                   transition-colors duration-200">
 
                   {/* Hover background gradient */}
@@ -149,15 +149,15 @@ export function Features() {
 
                   {/* Top shimmer line on hover */}
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r
-                    from-transparent via-violet-500/60 to-transparent
+                    from-transparent via-blue-500/60 to-transparent
                     opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   {/* Icon container */}
                   <div className="relative mb-5 flex h-11 w-11 items-center justify-center
-                    rounded-lg bg-violet-950/80 border border-violet-800/40
-                    group-hover:bg-violet-900/60 group-hover:border-violet-600/50
+                    rounded-lg bg-blue-950/80 border border-blue-800/40
+                    group-hover:bg-blue-900/60 group-hover:border-blue-600/50
                     transition-all duration-200">
-                    <Icon className="h-5 w-5 text-violet-400 group-hover:text-violet-300 transition-colors duration-200" />
+                    <Icon className="h-5 w-5 text-blue-400 group-hover:text-blue-300 transition-colors duration-200" />
                   </div>
 
                   <h3 className="relative text-base font-semibold text-slate-100 mb-2 group-hover:text-white transition-colors duration-150">

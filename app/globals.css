@@ -123,11 +123,11 @@
 .shimmer-border {
   background: linear-gradient(
     90deg,
-    rgba(109,40,217,0.0) 0%,
-    rgba(109,40,217,0.6) 40%,
-    rgba(124,58,237,0.8) 50%,
-    rgba(109,40,217,0.6) 60%,
-    rgba(109,40,217,0.0) 100%
+    rgba(37,99,235,0.0) 0%,
+    rgba(37,99,235,0.6) 40%,
+    rgba(59,130,246,0.8) 50%,
+    rgba(37,99,235,0.6) 60%,
+    rgba(37,99,235,0.0) 100%
   );
   background-size: 200% auto;
   animation: shimmerBorder 3s linear infinite;
@@ -142,7 +142,7 @@
 /* Hex grid variant */
 .line-grid {
   background-image:
-    linear-gradient(rgba(109,40,217,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(109,40,217,0.05) 1px, transparent 1px);
+    linear-gradient(rgba(37,99,235,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,99,235,0.05) 1px, transparent 1px);
   background-size: 40px 40px;
 }

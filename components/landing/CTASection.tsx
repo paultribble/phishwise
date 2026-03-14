@@ -51,7 +51,7 @@ export function CTASection() {
         <div
           className="absolute w-[600px] h-[600px] rounded-full"
           style={{
-            background: "radial-gradient(circle, rgba(109,40,217,0.12) 0%, transparent 65%)",
+            background: "radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 65%)",
             filter: "blur(30px)",
           }}
         />
@@ -67,7 +67,7 @@ export function CTASection() {
             transitionDelay: "0ms",
           }}
         >
-          <span className="text-xs uppercase tracking-[0.18em] font-semibold text-violet-400 mb-4 inline-block">
+          <span className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-4 inline-block">
             Get Started Today
           </span>
         </div>
@@ -83,9 +83,9 @@ export function CTASection() {
           }}
         >
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-            Ready to Stop Phishing Attacks{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-600">
-              Before They Start?
+            Ready to Protect Your{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
+              Family or Group?
             </span>
           </h2>
         </div>
@@ -100,8 +100,8 @@ export function CTASection() {
           }}
         >
           <p className="text-lg text-slate-300 mb-10">
-            Join security teams already using PhishWise to train employees,
-            reduce risk, and prove it with data.
+            Join families and groups already using PhishWise to train their
+            members, reduce risk, and stay safer online.
           </p>
         </div>
 
@@ -118,9 +118,9 @@ export function CTASection() {
             <Link
               href="/login"
               className="block px-8 py-3.5 text-base font-semibold text-white
-                bg-violet-700 hover:bg-violet-600
+                bg-blue-700 hover:bg-blue-600
                 rounded-lg transition-all duration-150
-                shadow-[0_0_24px_rgba(109,40,217,0.4)] hover:shadow-[0_0_32px_rgba(109,40,217,0.6)]"
+                shadow-[0_0_24px_rgba(37,99,235,0.4)] hover:shadow-[0_0_32px_rgba(37,99,235,0.6)]"
             >
               Create Free Account
             </Link>
@@ -136,9 +136,9 @@ export function CTASection() {
           >
             <Link
               href="/login"
-              className="block px-8 py-3.5 text-base font-medium text-violet-300
-                border border-violet-700/60 hover:border-violet-500
-                hover:bg-violet-950/50 hover:text-violet-200
+              className="block px-8 py-3.5 text-base font-medium text-blue-300
+                border border-blue-700/60 hover:border-blue-500
+                hover:bg-blue-950/50 hover:text-blue-200
                 rounded-lg transition-all duration-150"
             >
               Log In

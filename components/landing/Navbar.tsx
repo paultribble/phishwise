@@ -65,7 +65,7 @@ export function Navbar() {
         <div className="hidden md:block">
           <Link
             href="/login"
-            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-600 transition-colors"
           >
             Log In / Sign Up
           </Link>
@@ -112,7 +112,7 @@ export function Navbar() {
             </a>
             <Link
               href="/login"
-              className="block w-full text-center px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 transition-colors"
+              className="block w-full text-center px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-600 transition-colors"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Log In / Sign Up

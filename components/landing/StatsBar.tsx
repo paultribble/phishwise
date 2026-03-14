@@ -82,7 +82,7 @@ export function StatsBar() {
         <div
           className="w-[600px] h-[200px] rounded-full opacity-30 anim-float-c"
           style={{
-            background: "radial-gradient(ellipse, rgba(109,40,217,0.35) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse, rgba(37,99,235,0.35) 0%, transparent 70%)",
             filter: "blur(40px)",
           }}
         />
@@ -102,7 +102,7 @@ export function StatsBar() {
             >
               <div className="flex items-start gap-4">
                 {/* Violet left border accent */}
-                <div className="mt-1 h-12 w-0.5 shrink-0 bg-gradient-to-b from-violet-500 to-violet-800 rounded-full" />
+                <div className="mt-1 h-12 w-0.5 shrink-0 bg-gradient-to-b from-blue-500 to-blue-800 rounded-full" />
 
                 <div>
                   <div className="font-mono text-5xl font-bold text-white tabular-nums tracking-tight leading-none">

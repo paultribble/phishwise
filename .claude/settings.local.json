@@ -36,7 +36,8 @@
       "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && DATABASE_URL=\"postgresql://user:pass@localhost/db\" NEXTAUTH_SECRET=\"test-secret-for-build\" npx next build 2>&1 | tail -20)",
       "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\\\\Modules\" && unzip -q \"PhishWise Module 3 - Account & Password Traps Content \\(Draft\\).docx\" -d temp_module3 && cat \"temp_module3/word/document.xml\" | grep -oP '\\(?<=<w:t>\\)[^<]+' | head -100)",
       "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\\\\Modules\" && for doc in *.docx; do echo \"=== $doc ===\"; unzip -q \"$doc\" -d temp_extract 2>/dev/null && cat temp_extract/word/document.xml | sed 's/<[^>]*>//g' | sed 's/&[a-z]*;//g' | head -200; rm -rf temp_extract; echo; done)",
-      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && DATABASE_URL=\"postgresql://user:pass@localhost/db\" NEXTAUTH_SECRET=\"test-secret\" npx next build 2>&1 | tail -20)"
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && DATABASE_URL=\"postgresql://user:pass@localhost/db\" NEXTAUTH_SECRET=\"test-secret\" npx next build 2>&1 | tail -20)",
+      "Bash(cd \"C:\\\\Users\\\\Ptribble\\\\Desktop\\\\Github Linked Projects\\\\phishwise\" && npm run lint 2>&1 && echo \"✅ Lint passed\")"
     ]
   },
   "enableAllProjectMcpServers": true,

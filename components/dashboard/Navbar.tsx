@@ -59,7 +59,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href={session ? "/dashboard" : "/"} className="flex items-end gap-2 leading-none">
           <Image
-            src="/logo.webp"
+            src="/logo.jpg"
             alt="PhishWise shield"
             width={36}
             height={36}

@@ -30,7 +30,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/logo.webp"
+            src="/logo.jpg"
             alt="PhishWise"
             width={36}
             height={36}

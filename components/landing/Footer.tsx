@@ -10,7 +10,7 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Image
-                src="/logo.webp"
+                src="/logo.jpg"
                 alt="PhishWise"
                 width={32}
                 height={32}

@@ -53,7 +53,7 @@ export default function LoginPage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-end gap-2 leading-none">
             <Image
-              src="/logo.webp"
+              src="/logo.jpg"
               alt="PhishWise shield"
               width={44}
               height={44}

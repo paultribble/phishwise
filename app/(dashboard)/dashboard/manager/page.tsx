@@ -309,12 +309,6 @@ export default function ManagerDashboard() {
               </p>
             </div>
             <div className="flex gap-2 shrink-0 flex-wrap">
-              <Link
-                href="/training"
-                className="rounded-md bg-success-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-success-700"
-              >
-                Training Modules
-              </Link>
               <button
                 onClick={() => setShowTriggerModal(true)}
                 className="rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"

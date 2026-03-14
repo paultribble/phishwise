@@ -58,3 +58,91 @@
     text-wrap: balance;
   }
 }
+
+/* ─── Landing page animation keyframes ─────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes floatA {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  33%       { transform: translateY(-28px) translateX(14px); }
+  66%       { transform: translateY(14px) translateX(-10px); }
+}
+@keyframes floatB {
+  0%, 100% { transform: translateY(0px) translateX(0px); }
+  40%       { transform: translateY(20px) translateX(-18px); }
+  70%       { transform: translateY(-14px) translateX(12px); }
+}
+@keyframes floatC {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50%       { transform: translateY(-20px) scale(1.05); }
+}
+@keyframes scanline {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  10%  { opacity: 0.04; }
+  90%  { opacity: 0.04; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+@keyframes shimmerBorder {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+@keyframes pulsRing {
+  0%   { transform: scale(0.95); opacity: 0.6; }
+  70%  { transform: scale(1.15); opacity: 0; }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+@keyframes gridFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Utility animation classes */
+.anim-fade-up {
+  animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) both;
+}
+.anim-fade-in {
+  animation: fadeIn 0.5s ease-out both;
+}
+.anim-float-a { animation: floatA 9s ease-in-out infinite; }
+.anim-float-b { animation: floatB 12s ease-in-out infinite; }
+.anim-float-c { animation: floatC 7s ease-in-out infinite; }
+.anim-scanline { animation: scanline 8s linear infinite; }
+.anim-pulse-ring { animation: pulsRing 2.5s ease-out infinite; }
+
+/* Shimmer border */
+.shimmer-border {
+  background: linear-gradient(
+    90deg,
+    rgba(109,40,217,0.0) 0%,
+    rgba(109,40,217,0.6) 40%,
+    rgba(124,58,237,0.8) 50%,
+    rgba(109,40,217,0.6) 60%,
+    rgba(109,40,217,0.0) 100%
+  );
+  background-size: 200% auto;
+  animation: shimmerBorder 3s linear infinite;
+}
+
+/* Dot grid background pattern */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(148,163,184,0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Hex grid variant */
+.line-grid {
+  background-image:
+    linear-gradient(rgba(109,40,217,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(109,40,217,0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}

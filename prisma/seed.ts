@@ -1,5 +1,6 @@
 import { PrismaClient, Role } from "@prisma/client";
 import * as bcryptjs from "bcryptjs";
+import { ALL_MODULES } from "@/lib/modules";
 
 const prisma = new PrismaClient();
 
@@ -10,216 +11,63 @@ async function main() {
   const demoPassword = "PhishWise2025!";
   const hashedPassword = await bcryptjs.hash(demoPassword, 12);
 
-  // Create training modules
+  // Create training modules from module configs
   console.log("📚 Creating training modules...");
-  const modules = [
-    {
-      name: "Recognizing Phishing Emails",
-      description: "Learn to identify common phishing tactics and suspicious email characteristics.",
-      content: `# Recognizing Phishing Emails
-
-Phishing emails are designed to trick you into revealing sensitive information. Here are key warning signs:
-
-## Red Flags
-1. **Urgent requests** - Legitimate companies rarely demand immediate action
-2. **Suspicious links** - Hover over links to see the actual URL
-3. **Generic greetings** - "Dear Customer" instead of your name
-4. **Poor spelling/grammar** - Professional companies proofread carefully
-5. **Requests for passwords** - Banks never ask for passwords via email
-6. **Mismatched sender addresses** - Check the full email address
-
-## What to do
-- Never click links or download attachments from unknown senders
-- Verify requests by contacting the company directly
-- Report phishing emails to your IT department
-- Use multi-factor authentication when available`,
-      orderIndex: 1,
-      isActive: true,
-    },
-    {
-      name: "Protecting Your Passwords",
-      description: "Best practices for creating and managing strong passwords.",
-      content: `# Protecting Your Passwords
-
-Strong passwords are your first line of defense against cyber attacks.
-
-## Password Guidelines
-1. **Length** - Use at least 12 characters
-2. **Complexity** - Mix uppercase, lowercase, numbers, and symbols
-3. **Uniqueness** - Never reuse passwords across accounts
-4. **No personal info** - Avoid birthdays, names, or common words
-
-## Password Managers
-- Store passwords securely in a password manager
-- Never share passwords via email or chat
-- Change passwords immediately if compromised
-- Enable multi-factor authentication
-
-## Common Mistakes
-- Writing passwords on sticky notes
-- Using the same password everywhere
-- Sharing passwords with colleagues
-- Writing passwords in unencrypted files`,
-      orderIndex: 2,
-      isActive: true,
-    },
-    {
-      name: "Social Engineering Tactics",
-      description: "Understand how attackers manipulate people to bypass security.",
-      content: `# Social Engineering Tactics
-
-Social engineering exploits human psychology rather than technical vulnerabilities.
-
-## Common Tactics
-1. **Pretexting** - Creating a fabricated scenario to extract information
-2. **Baiting** - Offering something enticing (USB drives with malware)
-3. **Quid pro quo** - Trading information for services
-4. **Tailgating** - Following authorized personnel into restricted areas
-5. **Phishing** - Sending fraudulent emails to collect sensitive data
-
-## Defense Strategies
-- Verify identities before sharing information
-- Never leave sensitive documents visible
-- Lock your computer when away
-- Be skeptical of unsolicited requests
-- Report suspicious behavior
-- Follow your organization's security policies
-
-## Real-World Examples
-Learn from actual phishing attempts that have compromised organizations.`,
-      orderIndex: 3,
-      isActive: true,
-    },
-  ];
-
   const createdModules = await Promise.all(
-    modules.map(async (module) => {
+    ALL_MODULES.map(async (module) => {
       const existing = await prisma.trainingModule.findFirst({
         where: { name: module.name },
       });
       if (existing) {
         return prisma.trainingModule.update({
           where: { id: existing.id },
-          data: module,
+          data: {
+            description: module.description,
+            content: module.content,
+            orderIndex: module.orderIndex,
+            isActive: module.isActive !== false,
+          },
         });
       }
       return prisma.trainingModule.create({
-        data: module,
+        data: {
+          name: module.name,
+          description: module.description,
+          content: module.content,
+          orderIndex: module.orderIndex,
+          isActive: module.isActive !== false,
+        },
       });
     })
   );
 
-  console.log(`✅ Created ${createdModules.length} training modules`);
+  console.log(`✅ Created/updated ${createdModules.length} training modules`);
 
   // Create email templates for each module
   console.log("📧 Creating email templates...");
-  const templates = [
-    {
-      moduleId: createdModules[0].id,
-      name: "Bank Account Verification",
-      subject: "URGENT: Verify Your Account Immediately",
-      body: `Dear Valued Customer,
+  let templateCount = 0;
 
-We have detected unusual activity on your account. Please verify your information immediately by clicking the link below:
+  for (const module of ALL_MODULES) {
+    const createdModule = createdModules.find((m) => m.name === module.name);
+    if (!createdModule) continue;
 
-VERIFY ACCOUNT: http://verify-account.com/login?token=abc123
-
-If you do not verify within 24 hours, your account will be suspended.
-
-Best regards,
-Security Team`,
-      difficulty: 1,
-    },
-    {
-      moduleId: createdModules[0].id,
-      name: "Package Delivery Notification",
-      subject: "Your package requires action - Confirm delivery",
-      body: `Hello,
-
-Your delivery cannot be completed. Please click here to reschedule:
-
-http://tracking.confirm-delivery.net/package/track?id=xyz789
-
-Tracking ID: PKG-2025-001234
-
-Thank you,
-Delivery Service`,
-      difficulty: 2,
-    },
-    {
-      moduleId: createdModules[1].id,
-      name: "Password Reset Request",
-      subject: "Reset your password",
-      body: `Hi there,
-
-Someone requested a password reset for your account. If this was you, click the link below:
-
-http://reset-password.service.com/confirm?token=def456
-
-If this wasn't you, ignore this email.
-
-Regards,
-Account Security`,
-      difficulty: 1,
-    },
-    {
-      moduleId: createdModules[1].id,
-      name: "Software Update Required",
-      subject: "CRITICAL: Update Required for Security",
-      body: `Your system requires an immediate security update.
-
-Download the update here: http://secure-update.com/installer.exe
-
-This is required to maintain protection.
-
-- Security Team`,
-      difficulty: 3,
-    },
-    {
-      moduleId: createdModules[2].id,
-      name: "CEO Impersonation",
-      subject: "Need Your Help - Wire Transfer Urgent",
-      body: `Hi,
-
-I need a quick favor - can you process an urgent wire transfer for me?
-
-Wire $50,000 to: Account 123456789
-
-I'm in a meeting and need this done ASAP. Reply with confirmation once sent.
-
-Thanks,
-[CEO Name]`,
-      difficulty: 4,
-    },
-    {
-      moduleId: createdModules[2].id,
-      name: "IT Support Impersonation",
-      subject: "IT: System Maintenance - Please Provide Credentials",
-      body: `Hi,
-
-We're performing system maintenance and need to verify access. Please provide your username and password for verification:
-
-Username: ___________
-Password: ___________
-
-This will only take a moment.
-
-Thanks,
-IT Support`,
-      difficulty: 3,
-    },
-  ];
-
-  const createdTemplates = await Promise.all(
-    templates.map(async (template) => {
-      // Create template (no upsert needed for demo data)
-      return prisma.template.create({
-        data: template,
+    for (const template of module.templates) {
+      await prisma.template.create({
+        data: {
+          moduleId: createdModule.id,
+          name: template.name,
+          subject: template.subject,
+          body: template.body,
+          fromAddress: template.fromAddress || "security@verify-account.com",
+          difficulty: template.difficulty,
+          isActive: template.isActive !== false,
+        },
       });
-    })
-  );
+      templateCount++;
+    }
+  }
 
-  console.log(`✅ Created ${createdTemplates.length} email templates`);
+  console.log(`✅ Created ${templateCount} email templates`);
 
   // Create demo school
   console.log("🏫 Creating demo school...");
@@ -281,10 +129,12 @@ IT Support`,
   console.log("📊 Creating sample simulation data...");
   let simulationCount = 0;
 
-  // Create 80-150 simulations for the regular user
+  // Get all templates for random selection
+  const allTemplates = await prisma.template.findMany();
+
+  // Create 100 simulations with random templates
   for (let i = 0; i < 100; i++) {
-    const randomTemplate =
-      createdTemplates[Math.floor(Math.random() * createdTemplates.length)];
+    const randomTemplate = allTemplates[Math.floor(Math.random() * allTemplates.length)];
     const sentDate = new Date();
     sentDate.setDate(sentDate.getDate() - Math.floor(Math.random() * 90));
 
@@ -351,6 +201,8 @@ IT Support`,
   console.log(`   Password: ${demoPassword}`);
   console.log(`   Role: USER\n`);
   console.log(`🏫 School Invite Code: ${school.inviteCode}\n`);
+  console.log(`📚 Modules created: ${createdModules.length}`);
+  console.log(`📧 Templates created: ${templateCount}`);
   console.log("=".repeat(60) + "\n");
 }
 

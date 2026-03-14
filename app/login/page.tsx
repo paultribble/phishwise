@@ -3,11 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { bebas, playfair } from "@/lib/fonts";
+import { AmbientBackground } from "@/components/landing/AmbientBackground";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -19,6 +19,12 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 40);
+    return () => clearTimeout(t);
+  }, []);
 
   const {
     register,
@@ -47,55 +53,77 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="border-b border-gray-700 bg-phish-navy/50 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-end gap-2 leading-none">
+    <div className="relative min-h-screen flex flex-col bg-[#0f0f1a] text-white overflow-hidden">
+      {/* Ambient background */}
+      <AmbientBackground variant="subtle" />
+
+      {/* Navbar */}
+      <header className="relative z-10 border-b border-white/[0.06] bg-black/20 backdrop-blur-md">
+        <div className="mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
             <Image
               src="/logo.jpg"
-              alt="PhishWise shield"
-              width={44}
-              height={44}
-              className="object-contain mb-1"
+              alt="PhishWise"
+              width={36}
+              height={36}
+              className="h-9 w-auto"
             />
-            <span className={`text-4xl tracking-widest text-gray-200 ${bebas.className}`}>
-              PHISH
-            </span>
-            <span className={`text-5xl italic text-gray-400 ${playfair.className}`}>
-              WISE
-            </span>
+            <span className="text-lg font-bold text-gray-200">PhishWise</span>
           </Link>
-          <nav className="flex gap-6">
-            <Link href="/learn-more" className="text-gray-300 hover:text-white transition-colors">
-              Learn More
-            </Link>
-            <Link href="/signup" className="text-gray-300 hover:text-white transition-colors">
+          <nav className="flex items-center gap-6">
+            <Link
+              href="/signup"
+              className="text-sm text-gray-400 hover:text-gray-200 transition-colors"
+            >
               Sign Up
             </Link>
           </nav>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="max-w-md w-full space-y-8">
-          {/* Logo/Title */}
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-200 mb-2">
+      {/* Main */}
+      <main className="relative z-10 flex-1 flex items-center justify-center px-6 py-16">
+        <div
+          className="w-full max-w-md transition-all duration-700"
+          style={{
+            opacity: mounted ? 1 : 0,
+            transform: mounted ? "translateY(0)" : "translateY(24px)",
+          }}
+        >
+          {/* Heading */}
+          <div className="text-center mb-8">
+            <p className="text-xs uppercase tracking-[0.18em] font-semibold text-violet-400 mb-3">
               Welcome Back
+            </p>
+            <h1 className="text-4xl font-bold text-white mb-3">
+              Sign in to{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-violet-600">
+                PhishWise
+              </span>
             </h1>
-            <p className="text-gray-400">
-              Log in to continue your phishing awareness training
+            <p className="text-sm text-slate-400">
+              Continue your phishing awareness training
             </p>
           </div>
 
-          {/* Login Card */}
-          <div className="bg-phish-blue/20 p-8 rounded-lg border border-gray-700 space-y-6">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {/* Email Field */}
-              <div className="space-y-2">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+          {/* Card */}
+          <div className="relative rounded-xl border border-white/[0.06] hover:border-violet-600/30 bg-[#1a1a2e]/80 backdrop-blur-sm p-8 transition-colors duration-300">
+            {/* Shimmer top line */}
+            <div
+              className="absolute top-0 left-6 right-6 h-px"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent, rgba(109,40,217,0.6) 50%, transparent)",
+              }}
+            />
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {/* Email */}
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-slate-300"
+                >
                   Email
                 </label>
                 <input
@@ -103,17 +131,22 @@ export default function LoginPage() {
                   type="email"
                   {...register("email")}
                   placeholder="you@example.com"
-                  className="w-full px-4 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-phish-accent focus:ring-1 focus:ring-phish-accent"
+                  className="w-full px-4 py-2.5 bg-[#252540] border border-white/10 rounded-lg text-gray-200 placeholder-slate-500 text-sm
+                    focus:outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600/50
+                    transition-colors duration-200 disabled:opacity-50"
                   disabled={loading}
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-400">{errors.email.message}</p>
+                  <p className="text-xs text-red-400">{errors.email.message}</p>
                 )}
               </div>
 
-              {/* Password Field */}
-              <div className="space-y-2">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+              {/* Password */}
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-slate-300"
+                >
                   Password
                 </label>
                 <input
@@ -121,66 +154,58 @@ export default function LoginPage() {
                   type="password"
                   {...register("password")}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:border-phish-accent focus:ring-1 focus:ring-phish-accent"
+                  className="w-full px-4 py-2.5 bg-[#252540] border border-white/10 rounded-lg text-gray-200 placeholder-slate-500 text-sm
+                    focus:outline-none focus:border-violet-600 focus:ring-1 focus:ring-violet-600/50
+                    transition-colors duration-200 disabled:opacity-50"
                   disabled={loading}
                 />
                 {errors.password && (
-                  <p className="text-sm text-red-400">{errors.password.message}</p>
+                  <p className="text-xs text-red-400">{errors.password.message}</p>
                 )}
               </div>
 
-              {/* Error Message */}
+              {/* Error */}
               {error && (
-                <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg text-sm text-red-300">
+                <div className="p-3 bg-red-950/40 border border-red-700/50 rounded-lg text-sm text-red-300">
                   {error}
                 </div>
               )}
 
-              {/* Submit Button */}
+              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full px-6 py-2 bg-phish-accent text-gray-900 rounded-lg font-medium hover:bg-phish-accent/90 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-6 py-2.5 bg-violet-700 hover:bg-violet-600 text-white text-sm font-semibold rounded-lg
+                  transition-all duration-150 cursor-pointer
+                  shadow-[0_0_20px_rgba(109,40,217,0.35)] hover:shadow-[0_0_28px_rgba(109,40,217,0.55)]
+                  disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
               >
-                {loading ? "Signing in..." : "Sign In"}
+                {loading ? "Signing in…" : "Sign In"}
               </button>
             </form>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-600"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-phish-blue/20 text-gray-400">
-                  Email & Password
-                </span>
-              </div>
+            {/* Divider */}
+            <div className="mt-6 pt-6 border-t border-white/[0.06] text-center space-y-3">
+              <p className="text-sm text-slate-400">
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="/signup"
+                  className="text-violet-400 hover:text-violet-300 font-medium transition-colors"
+                >
+                  Sign up free
+                </Link>
+              </p>
+              <p className="text-xs text-slate-600">
+                By signing in, you agree to our Terms of Service and Privacy Policy
+              </p>
             </div>
-
-            <p className="text-center text-sm text-gray-400">
-              Secure login with email and password. Your password is encrypted and never shared.
-            </p>
-          </div>
-
-          {/* Additional Links */}
-          <div className="text-center space-y-4">
-            <p className="text-gray-400">
-              Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-phish-accent hover:underline font-medium">
-                Sign up here
-              </Link>
-            </p>
-
-            <p className="text-sm text-gray-500">
-              By signing in, you agree to our Terms of Service and Privacy Policy
-            </p>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-700 py-6 text-center text-gray-500 text-sm">
-        <p>University of Arkansas - CSCE Capstone 2025</p>
+      <footer className="relative z-10 border-t border-white/[0.06] py-6 text-center text-slate-600 text-sm">
+        © 2025 PhishWise · University of Arkansas CSCE Capstone · Team 20
       </footer>
     </div>
   );

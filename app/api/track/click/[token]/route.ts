@@ -1,6 +1,9 @@
 // @ts-nocheck
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { apiLogger } from "@/lib/logger";
+
+const log = apiLogger("/api/track/click/[token]");
 
 /**
  * GET /api/track/click/[token]
@@ -33,6 +36,11 @@ export async function GET(
 
     // Mark as clicked if not already
     if (!simEmail.clicked) {
+      log.info(
+        { userId: simEmail.userId, token, moduleId: simEmail.template.moduleId },
+        'Simulation email clicked'
+      );
+
       await prisma.simulationEmail.update({
         where: { id: simEmail.id },
         data: {

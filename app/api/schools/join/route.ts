@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { z } from "zod";
+
+const schema = z.object({ inviteCode: z.string().min(1).max(50) });
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -13,10 +16,12 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const code = typeof body.inviteCode === "string" ? body.inviteCode.trim().toUpperCase() : "";
-  if (!code) {
-    return NextResponse.json({ error: "inviteCode is required" }, { status: 400 });
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid invite code" }, { status: 400 });
   }
+  const { inviteCode } = parsed.data;
+  const code = inviteCode.trim().toUpperCase();
 
   const school = await prisma.school.findUnique({
     where: { inviteCode: code },

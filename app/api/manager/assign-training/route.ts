@@ -3,6 +3,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { z } from "zod";
+
+const schema = z.object({
+  moduleId: z.string().min(1),
+  userId: z.string().min(1).optional(),
+  userIds: z.array(z.string().min(1)).optional(),
+}).refine(
+  (data) => data.userId !== undefined || (data.userIds !== undefined && data.userIds.length > 0),
+  { message: "userId or userIds (non-empty array) is required" }
+);
 
 /**
  * POST /api/manager/assign-training
@@ -20,17 +30,18 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { userIds, userId, moduleId } = await req.json();
-
-    // Support both single user (userId) and batch (userIds)
-    const usersToAssign = userId ? [userId] : userIds;
-
-    if (!Array.isArray(usersToAssign) || usersToAssign.length === 0 || !moduleId) {
+    const body = await req.json();
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "userId or userIds (array) and moduleId (string) are required" },
+        { error: parsed.error.errors[0]?.message ?? "Invalid request body" },
         { status: 400 }
       );
     }
+    const { userId, userIds, moduleId } = parsed.data;
+
+    // Support both single user (userId) and batch (userIds)
+    const usersToAssign = userId ? [userId] : userIds!;
 
     // Verify module exists
     const trainingModule = await prisma.trainingModule.findUnique({

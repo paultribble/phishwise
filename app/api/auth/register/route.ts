@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import * as bcryptjs from "bcryptjs";
+import { apiLogger } from "@/lib/logger";
+
+const log = apiLogger("/api/auth/register");
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -54,6 +57,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    log.info({ email }, 'New user registered');
     return NextResponse.json({ success: true, user }, { status: 201 });
   } catch (error) {
     console.error("[Register] Error:", error);

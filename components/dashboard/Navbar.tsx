@@ -24,6 +24,9 @@ import {
   Menu,
   X,
   Settings,
+  Shield,
+  FileText,
+  Clock,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -38,14 +41,22 @@ const managerNav = [
   { label: "Training", href: "/training/module-3-account-password-traps", icon: BookOpen },
 ];
 
+const adminNav = [
+  { label: "Overview", href: "/dashboard/admin", icon: Shield },
+  { label: "Users", href: "/dashboard/admin/users", icon: Users },
+  { label: "Templates", href: "/dashboard/admin/templates", icon: FileText },
+  { label: "Modules", href: "/dashboard/admin/modules", icon: BookOpen },
+  { label: "Scheduler", href: "/dashboard/admin/scheduler", icon: Clock },
+];
+
 export function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isManager =
-    session?.user?.role === "MANAGER" || session?.user?.role === "ADMIN";
-  const navItems = isManager ? managerNav : userNav;
+  const role = session?.user?.role;
+  const navItems =
+    role === "ADMIN" ? adminNav : role === "MANAGER" ? managerNav : userNav;
 
   const initials = session?.user?.name
     ?.split(" ")

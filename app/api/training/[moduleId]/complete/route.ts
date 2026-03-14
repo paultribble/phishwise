@@ -3,6 +3,11 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { z } from "zod";
+import { apiLogger } from "@/lib/logger";
+
+const schema = z.object({ score: z.number().int().min(0).max(100).optional() });
+const log = apiLogger("/api/training/[moduleId]/complete");
 
 export async function POST(
   request: Request,
@@ -23,6 +28,12 @@ export async function POST(
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
+  const scoreParsed = schema.safeParse(body);
+  if (!scoreParsed.success) {
+    return NextResponse.json({ error: "Invalid score value" }, { status: 400 });
+  }
+  const score = scoreParsed.data.score;
+
   const trainingModule = await prisma.trainingModule.findUnique({
     where: { id: moduleId },
   });
@@ -32,6 +43,8 @@ export async function POST(
   }
 
   if (passed) {
+    log.info({ userId: session.user.id, moduleId, score }, 'Training module completed');
+
     await prisma.userTraining.upsert({
       where: {
         userId_moduleId: {

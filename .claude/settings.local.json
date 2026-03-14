@@ -44,7 +44,8 @@
       "Read(//c/Users/Ptribble/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.0.1/.claude/skills/ui-ux-pro-max/**)",
       "Bash(python3 scripts/search.py \"B2B SaaS security phishing enterprise cybersecurity professional trustworthy minimal premium dark\" --design-system -p \"PhishWise\" -f markdown --stack nextjs)",
       "Bash(cd:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(npx prisma:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -180,3 +180,17 @@ model UserHistory {
   @@index([actionType])
   @@index([createdAt])
 }
+
+// One-time tokens for password reset ("reset") and magic link sign-in ("magic")
+model AuthToken {
+  id        String    @id @default(cuid())
+  email     String
+  token     String    @unique
+  type      String    // "reset" | "magic"
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+  @@index([email])
+}

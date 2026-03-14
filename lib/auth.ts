@@ -38,7 +38,7 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
-  // Credentials provider for email + password
+  // Credentials provider for email + password (and magic link tokens)
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -46,13 +46,52 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        magicToken: { label: "Magic Token", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
         try {
+          // Magic link sign-in path
+          if (credentials?.magicToken) {
+            const record = await prisma.authToken.findUnique({
+              where: { token: credentials.magicToken },
+            });
+
+            if (
+              !record ||
+              record.type !== "magic" ||
+              record.usedAt ||
+              record.expiresAt < new Date()
+            ) {
+              return null;
+            }
+
+            // Mark token as used
+            await prisma.authToken.update({
+              where: { id: record.id },
+              data: { usedAt: new Date() },
+            });
+
+            const user = await prisma.user.findUnique({
+              where: { email: record.email },
+              select: { id: true, email: true, name: true, role: true, schoolId: true },
+            });
+
+            if (!user) return null;
+
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              schoolId: user.schoolId,
+            };
+          }
+
+          // Standard email + password path
+          if (!credentials?.email || !credentials?.password) {
+            return null;
+          }
+
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
             select: { id: true, email: true, name: true, password: true, role: true, schoolId: true },

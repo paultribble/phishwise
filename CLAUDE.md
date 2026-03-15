@@ -421,19 +421,24 @@ Staging/Preview:
 - Staging: Always seed demo data (`npm run db:seed`)
 - Production: Seed only on first deploy (conditional check in seed.ts)
 
-#### Build Hooks
-Update `vercel.json` to conditionally migrate:
-```json
-{
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "env": {
-    "DATABASE_URL": "@db_url"
-  }
-}
-```
+#### Build Configuration
+`vercel.json` specifies build and install commands. Environment variables are configured via:
+1. **Vercel Dashboard** — Project Settings → Environment Variables
+2. **CLI** — `vercel env add ENVIRONMENT production` (production only)
+3. **.env files** — `.env.production.local` (local builds only)
 
-Set env vars differently per environment in Vercel dashboard.
+Set these per environment in Vercel dashboard:
+```
+Production:
+  ENVIRONMENT=production
+  DATABASE_URL=<prod-postgresql-url>
+  NEXTAUTH_SECRET=<prod-secret>
+
+Staging/Preview:
+  ENVIRONMENT=staging
+  DATABASE_URL=<staging-postgresql-url>
+  NEXTAUTH_SECRET=<staging-secret>
+```
 
 #### Testing Workflow
 1. **Feature Branch** → Vercel Preview (staging DB, fresh seed)

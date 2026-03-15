@@ -278,17 +278,23 @@ async function main() {
 }
 ```
 
-**Branch-based environment (vercel.json):**
-```json
-{
-  "env": {
-    "ENVIRONMENT": {
-      "main": "production",
-      "default": "staging"
-    }
-  }
-}
-```
+**Branch-based environment (Vercel Dashboard):**
+
+Set environment variables per environment in Vercel Project Settings → Environment Variables:
+
+Production branch (main):
+- `ENVIRONMENT` = `production`
+- `DATABASE_URL` = `<prod-url>`
+- `UPSTASH_REDIS_REST_URL` = `<prod-redis>`
+- All other secrets (NEXTAUTH_SECRET, OAuth creds, API keys)
+
+Staging/Preview (feature branches):
+- `ENVIRONMENT` = `staging`
+- `DATABASE_URL` = `<staging-url>`
+- `UPSTASH_REDIS_REST_URL` = `<staging-redis>`
+- Same secrets OR separate staging credentials
+
+See [Vercel Environment Variables docs](https://vercel.com/docs/projects/environment-variables)
 
 ---
 

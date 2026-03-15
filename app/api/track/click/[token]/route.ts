@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { apiLogger } from "@/lib/logger";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const log = apiLogger("/api/track/click/[token]");
 
@@ -14,6 +15,13 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { token: string } }
 ) {
+  // Rate limit: 100 clicks per day per IP
+  const ip = getClientIp(req);
+  const { success } = await checkRateLimit(`click_ip_${ip}`, 100, 86400000);
+  if (!success) {
+    return new NextResponse("Too many requests", { status: 429 });
+  }
+
   const token = params.token;
 
   if (!token || !token.startsWith("tk_")) {

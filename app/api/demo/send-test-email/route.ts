@@ -2,12 +2,24 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
+import { logger } from "@/lib/logger";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
+    logger.warn('Unauthorized test email attempt', { route: '/api/demo/send-test-email', ip: req.headers.get('x-forwarded-for') ?? undefined });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Rate limit: 10 test emails per day per user
+  const { success } = await checkRateLimit(`demo_user_${session.user.email}`, 10, 86400000);
+  if (!success) {
+    return NextResponse.json(
+      { error: "Too many test emails. Try again later" },
+      { status: 429 }
+    );
   }
 
   try {
@@ -40,9 +52,10 @@ export async function POST(req: Request) {
       from: "PhishWise Security <security@phishwise-demo.com>",
     });
 
+    logger.info('Test email requested', { route: '/api/demo/send-test-email', userId: session.user.email });
     return NextResponse.json({ success: true, message: "Email sent" });
   } catch (error) {
-    console.error("Demo email error:", error);
+    logger.error("Demo email error", { route: '/api/demo/send-test-email', error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: "Failed to send email" },
       { status: 500 }

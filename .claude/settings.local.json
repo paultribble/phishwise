@@ -45,7 +45,8 @@
       "Bash(python3 scripts/search.py \"B2B SaaS security phishing enterprise cybersecurity professional trustworthy minimal premium dark\" --design-system -p \"PhishWise\" -f markdown --stack nextjs)",
       "Bash(cd:*)",
       "Bash(pip install:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(ls:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

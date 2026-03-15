@@ -14,7 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PhishWiseLogo } from "@/components/ui/PhishWiseLogo";
 import { bebas, playfair } from "@/lib/fonts";
 import {
   LayoutDashboard,
@@ -32,13 +31,12 @@ import { useState } from "react";
 
 const userNav = [
   { label: "Dashboard", href: "/dashboard/user", icon: LayoutDashboard },
-  { label: "Training", href: "/training/module-3-account-password-traps", icon: BookOpen },
+  { label: "Training", href: "/training", icon: BookOpen },
 ];
 
 const managerNav = [
   { label: "Overview", href: "/dashboard/manager", icon: LayoutDashboard },
-  { label: "Users", href: "/dashboard/manager/users", icon: Users },
-  { label: "Training", href: "/training/module-3-account-password-traps", icon: BookOpen },
+  { label: "Training", href: "/training", icon: BookOpen },
 ];
 
 const adminNav = [
@@ -49,6 +47,17 @@ const adminNav = [
   { label: "Scheduler", href: "/dashboard/admin/scheduler", icon: Clock },
 ];
 
+function getLogoHref(role?: string): string {
+  switch (role) {
+    case "MANAGER":
+      return "/dashboard/manager";
+    case "ADMIN":
+      return "/dashboard/user";
+    default:
+      return "/dashboard/user";
+  }
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -57,6 +66,8 @@ export function Navbar() {
   const role = session?.user?.role;
   const navItems =
     role === "ADMIN" ? adminNav : role === "MANAGER" ? managerNav : userNav;
+
+  const logoHref = session ? getLogoHref(role) : "/";
 
   const initials = session?.user?.name
     ?.split(" ")
@@ -68,7 +79,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-gray-700 bg-phish-navy/90 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
-        <Link href={session ? "/dashboard" : "/"} className="flex items-end gap-2 leading-none">
+        <Link href={logoHref} className="flex items-end gap-2 leading-none">
           <Image
             src="/logo.jpg"
             alt="PhishWise shield"

@@ -100,15 +100,219 @@ Providers are dynamically imported to avoid bundling unused SDKs. New email prov
 
 ## Design System
 
-### Color Semantics
+### Color Semantics (Glassmorphism Theme)
 - `primary-*` (blue) — brand, navigation, interactive elements
 - `danger-*` (red) — phishing alerts, clicked indicators
 - `success-*` (green) — training completion, safe status
 - `warning-*` (amber) — medium risk, pending states
-- `phish-*` — legacy aliases used in public pages (`phish-navy`, `phish-blue`, `phish-accent`)
+- `phish-*` — legacy aliases (deprecated, replaced by glassmorphism in dashboards)
 
-### Dark-First Design
-All pages use a dark navy gradient background (`app/globals.css:46-49`). Text colors use gray scale (gray-200 for headings, gray-400 for body, gray-500 for muted). Cards use `bg-phish-blue/30` with `border-gray-700`.
+### Glassmorphism Theme (Phases 1-4)
+Dashboard pages now use:
+- Page background: `bg-[#0f0f1a]`
+- Cards: `rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-6`
+- Shimmer top-line: `absolute top-0 left-6 right-6 h-px` with `linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)`
+- Buttons: `bg-blue-700 hover:bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.35)] hover:shadow-[0_0_28px_rgba(37,99,235,0.55)]`
+- Inputs: `bg-[#252540] border border-white/10 rounded-lg focus:border-blue-600 focus:ring-1 focus:ring-blue-600/50`
+- Text: headings `text-white`, body `text-slate-300`, muted `text-slate-500`
+- Eyebrows: `text-xs uppercase tracking-[0.18em] font-semibold text-blue-400`
+
+Reference: `app/(dashboard)/dashboard/user/page.tsx`, `app/(dashboard)/dashboard/manager/page.tsx`
 
 ### shadcn/ui CSS Variables
 Component tokens use HSL values without the `hsl()` wrapper in CSS custom properties (`app/globals.css:6-35`). Tailwind classes reference them as `hsl(var(--token))` in `tailwind.config.ts`.
+
+---
+
+## Security Patterns (Phase 5)
+
+### Security Headers Middleware
+**File:** `middleware.ts` (root level)
+
+All responses include security headers:
+1. **Content-Security-Policy** — Prevents XSS attacks
+   - `default-src 'self'` — only same-origin by default
+   - `script-src 'self' 'unsafe-inline' 'unsafe-eval'` — required for NextAuth + analytics
+   - `style-src 'self' 'unsafe-inline'` — required for Tailwind CSS
+   - `img-src 'self' https: data:` — allow images from self and data URIs
+   - `font-src 'self' data:` — allow fonts from self and data URIs
+   - `connect-src 'self' https:` — API calls to self or HTTPS
+
+2. **X-Frame-Options: SAMEORIGIN** — Prevents clickjacking (same-origin iframes only)
+
+3. **X-Content-Type-Options: nosniff** — Prevents MIME sniffing attacks
+
+4. **Referrer-Policy: strict-origin-when-cross-origin** — Controls referrer header leakage
+
+5. **Permissions-Policy** — Restricts browser features
+   - `geolocation=(), microphone=(), camera=(), payment=()` — all disabled
+
+6. **Strict-Transport-Security (HSTS)** — Production only
+   - `max-age=31536000; includeSubDomains` — 1 year, subdomains included
+   - Only sent in production (`process.env.NODE_ENV === 'production'`)
+
+Matcher pattern: Apply to all routes except `/api/*` (API routes return early).
+
+### Rate Limiting
+**File:** `lib/rate-limit.ts`
+
+Provides `checkRateLimit(key, limit, windowMs)` helper using Upstash Redis:
+- Development fallback: if env vars missing, skips rate limiting (console warning)
+- Production fallback: if Redis unavailable, fails open (returns success)
+
+**Protected endpoints:**
+- `/api/manager/invite` — 5 per hour per IP
+- `/api/demo/send-test-email` — 10 per day per user
+- `/api/track/click/[token]` — 100 per day per IP (public endpoint)
+- `/api/training/caught-data` — 20 per day per IP
+- `/api/schools/join` — 10 per hour per IP
+
+Get IP from request: `const ip = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown'`
+
+Returns 429 with `{ error: "Too many requests. Try again later" }` when limit exceeded.
+
+### Error Handling Standards
+**File:** `lib/errors.ts`
+
+15 standardized error codes:
+- `ERR_UNAUTHORIZED` (401)
+- `ERR_INVALID_INPUT` (400)
+- `ERR_NOT_FOUND` (404)
+- `ERR_RATE_LIMIT` (429)
+- `ERR_INTERNAL` (500)
+- `ERR_INVALID_INVITE` (400)
+- `ERR_SCHOOL_NOT_FOUND` (404)
+- `ERR_INVALID_EMAIL` (400)
+- And 7 more domain-specific errors
+
+Each has: `code` (string), `status` (number), `message` (string)
+
+Usage in API routes:
+```typescript
+import { ApiError, errors } from '@/lib/errors';
+
+// Throw standardized error
+throw errors.invalidInvite();  // Returns 400 with code + message
+
+// Return from handler
+return NextResponse.json(errors.unauthorized().toJSON(), { status: 401 });
+```
+
+### Structured Logging
+**File:** `lib/logger.ts`
+
+Logger provides methods: `info()`, `warn()`, `error()`, `debug()`
+
+Format in production: JSON with `{ timestamp, level, message, context }`
+
+Format in development: Pretty-printed console logs with context
+
+Never logs sensitive data (passwords, tokens, secrets).
+
+Usage:
+```typescript
+import { logger } from '@/lib/logger';
+
+logger.info('Operation completed', { userId: user.id, schoolId: school.id });
+logger.warn('Unauthorized attempt', { userId, action: 'invite' });
+logger.error('Database error', { error: err.message, route: '/api/schools' });
+```
+
+Integrated in 5 critical routes: invite, export, test-email, profile, password
+
+### Input Validation with Zod
+**Pattern across all API routes:**
+
+```typescript
+import { z } from 'zod';
+import { ApiError, errors } from '@/lib/errors';
+
+const schema = z.object({
+  inviteCode: z.string().min(1),
+  email: z.string().email(),
+});
+
+export async function POST(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) throw errors.unauthorized();
+
+  const body = await request.json();
+
+  try {
+    schema.parse(body);
+  } catch (error) {
+    logger.warn('Validation error', { route: '/api/schools/join', error: String(error) });
+    return NextResponse.json(errors.invalidInput('inviteCode').toJSON(), { status: 400 });
+  }
+
+  // Process validated input
+}
+```
+
+All 15+ API routes now have Zod schemas for request validation.
+
+### Environment Configuration
+**File:** `lib/config.ts`
+
+Centralized configuration flags:
+```typescript
+export const config = {
+  isProduction: process.env.ENVIRONMENT === 'production',
+  isStaging: process.env.ENVIRONMENT === 'staging',
+  isDevelopment: process.env.ENVIRONMENT === 'development',
+  enableScheduler: process.env.ENVIRONMENT !== 'development',
+  enableSeedDatabase: process.env.ENVIRONMENT !== 'production',
+};
+```
+
+**Usage in seed.ts:**
+```typescript
+import { config } from '@/lib/config';
+
+async function main() {
+  if (config.isProduction) {
+    console.log('🚫 Skipping seed in production');
+    return;
+  }
+  // Seed logic
+}
+```
+
+**Branch-based environment (vercel.json):**
+```json
+{
+  "env": {
+    "ENVIRONMENT": {
+      "main": "production",
+      "default": "staging"
+    }
+  }
+}
+```
+
+---
+
+## Mobile Responsiveness (Phase 4)
+
+### Dashboard Layout
+`app/(dashboard)/layout.tsx` — Container with responsive padding:
+- `px-4 md:px-6` — 4px padding mobile, 6px tablet+
+- `max-w-7xl mx-auto` — max width cap
+
+### Stat Cards Grid
+All stat card grids use:
+- `grid grid-cols-2 md:grid-cols-4` — 2 columns mobile, 4 columns desktop
+
+Reference: `app/(dashboard)/dashboard/user/page.tsx:45-70`
+
+### Tables
+Wrapped in `overflow-x-auto` container for mobile scrolling:
+```tsx
+<div className="overflow-x-auto">
+  <table className="w-full">
+    {/* table content */}
+  </table>
+</div>
+```
+
+Reference: `app/(dashboard)/dashboard/manager/page.tsx:180-220`

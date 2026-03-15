@@ -2,8 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { z } from "zod";
+import { errors } from "@/lib/errors";
+import { apiLogger } from "@/lib/logger";
 
-const VALID_FREQUENCIES = ["daily", "weekly", "biweekly", "monthly"];
+const log = apiLogger("/api/schools/[id]/frequency");
+
+const VALID_FREQUENCIES = ["daily", "weekly", "biweekly", "monthly"] as const;
+const schema = z.object({
+  frequency: z.enum(VALID_FREQUENCIES),
+});
 
 /**
  * PATCH /api/schools/[id]/frequency
@@ -17,59 +25,47 @@ export async function PATCH(
   const session = await getServerSession(authOptions);
 
   if (!session?.user || session.user.role !== "MANAGER") {
-    return NextResponse.json(
-      { error: "Forbidden" },
-      { status: 403 }
-    );
+    const e = errors.forbidden("Manager role required");
+    return NextResponse.json(e.toJSON(), { status: e.statusCode });
   }
 
   try {
-    const { frequency } = await req.json();
-
-    if (!frequency || !VALID_FREQUENCIES.includes(frequency)) {
-      return NextResponse.json(
-        { error: `Invalid frequency. Must be one of: ${VALID_FREQUENCIES.join(", ")}` },
-        { status: 400 }
-      );
+    const body = await req.json();
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      log.warn({ userId: session.user.id, error: parsed.error.message }, "Validation failed");
+      const e = errors.invalidFrequency([...VALID_FREQUENCIES]);
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
+    const { frequency } = parsed.data;
 
-    // Verify user belongs to this school
     const school = await prisma.school.findUnique({
       where: { id: params.id },
     });
-
     if (!school) {
-      return NextResponse.json(
-        { error: "School not found" },
-        { status: 404 }
-      );
+      const e = errors.notFound("School");
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
 
     const userSchool = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: { schoolId: true },
     });
-
     if (userSchool?.schoolId !== params.id) {
-      return NextResponse.json(
-        { error: "You do not belong to this school" },
-        { status: 403 }
-      );
+      const e = errors.schoolMismatch();
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
 
-    // Update frequency
     const updated = await prisma.school.update({
       where: { id: params.id },
       data: { frequency },
     });
 
+    log.info({ userId: session.user.id, schoolId: params.id, frequency }, "Frequency updated");
     return NextResponse.json({ school: updated });
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    console.error("Update frequency error:", error);
-    return NextResponse.json(
-      { error: errorMsg },
-      { status: 500 }
-    );
+    log.error({ error: String(error) }, "Update frequency failed");
+    const e = errors.internal();
+    return NextResponse.json(e.toJSON(), { status: e.statusCode });
   }
 }

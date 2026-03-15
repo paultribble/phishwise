@@ -5,6 +5,23 @@ import { ALL_MODULES } from "@/lib/modules";
 const prisma = new PrismaClient();
 
 async function main() {
+  // Safety check: never seed in production
+  if (process.env.ENVIRONMENT === "production") {
+    console.log("🚫 Skipping seed in production environment");
+    return;
+  }
+
+  // Additional safety: if DB already has many users, skip in production-like environments
+  const userCount = await prisma.user.count();
+  if (userCount > 100 && process.env.NODE_ENV === "production") {
+    console.log(
+      "🚫 Database already contains " +
+        userCount +
+        " users. Skipping seed (safety check)."
+    );
+    return;
+  }
+
   console.log("🌱 Starting database seed...");
 
   // Demo password (same for all demo accounts)
@@ -52,17 +69,33 @@ async function main() {
     if (!createdModule) continue;
 
     for (const template of module.templates) {
-      await prisma.template.create({
-        data: {
-          moduleId: createdModule.id,
-          name: template.name,
-          subject: template.subject,
-          body: template.body,
-          fromAddress: template.fromAddress || "security@verify-account.com",
-          difficulty: template.difficulty,
-          isActive: template.isActive !== false,
-        },
+      const existingTemplate = await prisma.template.findFirst({
+        where: { name: template.name, moduleId: createdModule.id },
       });
+      if (existingTemplate) {
+        await prisma.template.update({
+          where: { id: existingTemplate.id },
+          data: {
+            subject: template.subject,
+            body: template.body,
+            fromAddress: template.fromAddress || "security@verify-account.com",
+            difficulty: template.difficulty,
+            isActive: template.isActive !== false,
+          },
+        });
+      } else {
+        await prisma.template.create({
+          data: {
+            moduleId: createdModule.id,
+            name: template.name,
+            subject: template.subject,
+            body: template.body,
+            fromAddress: template.fromAddress || "security@verify-account.com",
+            difficulty: template.difficulty,
+            isActive: template.isActive !== false,
+          },
+        });
+      }
       templateCount++;
     }
   }
@@ -207,6 +240,9 @@ async function main() {
 }
 
 main()
+  .then(() => {
+    console.log("✅ Seed completed successfully");
+  })
   .catch((e) => {
     console.error("❌ Seed failed:", e);
     process.exit(1);

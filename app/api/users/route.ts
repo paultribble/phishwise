@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { errors } from "@/lib/errors";
+import { apiLogger } from "@/lib/logger";
+
+const log = apiLogger("/api/users");
 
 /**
  * GET /api/users
@@ -12,56 +16,62 @@ export async function GET() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const e = errors.unauthorized();
+    return NextResponse.json(e.toJSON(), { status: e.statusCode });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    include: {
-      metrics: true,
-      school: { select: { id: true, name: true, inviteCode: true } },
-    },
-  });
-
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  // Get pending training modules
-  const pendingTraining = await prisma.userTraining.findMany({
-    where: {
-      userId: session.user.id,
-      completedAt: null,
-    },
-    include: {
-      module: {
-        select: { id: true, name: true },
-      },
-    },
-  });
-
-  const pendingTrainingFormatted = pendingTraining.map((ut) => ({
-    id: ut.module.id,
-    name: ut.module.name,
-  }));
-
-  // If manager, include school members
-  if (
-    (user.role === "MANAGER" || user.role === "ADMIN") &&
-    user.schoolId
-  ) {
-    const schoolUsers = await prisma.user.findMany({
-      where: { schoolId: user.schoolId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: {
         metrics: true,
+        school: { select: { id: true, name: true, inviteCode: true } },
       },
     });
 
-    return NextResponse.json({ user, schoolUsers, pendingTraining: pendingTrainingFormatted });
-  }
+    if (!user) {
+      const e = errors.notFound("User");
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
+    }
 
-  return NextResponse.json({ user, pendingTraining: pendingTrainingFormatted });
+    const pendingTraining = await prisma.userTraining.findMany({
+      where: {
+        userId: session.user.id,
+        completedAt: null,
+      },
+      include: {
+        module: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    const pendingTrainingFormatted = pendingTraining.map((ut) => ({
+      id: ut.module.id,
+      name: ut.module.name,
+    }));
+
+    if (
+      (user.role === "MANAGER" || user.role === "ADMIN") &&
+      user.schoolId
+    ) {
+      const schoolUsers = await prisma.user.findMany({
+        where: { schoolId: user.schoolId },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          metrics: true,
+        },
+      });
+
+      return NextResponse.json({ user, schoolUsers, pendingTraining: pendingTrainingFormatted });
+    }
+
+    return NextResponse.json({ user, pendingTraining: pendingTrainingFormatted });
+  } catch (error) {
+    log.error({ error: String(error) }, "Get user failed");
+    const e = errors.internal();
+    return NextResponse.json(e.toJSON(), { status: e.statusCode });
+  }
 }

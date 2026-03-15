@@ -1,9 +1,12 @@
-// @ts-nocheck
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { z } from "zod";
+import { errors } from "@/lib/errors";
+import { apiLogger } from "@/lib/logger";
+
+const log = apiLogger("/api/manager/assign-training");
 
 const schema = z.object({
   moduleId: z.string().min(1),
@@ -23,54 +26,48 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user || session.user.role !== "MANAGER") {
-    return NextResponse.json(
-      { error: "Forbidden" },
-      { status: 403 }
-    );
+    const e = errors.forbidden("Manager role required");
+    return NextResponse.json(e.toJSON(), { status: e.statusCode });
   }
 
   try {
     const body = await req.json();
     const parsed = schema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.errors[0]?.message ?? "Invalid request body" },
-        { status: 400 }
-      );
+      log.warn({ userId: session.user.id, error: parsed.error.message }, "Validation failed");
+      const e = errors.invalidInput(parsed.error.errors[0]?.message);
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
     const { userId, userIds, moduleId } = parsed.data;
 
-    // Support both single user (userId) and batch (userIds)
     const usersToAssign = userId ? [userId] : userIds!;
 
-    // Verify module exists
     const trainingModule = await prisma.trainingModule.findUnique({
       where: { id: moduleId },
     });
 
     if (!trainingModule) {
-      return NextResponse.json(
-        { error: "Training module not found" },
-        { status: 404 }
-      );
+      const e = errors.notFound("Training module");
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
 
     let assignedCount = 0;
 
     for (const assignUserId of usersToAssign) {
-      // Upsert UserTraining record
-      await prisma.userTraining.upsert({
-        where: {
-          userId_moduleId: { userId: assignUserId, moduleId },
-        },
-        update: { assignedAt: new Date() },
-        create: {
-          userId: assignUserId,
-          moduleId,
-        },
+      const existing = await prisma.userTraining.findFirst({
+        where: { userId: assignUserId, moduleId },
       });
+      if (existing) {
+        await prisma.userTraining.update({
+          where: { id: existing.id },
+          data: { assignedAt: new Date() },
+        });
+      } else {
+        await prisma.userTraining.create({
+          data: { userId: assignUserId, moduleId },
+        });
+      }
 
-      // Create history record
       await prisma.userHistory.create({
         data: {
           userId: assignUserId,
@@ -82,16 +79,11 @@ export async function POST(req: NextRequest) {
       assignedCount++;
     }
 
-    return NextResponse.json({
-      assigned: assignedCount,
-      moduleId,
-    });
+    log.info({ managerId: session.user.id, moduleId, assignedCount }, "Training assigned");
+    return NextResponse.json({ assigned: assignedCount, moduleId });
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    console.error("Assign training error:", error);
-    return NextResponse.json(
-      { error: errorMsg },
-      { status: 500 }
-    );
+    log.error({ error: String(error) }, "Assign training failed");
+    const e = errors.internal();
+    return NextResponse.json(e.toJSON(), { status: e.statusCode });
   }
 }

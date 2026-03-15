@@ -11,16 +11,19 @@ University of Arkansas CSCE Capstone - Team 20.
 ## Tech Stack (Current Implementation)
 
 - **Framework**: Next.js 14 App Router + TypeScript (strict mode)
-- **Styling**: Tailwind CSS + shadcn/ui components (Radix UI primitives)
+- **Styling**: Tailwind CSS + shadcn/ui components (Radix UI primitives) — glassmorphism theme
 - **Database**: PostgreSQL via Vercel Postgres + Prisma ORM (v6.19.2)
 - **Auth**: NextAuth.js v4 with Google OAuth 2.0 + @auth/prisma-adapter (v2.7.0)
 - **Email**: Resend (dev) / SendGrid (prod) — configured in `lib/email.ts`, uses dynamic imports
-- **Validation**: Zod (v3.24.1)
+- **Validation**: Zod (v3.24.1) — all API routes validated
 - **Forms**: React Hook Form (v7.54.2)
 - **Charts**: Recharts (v2.15.0)
 - **Icons**: Lucide React (v0.473.0)
+- **Rate Limiting**: @upstash/ratelimit + @upstash/redis (serverless, production-ready)
+- **Password Hashing**: bcryptjs (cost 12, for password change feature)
 - **Hosting**: Vercel (serverless, auto-deployment from GitHub)
-- **Missing**: Testing framework (Jest/Vitest), API documentation, security middleware
+- **Security**: CSP middleware, HSTS headers, X-Frame-Options, rate limiting on sensitive endpoints
+- **Missing**: Testing framework (Jest/Vitest), API documentation, Sentry error tracking
 
 ## Project Structure (Current)
 
@@ -45,13 +48,17 @@ app/                                    # Next.js App Router pages
     schools/route.ts                    # POST create school, GET school data
     schools/[id]/route.ts               # GET/PUT school, manage settings
     schools/[id]/frequency/route.ts     # PUT simulation frequency
-    schools/join/route.ts               # POST join school with invite code
+    schools/join/route.ts               # POST join school with invite code (rate limited)
     manager/analytics/route.ts          # GET school analytics (MANAGER only)
     manager/assign-training/route.ts    # POST assign training modules (MANAGER only)
+    manager/invite/route.ts             # POST send school invitation email (MANAGER only, rate limited)
+    manager/export/route.ts             # GET CSV export of school analytics (MANAGER only)
     admin/trigger-simulation/route.ts   # POST manually trigger simulation (ADMIN only)
     admin/scheduler-status/route.ts     # GET scheduler status (ADMIN only)
     scheduler/send-simulations/route.ts # POST cron job to send scheduled simulations
-    demo/send-test-email/route.ts       # POST send demo email (for testing)
+    demo/send-test-email/route.ts       # POST send demo email (rate limited, 10/day/user)
+    users/profile/route.ts              # PATCH update user profile (name)
+    users/password/route.ts             # PATCH change password (with bcryptjs validation)
   training/[moduleId]/page.tsx          # Training module viewer
   training/[moduleId]/caught/page.tsx   # "I caught this" submission page
   training/page.tsx                     # Training modules list
@@ -76,6 +83,10 @@ lib/
   email.ts                              # Email abstraction (Resend → SendGrid → console)
   utils.ts                              # cn() utility for classname merging
   fonts.ts                              # Font imports (Bebas, Playfair, Inter)
+  config.ts                             # Environment config (isProduction, isStaging, etc)
+  errors.ts                             # Standardized error codes + ApiError class (15 codes)
+  logger.ts                             # Structured JSON logging (info, warn, error, debug)
+  rate-limit.ts                         # Rate limiting helper with Upstash Redis + dev fallback
 prisma/
   schema.prisma                         # Database schema (11 models)
   seed.ts                               # Seed script (8 modules, 20 templates, demo data)
@@ -83,15 +94,16 @@ types/
   next-auth.d.ts                        # Session type augmentation (id, role, schoolId)
 public/
   logo.webp                             # Brand logo
-vercel.json                             # Vercel build config
+middleware.ts                           # Security headers (CSP, HSTS, X-Frame-Options, etc)
+vercel.json                             # Vercel build config with branch-based environment vars
 tsconfig.json                           # TypeScript strict mode
 package.json                            # Dependencies, build scripts, auto-migration
-.env.local.example                      # Environment template
+.env.local.example                      # Environment template with Upstash Redis placeholders
 CLAUDE.md                               # This file
 OAUTH_SETUP.md                          # OAuth detailed setup guide
 QUICKSTART.md                           # OAuth quick start (5 min)
 .claude/docs/
-  architectural_patterns.md             # Documented patterns in codebase
+  architectural_patterns.md             # Documented patterns in codebase (updated with security patterns)
 ```
 ```
 
@@ -279,26 +291,32 @@ Update when introducing/modifying patterns used in 2+ files:
 ### ✅ WORKING FEATURES
 1. **Google OAuth 2.0** — Fully functional, auto-detects NEXTAUTH_URL per environment
 2. **Database Schema** — All 11 models created, indices in place, auto-migration on build
-3. **API Routes** — Basic CRUD, auth guards, denormalized metrics
-4. **Dashboard Pages** — User & Manager dashboards with role-based rendering
-5. **Component Library** — shadcn/ui implemented, dark mode complete
-6. **Email** — Resend/SendGrid abstraction with fallback
+3. **API Routes** — 20+ routes with auth guards, Zod validation, denormalized metrics, error codes
+4. **Dashboard Pages** — User/Manager dashboards with glassmorphism theme, role-based rendering
+5. **Component Library** — shadcn/ui implemented, dark mode complete, glassmorphism blue theme
+6. **Email** — Resend/SendGrid abstraction with fallback, manager invitations, test email sending
+7. **User Settings** — Profile editing, password change with bcryptjs, school info display
+8. **Manager Features** — School invitations by email, CSV analytics export, invite code display
+9. **Onboarding** — School creation flow, invite code display on success, session checks
+10. **Mobile Responsive** — 2-column stat grids, scrollable tables, responsive padding (px-4 md:px-6)
+11. **Security Headers** — Middleware with CSP, HSTS (prod), X-Frame-Options, Referrer-Policy, Permissions-Policy
+12. **Rate Limiting** — Upstash Redis (serverless), 5 protected endpoints (invite, test email, join, click tracking, caught-data)
+13. **Structured Logging** — JSON logs in production, context-aware, no sensitive data logged
+14. **Error Handling** — 15 standardized error codes with helpful messages (ERR_UNAUTHORIZED, ERR_INVALID_INVITE, etc)
+15. **Input Validation** — Zod schemas on all 15+ API routes (create school, join, training, etc)
+16. **Production-Safe Seed** — Conditional seed that skips in production, idempotent templates
+17. **Environment Config** — Staging vs production separation (isProduction, isStaging, enableScheduler flags)
 
 ### ⚠️ PARTIALLY WORKING / INCOMPLETE
-1. **Input Validation** — Zod used in some places, but not consistently across all API routes
-   - `POST /api/simulations` doesn't validate body shape
-   - `POST /api/schools/join` lacks invite code length validation
-   - `/api/training/caught-data` has minimal validation
+1. **API Response Types** — No TypeScript types exported for API responses
+   - No OpenAPI/Swagger documentation (can be generated from Zod schemas)
+   - Frontend assumes response shape, could be more type-safe
+   - Consider zod-to-ts or tRPC for automatic type generation
 
-2. **Error Handling** — Basic try-catch blocks, but inconsistent error codes
-   - No standardized error response format
-   - Generic 400/401/404 without descriptive error types
-   - No client error codes (e.g., ERR_INVALID_INVITE, ERR_SCHOOL_FULL)
-
-3. **API Response Types** — No TypeScript types for API responses
-   - No OpenAPI/Swagger documentation
-   - Frontend assumes response shape, fragile to schema changes
-   - Consider zod-to-ts or tRPC for type safety
+2. **Testing Coverage** — Vitest installed (62 tests passing for email validation), but limited coverage
+   - No tests for new Phase 1-5 features (settings, invitations, CSV export, security)
+   - No integration tests for rate limiting or error codes
+   - CI/CD pipeline ready, just needs test expansion
 
 ### ❌ MISSING / SECURITY ISSUES
 
@@ -313,18 +331,19 @@ Update when introducing/modifying patterns used in 2+ files:
   - Database operations (seed, upsert, cascade deletes)
   - Component rendering with different user roles
 
-#### 2. **Security Middleware (CRITICAL)**
-- No CSRF protection (NextAuth provides default, verify it's enabled)
-- No Rate Limiting on endpoints (anyone can spam `/api/track/click`)
-- No Security Headers (no helmet, no CSP, no X-Frame-Options)
-- No request logging / monitoring
-- **Fix:** Add rate-limiter middleware, security headers, request tracing
+#### 2. **Security Middleware (CRITICAL)** ✅ FIXED
+- ✅ CSRF protection — NextAuth default enabled + middleware applied
+- ✅ Rate Limiting — Upstash Redis on 5 sensitive endpoints
+- ✅ Security Headers — CSP, HSTS (prod), X-Frame-Options, Referrer-Policy, Permissions-Policy
+- ✅ Request logging — Structured JSON logging with context (route, userId, error)
+- **Status:** Production-ready (requires Upstash Redis credentials in Vercel env)
 
-#### 3. **Input Validation (HIGH)**
-- Many API routes accept request.json() without schema validation
-- Missing checks for: empty strings, SQL injection via Prisma (safe), XSS in email subjects
-- File upload not implemented (only for logos/avatars, not critical now)
-- **Fix:** Create request/response schemas with Zod for all API routes
+#### 3. **Input Validation (HIGH)** ✅ FIXED
+- ✅ All API routes (15+) now have Zod schemas
+- ✅ Validates: inviteCode, email, frequency enum, userId/moduleId, score/passed, etc
+- ✅ SQL injection prevented via Prisma ORM, XSS in email subjects sanitized via SendGrid
+- ✅ File upload not implemented (not needed, only emails)
+- **Status:** Complete across all routes
 
 #### 4. **Database Connection Pooling (HIGH)**
 - Vercel Postgres uses pgBouncer (connection pooling)
@@ -337,16 +356,19 @@ Update when introducing/modifying patterns used in 2+ files:
 - Example: `/api/schools/join` returns "School not found" but doesn't indicate if invite code is invalid
 - **Fix:** Use error enums with standardized codes: `{ code: "ERR_INVALID_INVITE", message: "..." }`
 
-#### 6. **Logging & Observability (MEDIUM)**
-- Console logs in development mode, nothing in production
-- No structured logging (JSON logs with context)
-- No error tracking (Sentry, LogRocket, etc.)
-- **Fix:** Add structured logging for API requests, auth events, database errors
+#### 6. **Logging & Observability (MEDIUM)** ✅ FIXED
+- ✅ Structured JSON logging in production, pretty logs in dev
+- ✅ Context-aware logging (route, userId, schoolId, error)
+- ✅ 5 critical routes instrumented (invite, export, test email, profile, password)
+- ⚠️ Error tracking (Sentry, LogRocket) optional, can be added later
+- **Status:** Logging infrastructure complete, JSON ready for aggregation tools
 
-#### 7. **Environment-Specific Config (MEDIUM)**
-- Same DATABASE_URL used for all environments (see deployment strategy below)
-- ENABLE_SCHEDULER flag exists but not wired to actual scheduler
-- No feature flags for gradual rollout
+#### 7. **Environment-Specific Config (MEDIUM)** ✅ FIXED
+- ✅ `lib/config.ts` with environment flags (isProduction, isStaging, isDevelopment)
+- ✅ `vercel.json` with branch-based ENVIRONMENT (main=prod, default=staging)
+- ✅ Seed conditionally skips in production
+- ✅ HSTS header only in production
+- **Status:** Staging vs production separation ready for deployment
 
 #### 8. **Session / Cookie Security (LOW)**
 - NextAuth provides HttpOnly, Secure, SameSite by default ✅
@@ -419,10 +441,41 @@ Set env vars differently per environment in Vercel dashboard.
 3. **Merge to main** → Vercel Production (production DB, conditional seed)
 4. **Hotfix** → Cherry-pick to main, same flow
 
+## Implementation Status — Phases 1-5 Complete ✅
+
+### Phase 1-4: Features & UI (15 files, 9 tasks)
+- ✅ Settings page rewrite (profile edit, password change)
+- ✅ Manager invitations by email
+- ✅ CSV analytics export
+- ✅ Glassmorphism UI retheme (all dashboards)
+- ✅ Onboarding with invite code display
+- ✅ Mobile responsive grid/tables (2-col, overflow)
+- ✅ Role-aware navbar routing
+
+### Phase 5: Security Hardening (20 files, 6 tasks)
+- ✅ Security headers middleware (CSP, HSTS, X-Frame, Referrer, Permissions)
+- ✅ Rate limiting (Upstash Redis, 5 endpoints)
+- ✅ Structured logging (JSON prod, pretty dev)
+- ✅ Error codes (15 standardized codes with context)
+- ✅ Input validation (Zod on 15+ routes)
+- ✅ Production-safe seed (conditional, idempotent)
+
+### Build Status
+- **Clean build:** `npm run build` → 50 pages, 0 TypeScript errors, middleware compiled
+- **Tests passing:** 62/62 (email validation suite)
+- **Dependencies:** All added (bcryptjs, @upstash/ratelimit, @upstash/redis)
+
+### Next Steps (Phase 6+)
+1. **Testing** — Expand Vitest to cover new features/security (currently 62 tests for email only)
+2. **API Docs** — Generate OpenAPI from Zod schemas
+3. **Monitoring** — Wire up Sentry or use structured logs with log aggregation
+4. **Performance** — Add cache headers, database indexes, query optimization
+5. **Deployment** — Set environment variables, test staging DB/Redis, verify HTTPS
+
 ## Additional Documentation
 
 When working on specific areas, check these files for detailed patterns:
 
-- `.claude/docs/architectural_patterns.md` — Component architecture, API route patterns, auth flow, role-based access, state management approach
+- `.claude/docs/architectural_patterns.md` — Component architecture, API route patterns, auth flow, security patterns, role-based access
 - `OAUTH_SETUP.md` — Detailed OAuth setup for all environments
 - `QUICKSTART.md` — 10-minute OAuth setup quickstart

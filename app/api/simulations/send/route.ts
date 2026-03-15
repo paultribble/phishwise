@@ -5,6 +5,10 @@ import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { generatePhishingEmail } from "@/lib/email-template";
 import { z } from "zod";
+import { errors } from "@/lib/errors";
+import { apiLogger } from "@/lib/logger";
+
+const log = apiLogger("/api/simulations/send");
 
 const sendSimulationSchema = z.object({
   userId: z.string().min(1, "User ID is required"),
@@ -20,35 +24,33 @@ export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const e = errors.unauthorized();
+    return NextResponse.json(e.toJSON(), { status: e.statusCode });
   }
 
-  // Check if user is manager or admin
   if (session.user.role !== "MANAGER" && session.user.role !== "ADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const e = errors.forbidden("Manager or Admin role required");
+    return NextResponse.json(e.toJSON(), { status: e.statusCode });
   }
 
   try {
     const body = await request.json();
-    const validation = sendSimulationSchema.safeParse(body);
-
-    if (!validation.success) {
-      return NextResponse.json(
-        { error: validation.error.errors[0].message },
-        { status: 400 }
-      );
+    const parsed = sendSimulationSchema.safeParse(body);
+    if (!parsed.success) {
+      log.warn({ userId: session.user.id, error: parsed.error.message }, "Validation failed");
+      const e = errors.invalidInput(parsed.error.errors[0]?.message);
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
+    const { userId, templateId } = parsed.data;
 
-    const { userId, templateId } = validation.data;
-
-    // Verify user exists and is in manager's school (if manager)
     const targetUser = await prisma.user.findUnique({
       where: { id: userId },
       select: { email: true, schoolId: true },
     });
 
     if (!targetUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      const e = errors.notFound("User");
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
 
     if (session.user.role === "MANAGER") {
@@ -58,27 +60,21 @@ export async function POST(request: NextRequest) {
       });
 
       if (manager?.schoolId !== targetUser.schoolId) {
-        return NextResponse.json(
-          { error: "Cannot send to user in different school" },
-          { status: 403 }
-        );
+        const e = errors.schoolMismatch();
+        return NextResponse.json(e.toJSON(), { status: e.statusCode });
       }
     }
 
-    // Get template
     const template = await prisma.template.findUnique({
       where: { id: templateId },
       include: { module: true },
     });
 
     if (!template) {
-      return NextResponse.json(
-        { error: "Template not found" },
-        { status: 404 }
-      );
+      const e = errors.notFound("Template");
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
 
-    // Create simulation record
     const simulation = await prisma.simulationEmail.create({
       data: {
         userId,
@@ -88,7 +84,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Generate email with tracking link
     const trackingUrl = `${process.env.NEXTAUTH_URL}/api/track/click/${simulation.trackingToken}`;
 
     const htmlContent = generatePhishingEmail({
@@ -98,7 +93,6 @@ export async function POST(request: NextRequest) {
       trackingLink: trackingUrl,
     });
 
-    // Send email
     await sendEmail({
       to: targetUser.email,
       subject: template.subject,
@@ -106,7 +100,6 @@ export async function POST(request: NextRequest) {
       from: template.fromAddress || "PhishWise <noreply@phishwise.app>",
     });
 
-    // Record history
     await prisma.userHistory.create({
       data: {
         userId,
@@ -115,6 +108,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    log.info({ sentBy: session.user.id, targetUserId: userId, simulationId: simulation.id }, "Simulation sent");
     return NextResponse.json(
       {
         success: true,
@@ -124,10 +118,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("[POST /api/simulations/send] Error:", error);
-    return NextResponse.json(
-      { error: "Failed to send simulation" },
-      { status: 500 }
-    );
+    log.error({ error: String(error) }, "Send simulation failed");
+    const e = errors.internal();
+    return NextResponse.json(e.toJSON(), { status: e.statusCode });
   }
 }

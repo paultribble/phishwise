@@ -4,6 +4,12 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { sendPhishingEmail } from "@/lib/email/send";
 import { generateTrackingToken, getRecentTemplateIds, selectTemplate } from "@/lib/scheduler/logic";
+import { z } from "zod";
+import { errors } from "@/lib/errors";
+import { apiLogger } from "@/lib/logger";
+
+const log = apiLogger("/api/admin/trigger-simulation");
+const schema = z.object({ email: z.string().email("Valid email is required") });
 
 /**
  * POST /api/admin/trigger-simulation
@@ -13,70 +19,55 @@ import { generateTrackingToken, getRecentTemplateIds, selectTemplate } from "@/l
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
-  // Check authorization
   if (!session?.user || !["MANAGER", "ADMIN"].includes(session.user.role)) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 403 }
-    );
+    const e = errors.forbidden("Manager or Admin role required");
+    return NextResponse.json(e.toJSON(), { status: e.statusCode });
   }
 
   try {
-    const { email } = await req.json();
-
-    if (!email) {
-      return NextResponse.json(
-        { error: "Email is required" },
-        { status: 400 }
-      );
+    const body = await req.json();
+    const parsed = schema.safeParse(body);
+    if (!parsed.success) {
+      log.warn({ userId: session.user.id, error: parsed.error.message }, "Validation failed");
+      const e = errors.invalidInput("email");
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
+    const { email } = parsed.data;
 
-    // Find the user
     const user = await prisma.user.findUnique({
       where: { email },
       include: { school: true },
     });
 
     if (!user || !user.school) {
-      return NextResponse.json(
-        { error: "User or school not found" },
-        { status: 404 }
-      );
+      const e = errors.notFound("User or school");
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
 
     if (!user.email) {
-      return NextResponse.json(
-        { error: "User has no email address" },
-        { status: 400 }
-      );
+      const e = errors.invalidInput("User has no email address");
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
 
-    // For managers, verify they belong to this school
     if (session.user.role === "MANAGER") {
       const manager = await prisma.user.findUnique({
         where: { id: session.user.id },
         select: { schoolId: true },
       });
       if (manager?.schoolId !== user.schoolId) {
-        return NextResponse.json(
-          { error: "You can only send simulations to users in your school" },
-          { status: 403 }
-        );
+        const e = errors.schoolMismatch();
+        return NextResponse.json(e.toJSON(), { status: e.statusCode });
       }
     }
 
-    // Select template
     const recentIds = await getRecentTemplateIds(user.id);
     const template = await selectTemplate(user.id, recentIds);
 
     if (!template) {
-      return NextResponse.json(
-        { error: "No template available" },
-        { status: 500 }
-      );
+      const e = errors.noTemplate();
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
 
-    // Get or create campaign
     let campaign = await prisma.campaign.findFirst({
       where: { schoolId: user.school.id },
     });
@@ -91,7 +82,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Generate token and create simulation
     const token = generateTrackingToken();
     const simEmail = await prisma.simulationEmail.create({
       data: {
@@ -102,7 +92,6 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Send the email with template-specific sender
     const sendResult = await sendPhishingEmail({
       to: user.email,
       userName: user.name || "User",
@@ -113,30 +102,25 @@ export async function POST(req: NextRequest) {
     });
 
     if (!sendResult.success) {
-      return NextResponse.json(
-        { error: `Failed to send email: ${sendResult.error}` },
-        { status: 500 }
-      );
+      const e = errors.emailFailed(sendResult.error);
+      return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
 
-    // Update metrics
     await prisma.userMetrics.upsert({
       where: { userId: user.id },
       update: { totalSent: { increment: 1 }, lastActivity: new Date() },
       create: { userId: user.id, totalSent: 1 },
     });
 
+    log.info({ triggeredBy: session.user.id, targetEmail: email, simulationId: simEmail.id }, "Simulation triggered");
     return NextResponse.json({
       success: true,
       simulationId: simEmail.id,
       message: `Phishing simulation sent to ${email}`,
     });
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    console.error("Trigger simulation error:", error);
-    return NextResponse.json(
-      { error: errorMsg },
-      { status: 500 }
-    );
+    log.error({ error: String(error) }, "Trigger simulation failed");
+    const e = errors.internal();
+    return NextResponse.json(e.toJSON(), { status: e.statusCode });
   }
 }

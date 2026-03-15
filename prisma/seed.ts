@@ -139,104 +139,136 @@ async function main() {
     },
   });
 
-  const regularUser = await prisma.user.upsert({
-    where: { email: "ptribble@outlook.com" },
-    update: {
-      name: "Paul Tribble",
-      password: hashedPassword,
-      role: "USER" as Role,
-      schoolId: school.id,
-    },
-    create: {
-      name: "Paul Tribble",
-      email: "ptribble@outlook.com",
-      password: hashedPassword,
-      role: "USER" as Role,
-      schoolId: school.id,
-    },
-  });
+  // Demo users with varying statistics
+  const demoUsers = [
+    { email: "ptribble@outlook.com", name: "Paul Tribble", clickRate: 0.4, simCount: 100 },
+    { email: "alice.johnson@example.com", name: "Alice Johnson", clickRate: 0.15, simCount: 85 },
+    { email: "bob.smith@example.com", name: "Bob Smith", clickRate: 0.55, simCount: 95 },
+    { email: "carol.white@example.com", name: "Carol White", clickRate: 0.08, simCount: 120 },
+    { email: "david.brown@example.com", name: "David Brown", clickRate: 0.45, simCount: 75 },
+    { email: "emma.davis@example.com", name: "Emma Davis", clickRate: 0.25, simCount: 110 },
+    { email: "frank.miller@example.com", name: "Frank Miller", clickRate: 0.62, simCount: 80 },
+    { email: "grace.wilson@example.com", name: "Grace Wilson", clickRate: 0.12, simCount: 130 },
+    { email: "henry.taylor@example.com", name: "Henry Taylor", clickRate: 0.48, simCount: 90 },
+    { email: "isabella.anderson@example.com", name: "Isabella Anderson", clickRate: 0.35, simCount: 105 },
+    { email: "james.thomas@example.com", name: "James Thomas", clickRate: 0.70, simCount: 70 },
+  ];
 
-  console.log(`✅ Created demo users`);
+  const createdUsers = [];
+  for (const demoUser of demoUsers) {
+    const user = await prisma.user.upsert({
+      where: { email: demoUser.email },
+      update: {
+        name: demoUser.name,
+        password: hashedPassword,
+        role: "USER" as Role,
+        schoolId: school.id,
+      },
+      create: {
+        name: demoUser.name,
+        email: demoUser.email,
+        password: hashedPassword,
+        role: "USER" as Role,
+        schoolId: school.id,
+      },
+    });
+    createdUsers.push({ ...user, clickRate: demoUser.clickRate, simCount: demoUser.simCount });
+  }
 
-  // Create sample simulations for the user
-  console.log("📊 Creating sample simulation data...");
+  console.log(`✅ Created 1 manager + ${createdUsers.length} demo users`);
+
+  // Create sample simulations for all users
+  console.log("📊 Creating sample simulation data for all users...");
   let simulationCount = 0;
 
   // Get all templates for random selection
   const allTemplates = await prisma.template.findMany();
 
-  // Create 100 simulations with random templates
-  for (let i = 0; i < 100; i++) {
-    const randomTemplate = allTemplates[Math.floor(Math.random() * allTemplates.length)];
-    const sentDate = new Date();
-    sentDate.setDate(sentDate.getDate() - Math.floor(Math.random() * 90));
+  // Create simulations for each user with their unique statistics
+  for (const user of createdUsers) {
+    // Create varied number of simulations per user
+    for (let i = 0; i < user.simCount; i++) {
+      const randomTemplate = allTemplates[Math.floor(Math.random() * allTemplates.length)];
+      const sentDate = new Date();
+      sentDate.setDate(sentDate.getDate() - Math.floor(Math.random() * 90));
 
-    const clicked = Math.random() < 0.4; // 40% click rate
-    const opened = Math.random() < 0.7; // 70% open rate
+      const clicked = Math.random() < user.clickRate;
+      const opened = Math.random() < (0.6 + user.clickRate * 0.2); // Higher open rate for high-click users
 
-    await prisma.simulationEmail.create({
-      data: {
-        userId: regularUser.id,
-        templateId: randomTemplate.id,
-        sentAt: sentDate,
-        opened: opened,
-        openedAt: opened ? sentDate : null,
-        clicked: clicked,
-        clickedAt: clicked ? new Date(sentDate.getTime() + 3600000) : null,
-        status: clicked ? "clicked" : opened ? "opened" : "sent",
-      },
-    });
+      await prisma.simulationEmail.create({
+        data: {
+          userId: user.id,
+          templateId: randomTemplate.id,
+          sentAt: sentDate,
+          opened: opened,
+          openedAt: opened ? sentDate : null,
+          clicked: clicked,
+          clickedAt: clicked ? new Date(sentDate.getTime() + 3600000) : null,
+          status: clicked ? "clicked" : opened ? "opened" : "sent",
+          trackingToken: `token_${user.id}_${i}`,
+        },
+      });
 
-    simulationCount++;
+      simulationCount++;
+    }
   }
 
-  console.log(`✅ Created ${simulationCount} sample simulations`);
+  console.log(`✅ Created ${simulationCount} sample simulations across all users`);
 
-  // Initialize user metrics
+  // Initialize user metrics for all demo users
   console.log("📈 Initializing user metrics...");
-  const stats = await prisma.simulationEmail.aggregate({
-    where: { userId: regularUser.id },
-    _count: true,
-  });
+  for (const user of createdUsers) {
+    const stats = await prisma.simulationEmail.aggregate({
+      where: { userId: user.id },
+      _count: true,
+    });
 
-  const clickedCount = await prisma.simulationEmail.count({
-    where: { userId: regularUser.id, clicked: true },
-  });
+    const clickedCount = await prisma.simulationEmail.count({
+      where: { userId: user.id, clicked: true },
+    });
 
-  await prisma.userMetrics.upsert({
-    where: { userId: regularUser.id },
-    update: {
-      totalSent: stats._count,
-      totalClicked: clickedCount,
-      lastActivity: new Date(),
-    },
-    create: {
-      userId: regularUser.id,
-      totalSent: stats._count,
-      totalClicked: clickedCount,
-      totalCompleted: 0,
-      lastActivity: new Date(),
-    },
-  });
+    // Randomly assign some users to have completed training
+    const trainingCompleted = Math.random() < 0.5 ? Math.floor(Math.random() * 5) : 0;
 
-  console.log(`✅ Initialized user metrics`);
+    await prisma.userMetrics.upsert({
+      where: { userId: user.id },
+      update: {
+        totalSent: stats._count,
+        totalClicked: clickedCount,
+        totalCompleted: trainingCompleted,
+        lastActivity: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Random activity in last 30 days
+      },
+      create: {
+        userId: user.id,
+        totalSent: stats._count,
+        totalClicked: clickedCount,
+        totalCompleted: trainingCompleted,
+        lastActivity: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
+      },
+    });
+  }
+
+  console.log(`✅ Initialized metrics for ${createdUsers.length} users`);
 
   // Print demo credentials
-  console.log("\n" + "=".repeat(60));
+  console.log("\n" + "=".repeat(70));
   console.log("🎉 SEED COMPLETE - Demo Credentials");
-  console.log("=".repeat(60));
+  console.log("=".repeat(70));
   console.log(`\n📧 Manager Account:`);
   console.log(`   Email: ${managerUser.email}`);
   console.log(`   Password: ${demoPassword}`);
   console.log(`   Role: MANAGER\n`);
-  console.log(`📧 User Account:`);
-  console.log(`   Email: ${regularUser.email}`);
-  console.log(`   Password: ${demoPassword}`);
-  console.log(`   Role: USER\n`);
+  console.log(`👥 Demo Users (${createdUsers.length} users):`);
+  for (const user of createdUsers) {
+    console.log(`   Email: ${user.email}`);
+    console.log(`   Name: ${user.name}`);
+    console.log(`   Simulations: ${user.simCount}, Click Rate: ${(user.clickRate * 100).toFixed(0)}%\n`);
+  }
   console.log(`🏫 School Invite Code: ${school.inviteCode}\n`);
   console.log(`📚 Modules created: ${createdModules.length}`);
   console.log(`📧 Templates created: ${templateCount}`);
-  console.log("=".repeat(60) + "\n");
+  console.log(`📊 Total simulations: ${simulationCount}`);
+  console.log("=".repeat(70) + "\n");
 }
 
 main()

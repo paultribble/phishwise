@@ -5,11 +5,14 @@ vi.mock('@/lib/db', () => ({
   prisma: {
     authToken: {
       findUnique: vi.fn(),
+      update: vi.fn().mockResolvedValue({}),
     },
     user: {
-      update: vi.fn(),
+      update: vi.fn().mockResolvedValue({}),
     },
-    $transaction: vi.fn().mockResolvedValue([]),
+    $transaction: vi.fn().mockImplementation(async (queries) => {
+      return Promise.resolve([{}, {}])
+    }),
   },
 }))
 

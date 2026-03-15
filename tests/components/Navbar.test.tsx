@@ -19,8 +19,31 @@ vi.mock('@/lib/fonts', () => ({
   playfair: { className: 'playfair-mock' },
 }))
 
+vi.mock('@/components/ui/dropdown-menu', () => ({
+  DropdownMenu: ({ children }: { children: React.ReactNode }) =>
+    React.createElement('div', { 'data-testid': 'dropdown-menu' }, children),
+  DropdownMenuTrigger: ({ children, asChild }: { children: React.ReactNode; asChild?: boolean }) =>
+    React.createElement('div', { 'data-testid': 'dropdown-trigger' }, children),
+  DropdownMenuContent: ({ children, align }: { children: React.ReactNode; align?: string }) =>
+    React.createElement('div', { 'data-testid': 'dropdown-content' }, children),
+  DropdownMenuItem: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) =>
+    React.createElement('div', { 'data-testid': 'dropdown-item', ...props }, children),
+  DropdownMenuLabel: ({ children }: { children: React.ReactNode }) =>
+    React.createElement('div', { 'data-testid': 'dropdown-label' }, children),
+  DropdownMenuSeparator: () => React.createElement('div', { 'data-testid': 'dropdown-separator' }),
+}))
+
 vi.mock('@/components/ui/PhishWiseLogo', () => ({
   PhishWiseLogo: () => React.createElement('div', { 'data-testid': 'phishwise-logo' }, 'Logo'),
+}))
+
+vi.mock('@/components/ui/avatar', () => ({
+  Avatar: ({ children, className }: { children: React.ReactNode; className?: string }) =>
+    React.createElement('div', { 'data-testid': 'avatar', className }, children),
+  AvatarImage: ({ src }: { src?: string }) =>
+    React.createElement('img', { 'data-testid': 'avatar-image', src }),
+  AvatarFallback: ({ children, className }: { children: React.ReactNode; className?: string }) =>
+    React.createElement('div', { 'data-testid': 'avatar-fallback', className }, children),
 }))
 
 import { useSession, signOut } from 'next-auth/react'

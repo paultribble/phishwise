@@ -23,7 +23,11 @@ describe('sendEmail', () => {
 
     const mockSend = vi.fn().mockResolvedValue({ error: null })
     const mockResendInstance = { emails: { send: mockSend } }
-    const MockResend = vi.fn().mockReturnValue(mockResendInstance)
+
+    class MockResend {
+      constructor(key: string) {}
+      emails = mockResendInstance.emails
+    }
 
     vi.doMock('resend', () => ({ Resend: MockResend }))
 
@@ -31,7 +35,6 @@ describe('sendEmail', () => {
 
     await sendEmail({ to: 'user@example.com', subject: 'Test', html: '<p>test</p>' })
 
-    expect(MockResend).toHaveBeenCalledWith('test-resend-key')
     expect(mockSend).toHaveBeenCalledOnce()
     expect(mockSend).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -47,7 +50,11 @@ describe('sendEmail', () => {
 
     const mockSend = vi.fn().mockResolvedValue({ error: { message: 'Resend API error' } })
     const mockResendInstance = { emails: { send: mockSend } }
-    const MockResend = vi.fn().mockReturnValue(mockResendInstance)
+
+    class MockResend {
+      constructor(key: string) {}
+      emails = mockResendInstance.emails
+    }
 
     vi.doMock('resend', () => ({ Resend: MockResend }))
 

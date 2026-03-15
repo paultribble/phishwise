@@ -31,25 +31,10 @@ function validateEmailConfig() {
   let issues = [];
   let warnings = [];
 
-  // Check Resend
-  console.log('Checking Email Providers...');
-  const hasResend = !!process.env.RESEND_API_KEY;
+  // Check SendGrid
+  console.log('Checking Email Provider (SendGrid)...');
   const hasSendGrid = !!process.env.SENDGRID_API_KEY;
 
-  if (hasResend) {
-    const key = process.env.RESEND_API_KEY;
-    const isValid = key.startsWith('re_');
-    if (isValid) {
-      log(GREEN, '✓', 'Resend API Key: Set and looks valid');
-    } else {
-      log(YELLOW, '⚠', 'Resend API Key: Set but may be invalid (should start with "re_")');
-      warnings.push('Resend key format issue');
-    }
-  } else {
-    log(YELLOW, '○', 'Resend API Key: Not set');
-  }
-
-  // Check SendGrid
   if (hasSendGrid) {
     const key = process.env.SENDGRID_API_KEY;
     const isValid = key.startsWith('SG.');
@@ -60,12 +45,8 @@ function validateEmailConfig() {
       warnings.push('SendGrid key format issue');
     }
   } else {
-    log(YELLOW, '○', 'SendGrid API Key: Not set');
-  }
-
-  if (!hasResend && !hasSendGrid) {
-    log(RED, '✗', 'No email provider configured!');
-    issues.push('Set RESEND_API_KEY or SENDGRID_API_KEY in .env.local');
+    log(RED, '✗', 'SendGrid API Key: Not configured!');
+    issues.push('Set SENDGRID_API_KEY in .env.local (get from https://app.sendgrid.com/settings/api_keys)');
   }
 
   // Check NEXTAUTH_URL

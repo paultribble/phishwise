@@ -1,10 +1,11 @@
 /**
  * Email configuration validation utilities
  * Use these to verify email settings are correct before sending
+ * Uses SendGrid for all email operations
  */
 
 export interface EmailConfigStatus {
-  provider: 'resend' | 'sendgrid' | 'none';
+  provider: 'sendgrid' | 'none';
   isConfigured: boolean;
   hasValidUrl: boolean;
   issues: string[];
@@ -16,17 +17,16 @@ export interface EmailConfigStatus {
 export function validateEmailConfig(): EmailConfigStatus {
   const issues: string[] = [];
 
-  // Check provider
-  const hasResend = !!process.env.RESEND_API_KEY;
+  // Check SendGrid API key
   const hasSendGrid = !!process.env.SENDGRID_API_KEY;
 
-  if (!hasResend && !hasSendGrid) {
+  if (!hasSendGrid) {
     issues.push(
-      'No email provider configured. Set RESEND_API_KEY or SENDGRID_API_KEY in .env.local'
+      'SendGrid API key not configured. Set SENDGRID_API_KEY in .env.local'
     );
   }
 
-  const provider = hasSendGrid ? 'sendgrid' : hasResend ? 'resend' : 'none';
+  const provider = hasSendGrid ? 'sendgrid' : 'none';
 
   // Check NEXTAUTH_URL
   const nextrauthUrl = process.env.NEXTAUTH_URL;
@@ -39,16 +39,16 @@ export function validateEmailConfig(): EmailConfigStatus {
   }
 
   // Check SENDER_EMAIL (only if provider is configured)
+  // For phishing templates, it's optional since they use template.fromAddress
   const senderEmail = process.env.SENDER_EMAIL || 'noreply@phishwise.app';
-  if ((hasResend || hasSendGrid) && senderEmail === 'noreply@phishwise.app') {
-    issues.push(
-      'SENDER_EMAIL should be set to a verified domain in your email provider (Resend or SendGrid)'
-    );
+  if (hasSendGrid && senderEmail === 'noreply@phishwise.app') {
+    // This is a warning only, not an error - templates can override sender
+    // console.warn('Consider setting SENDER_EMAIL to a verified domain in SendGrid');
   }
 
   return {
     provider,
-    isConfigured: hasResend || hasSendGrid,
+    isConfigured: hasSendGrid,
     hasValidUrl,
     issues,
   };

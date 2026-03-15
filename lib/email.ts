@@ -6,45 +6,43 @@ interface SendEmailOptions {
 }
 
 /**
- * Sends an email using either Resend (development) or SendGrid (production).
- * Configure via RESEND_API_KEY or SENDGRID_API_KEY environment variables.
+ * Sends an email using SendGrid.
+ * Requires SENDGRID_API_KEY environment variable.
+ *
+ * Sender address priority:
+ * 1. Provided `from` parameter (custom phishing template address)
+ * 2. SENDER_EMAIL environment variable
+ * 3. Default "noreply@phishwise.app"
+ *
+ * Note: All sender addresses must be verified in SendGrid
  */
 export async function sendEmail({ to, subject, html, from }: SendEmailOptions) {
-  const defaultFrom = "PhishWise <noreply@phishwise.app>";
+  // Determine sender address with priority chain
+  const senderAddress =
+    from ||
+    process.env.SENDER_EMAIL ||
+    "noreply@phishwise.app";
 
-  // Use Resend in development
-  if (process.env.RESEND_API_KEY) {
-    const { Resend } = await import("resend");
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
-    const { error } = await resend.emails.send({
-      from: from ?? defaultFrom,
-      to,
-      subject,
-      html,
-    });
-
-    if (error) {
-      throw new Error(`Resend error: ${error.message}`);
-    }
+  // Verify SendGrid API key is configured
+  if (!process.env.SENDGRID_API_KEY) {
+    console.warn("[Email] SENDGRID_API_KEY not configured. Email not sent:");
+    console.warn({ to, subject, from: senderAddress });
     return;
   }
 
-  // Use SendGrid in production
-  if (process.env.SENDGRID_API_KEY) {
+  // Send via SendGrid
+  try {
     const sgMail = await import("@sendgrid/mail");
     sgMail.default.setApiKey(process.env.SENDGRID_API_KEY);
 
     await sgMail.default.send({
       to,
-      from: from ?? defaultFrom,
+      from: senderAddress,
       subject,
       html,
     });
-    return;
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    throw new Error(`SendGrid error: ${errorMsg}`);
   }
-
-  // Fallback: log to console in development
-  console.warn("[Email] No email provider configured. Email not sent:");
-  console.warn({ to, subject, from: from ?? defaultFrom });
 }

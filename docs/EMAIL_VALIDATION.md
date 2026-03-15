@@ -116,41 +116,48 @@ curl -X POST http://localhost:3000/api/auth/magic-link \
 
 ---
 
-## Email Provider Setup
+## Email Provider Setup (SendGrid)
 
-### Using Resend (Recommended for Dev/Staging)
+### Setup Steps
 
-1. **Create account**: https://resend.com
-2. **Get API key**: https://resend.com/api-keys
-3. **Add to env**:
-   ```bash
-   RESEND_API_KEY=re_xxxxxxxxxxxxxx
-   ```
-4. **Test**:
-   ```bash
-   npm run dev
-   # Send test email from demo endpoint
-   ```
-
-**Note**: Resend free tier sends to verified domains only. For testing:
-- Send to yourself (verify your email in Resend)
-- Or send to delivery@resend.dev (Resend test inbox)
-
----
-
-### Using SendGrid (Recommended for Production)
-
-1. **Create account**: https://sendgrid.com
-2. **Create API key**: https://app.sendgrid.com/settings/api_keys
-3. **Verify sender**: https://app.sendgrid.com/settings/sender_auth
-4. **Add to env**:
+1. **Create SendGrid account**: https://sendgrid.com
+2. **Create API key**:
+   - Go to: https://app.sendgrid.com/settings/api_keys
+   - Click "Create API Key"
+   - Name it: `phishwise-training`
+   - Copy the key (starts with `SG.`)
+3. **Verify sender domain** (for custom "from" addresses):
+   - Go to: https://app.sendgrid.com/settings/sender_auth
+   - Add your domain and verify DNS records
+4. **Add to `.env.local`**:
    ```bash
    SENDGRID_API_KEY=SG.xxxxxxxxxxxxxx
    ```
-5. **Update sender email** in `lib/email.ts`:
-   ```typescript
-   const defaultFrom = "PhishWise <noreply@yourdomain.com>";
+5. **Test**:
+   ```bash
+   npm run validate:email
+   npm run dev
    ```
+
+### For Local Testing (Development)
+
+You can use SendGrid's test inbox without domain verification:
+
+```bash
+SENDGRID_API_KEY=SG.your-key
+# Send to your own email to test deliverability
+```
+
+### Custom Sender Addresses for Phishing Templates
+
+Each template can use a different "from" address. These must all be verified in SendGrid:
+
+**Example verified domains in SendGrid:**
+- `security@verify-account.com`
+- `admin@company-domain.com`
+- `billing@payment-services.net`
+
+Once verified, use them in templates → they'll be used when sending simulations.
 
 ---
 

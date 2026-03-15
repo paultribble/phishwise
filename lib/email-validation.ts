@@ -38,6 +38,14 @@ export function validateEmailConfig(): EmailConfigStatus {
     );
   }
 
+  // Check SENDER_EMAIL (only if provider is configured)
+  const senderEmail = process.env.SENDER_EMAIL || 'noreply@phishwise.app';
+  if ((hasResend || hasSendGrid) && senderEmail === 'noreply@phishwise.app') {
+    issues.push(
+      'SENDER_EMAIL should be set to a verified domain in your email provider (Resend or SendGrid)'
+    );
+  }
+
   return {
     provider,
     isConfigured: hasResend || hasSendGrid,

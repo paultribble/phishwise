@@ -91,12 +91,13 @@ Always use `select` within `include` to avoid over-fetching related data.
 
 ## Email Abstraction
 
-`lib/email.ts` implements a provider-agnostic email function with automatic fallback:
-1. If `RESEND_API_KEY` is set → use Resend
-2. Else if `SENDGRID_API_KEY` is set → use SendGrid
-3. Else → log to console (development fallback)
+`lib/email.ts` implements email delivery via Resend:
+1. Requires `RESEND_API_KEY` environment variable
+2. Supports custom sender addresses via `from` parameter (for realistic phishing template spoofing)
+3. Falls back to `SENDER_EMAIL` env or default "noreply@phishwise.app" if no `from` provided
+4. Logs to console if API key not configured (development fallback)
 
-Providers are dynamically imported to avoid bundling unused SDKs. New email providers should follow this cascading pattern.
+Provider is dynamically imported at runtime to avoid bundling the SDK until needed.
 
 ## Design System
 

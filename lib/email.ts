@@ -6,15 +6,16 @@ interface SendEmailOptions {
 }
 
 /**
- * Sends an email using SendGrid.
- * Requires SENDGRID_API_KEY environment variable.
+ * Sends an email using Resend.
+ * Requires RESEND_API_KEY environment variable.
  *
  * Sender address priority:
- * 1. Provided `from` parameter (custom phishing template address)
+ * 1. Provided `from` parameter (custom phishing template address for realistic spoofing)
  * 2. SENDER_EMAIL environment variable
  * 3. Default "noreply@phishwise.app"
  *
- * Note: All sender addresses must be verified in SendGrid
+ * Note: Domain must be verified in Resend console for custom sender addresses.
+ * Use spoofed addresses like "security@account-support.com" to simulate realistic phishing emails.
  */
 export async function sendEmail({ to, subject, html, from }: SendEmailOptions) {
   // Determine sender address with priority chain
@@ -23,26 +24,26 @@ export async function sendEmail({ to, subject, html, from }: SendEmailOptions) {
     process.env.SENDER_EMAIL ||
     "noreply@phishwise.app";
 
-  // Verify SendGrid API key is configured
-  if (!process.env.SENDGRID_API_KEY) {
-    console.warn("[Email] SENDGRID_API_KEY not configured. Email not sent:");
+  // Verify Resend API key is configured
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("[Email] RESEND_API_KEY not configured. Email not sent:");
     console.warn({ to, subject, from: senderAddress });
     return;
   }
 
-  // Send via SendGrid
+  // Send via Resend
   try {
-    const sgMail = await import("@sendgrid/mail");
-    sgMail.default.setApiKey(process.env.SENDGRID_API_KEY);
+    const { Resend } = await import("resend");
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    await sgMail.default.send({
-      to,
+    await resend.emails.send({
       from: senderAddress,
+      to,
       subject,
       html,
     });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    throw new Error(`SendGrid error: ${errorMsg}`);
+    throw new Error(`Resend error: ${errorMsg}`);
   }
 }

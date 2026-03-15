@@ -99,9 +99,14 @@ export default function ManagerDashboard() {
   const [frequency, setFrequency] = useState("weekly");
   const [savingFrequency, setSavingFrequency] = useState(false);
 
-  const [triggerUserEmail, setTriggerUserEmail] = useState("");
   const [showTriggerModal, setShowTriggerModal] = useState(false);
   const [triggeringSimulation, setTriggeringSimulation] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [selectAll, setSelectAll] = useState(false);
+  const [riskFilter, setRiskFilter] = useState<"all" | "low" | "medium" | "high">("all");
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const [templates, setTemplates] = useState<Array<{ id: string; name: string; moduleId: string; moduleName: string }>>([]);
+  const [debugOutput, setDebugOutput] = useState<string[]>([]);
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -153,24 +158,91 @@ export default function ManagerDashboard() {
     }
   }
 
+  async function loadTemplates() {
+    try {
+      const res = await fetch("/api/training/modules");
+      const data = await res.json();
+      const templateList = data.flatMap((module: any) =>
+        (module.templates || []).map((t: any) => ({
+          id: t.id,
+          name: t.name,
+          moduleId: module.id,
+          moduleName: module.name,
+        }))
+      );
+      setTemplates(templateList);
+    } catch (error) {
+      addDebugLog(`Failed to load templates: ${error}`);
+    }
+  }
+
+  function addDebugLog(msg: string) {
+    const timestamp = new Date().toLocaleTimeString();
+    setDebugOutput((prev) => [...prev, `[${timestamp}] ${msg}`]);
+  }
+
+  function getFilteredUsers() {
+    if (!analytics?.userPerformance) return [];
+    return analytics.userPerformance.filter((user) => {
+      if (riskFilter === "all") return true;
+      const clickRate = user.clickRate;
+      if (riskFilter === "low") return clickRate <= 30;
+      if (riskFilter === "medium") return clickRate > 30 && clickRate <= 50;
+      if (riskFilter === "high") return clickRate > 50;
+      return true;
+    });
+  }
+
   async function handleTriggerSimulation() {
     setTriggeringSimulation(true);
+    setDebugOutput([]);
+    addDebugLog("Preparing to send simulations...");
+
+    if (!selectedTemplateId) {
+      addDebugLog("ERROR: No template selected");
+      setTriggeringSimulation(false);
+      return;
+    }
+
+    const usersToSend = Array.from(selectedUsers);
+    if (usersToSend.length === 0) {
+      addDebugLog("ERROR: No users selected");
+      setTriggeringSimulation(false);
+      return;
+    }
+
+    addDebugLog(`Selected ${usersToSend.length} user(s) to receive simulation`);
+    addDebugLog(`Template ID: ${selectedTemplateId}`);
+
     try {
-      const res = await fetch("/api/admin/trigger-simulation", {
+      addDebugLog("Sending simulations to API...");
+      const res = await fetch("/api/simulations/send-batch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: triggerUserEmail }),
+        body: JSON.stringify({
+          userIds: usersToSend,
+          templateId: selectedTemplateId,
+          debug: true,
+        }),
       });
 
+      const data = await res.json();
+      addDebugLog(`API Response Status: ${res.status}`);
+
+      if (data.debug?.logs) {
+        data.debug.logs.forEach((log: string) => addDebugLog(log));
+      }
+
       if (res.ok) {
-        alert(`Simulation sent to ${triggerUserEmail}`);
-        setTriggerUserEmail("");
-        setShowTriggerModal(false);
+        addDebugLog(`✅ Successfully sent to ${data.sent} user(s)`);
+        if (data.failed > 0) {
+          addDebugLog(`⚠️ Failed to send to ${data.failed} user(s)`);
+        }
       } else {
-        alert("Failed to send simulation");
+        addDebugLog(`ERROR: ${data.error || "Failed to send simulations"}`);
       }
     } catch (error) {
-      alert("Error sending simulation");
+      addDebugLog(`ERROR: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setTriggeringSimulation(false);
     }
@@ -315,7 +387,11 @@ export default function ManagerDashboard() {
                 Export Report (CSV)
               </button>
               <button
-                onClick={() => setShowTriggerModal(true)}
+                onClick={() => {
+                  setShowTriggerModal(true);
+                  loadTemplates();
+                  setDebugOutput([]);
+                }}
                 className="rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white shadow-[0_0_15px_rgba(29,78,216,0.3)] transition-colors hover:bg-blue-600"
               >
                 <Send className="mr-1 inline h-4 w-4" />
@@ -552,37 +628,182 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      {/* Trigger Simulation Modal */}
+      {/* Advanced Trigger Simulation Modal */}
       {showTriggerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className={`${glassCard} w-full max-w-md p-6 space-y-4`}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className={`${glassCard} w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-6`}>
             <div>
-              <h3 className="text-lg font-semibold text-white">Send Simulation</h3>
+              <h3 className="text-lg font-semibold text-white">Send Phishing Simulation</h3>
               <p className="mt-1 text-sm text-slate-300">
-                Send a phishing simulation to a specific user
+                Target users and select an email template for realistic phishing tests
               </p>
             </div>
+
+            {/* Template Selection */}
             <div>
-              <label className="text-sm font-medium text-slate-300">User Email</label>
-              <input
-                type="email"
-                value={triggerUserEmail}
-                onChange={(e) => setTriggerUserEmail(e.target.value)}
-                placeholder="user@example.com"
-                className="mt-1 w-full rounded-md border border-white/10 bg-[#252540] px-3 py-2 text-sm text-white focus:border-blue-600 focus:outline-none"
-              />
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Email Template
+              </label>
+              <select
+                value={selectedTemplateId}
+                onChange={(e) => setSelectedTemplateId(e.target.value)}
+                className="w-full rounded-md border border-white/10 bg-[#252540] px-3 py-2 text-sm text-white focus:border-blue-600 focus:outline-none"
+              >
+                <option value="">-- Select a template --</option>
+                {templates.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} (Module: {t.moduleName})
+                  </option>
+                ))}
+              </select>
             </div>
+
+            {/* Risk Category Filter */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-3">
+                Filter by Risk Level
+              </label>
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
+                {(["all", "low", "medium", "high"] as const).map((risk) => (
+                  <button
+                    key={risk}
+                    onClick={() => {
+                      setRiskFilter(risk);
+                      setSelectedUsers(new Set());
+                      setSelectAll(false);
+                    }}
+                    className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                      riskFilter === risk
+                        ? "bg-blue-700 text-white shadow-[0_0_15px_rgba(29,78,216,0.3)]"
+                        : "border border-white/[0.06] bg-[#1a1a2e]/80 text-slate-300 hover:bg-[#252540]"
+                    }`}
+                  >
+                    {risk.charAt(0).toUpperCase() + risk.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Select All Toggle */}
+            <div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={selectAll}
+                  onChange={(e) => {
+                    setSelectAll(e.target.checked);
+                    if (e.target.checked) {
+                      const userIds = new Set(getFilteredUsers().map((u) => u.userId));
+                      setSelectedUsers(userIds);
+                    } else {
+                      setSelectedUsers(new Set());
+                    }
+                  }}
+                  className="h-4 w-4 rounded border-white/10 bg-[#252540] accent-blue-600"
+                />
+                <span className="text-sm font-medium text-slate-300">
+                  Select all {getFilteredUsers().length} user(s) in this risk category
+                </span>
+              </label>
+            </div>
+
+            {/* User List */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Users ({selectedUsers.size} selected)
+              </label>
+              <div className="max-h-64 overflow-y-auto rounded-md border border-white/[0.06] bg-[#252540] p-3 space-y-2">
+                {getFilteredUsers().length === 0 ? (
+                  <p className="text-sm text-slate-400">No users in this risk category</p>
+                ) : (
+                  getFilteredUsers().map((user) => (
+                    <label key={user.userId} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-white/5 rounded">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.has(user.userId)}
+                        onChange={(e) => {
+                          const newSet = new Set(selectedUsers);
+                          if (e.target.checked) {
+                            newSet.add(user.userId);
+                          } else {
+                            newSet.delete(user.userId);
+                          }
+                          setSelectedUsers(newSet);
+                        }}
+                        className="h-4 w-4 rounded border-white/10 bg-[#252540] accent-blue-600"
+                      />
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-white">{user.name}</div>
+                        <div className="text-xs text-slate-400">{user.email}</div>
+                      </div>
+                      <Badge
+                        variant={
+                          user.clickRate <= 30
+                            ? "success"
+                            : user.clickRate <= 50
+                            ? "warning"
+                            : "danger"
+                        }
+                      >
+                        {user.clickRate}%
+                      </Badge>
+                    </label>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Debug Output */}
+            {debugOutput.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Debug Output
+                </label>
+                <div className="max-h-48 overflow-y-auto rounded-md border border-white/[0.06] bg-[#0f0f1a] p-3 font-mono text-xs space-y-1">
+                  {debugOutput.map((log, i) => (
+                    <div
+                      key={i}
+                      className={
+                        log.includes("ERROR") || log.includes("❌")
+                          ? "text-red-400"
+                          : log.includes("✅")
+                          ? "text-emerald-400"
+                          : log.includes("⚠️")
+                          ? "text-amber-400"
+                          : "text-slate-300"
+                      }
+                    >
+                      {log}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Buttons */}
             <div className="flex gap-2">
               <button
-                onClick={handleTriggerSimulation}
-                disabled={triggeringSimulation}
+                onClick={() => {
+                  loadTemplates();
+                  handleTriggerSimulation();
+                }}
+                disabled={triggeringSimulation || selectedUsers.size === 0 || !selectedTemplateId}
                 className="flex-1 rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white shadow-[0_0_15px_rgba(29,78,216,0.3)] transition-colors hover:bg-blue-600 disabled:opacity-50"
               >
-                {triggeringSimulation ? "Sending..." : "Send"}
+                {triggeringSimulation
+                  ? "Sending..."
+                  : `Send to ${selectedUsers.size} User${selectedUsers.size !== 1 ? "s" : ""}`}
               </button>
               <button
-                onClick={() => setShowTriggerModal(false)}
-                className="flex-1 rounded-md border border-white/[0.06] bg-[#1a1a2e]/80 px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-[#252540]"
+                onClick={() => {
+                  setShowTriggerModal(false);
+                  setSelectedUsers(new Set());
+                  setSelectAll(false);
+                  setDebugOutput([]);
+                  setSelectedTemplateId("");
+                }}
+                disabled={triggeringSimulation}
+                className="flex-1 rounded-md border border-white/[0.06] bg-[#1a1a2e]/80 px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-[#252540] disabled:opacity-50"
               >
                 Cancel
               </button>

@@ -108,13 +108,14 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // Send the phishing email
+        // Send the phishing email with template-specific sender
         const sendResult = await sendPhishingEmail({
           to: user.email,
           userName: user.name || "User",
           subject: template.subject,
           htmlBody: template.body,
           trackingToken: token,
+          fromAddress: template.fromAddress || undefined,
         });
 
         if (!sendResult.success) {

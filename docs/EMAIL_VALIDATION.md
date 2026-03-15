@@ -195,6 +195,23 @@ curl -X POST http://localhost:3000/api/auth/magic-link \
 
 ## Email Templates Review
 
+### Template-Specific Sender Addresses
+
+Each phishing simulation template can have its own "From" email address to make the training realistic.
+
+**How it works:**
+- `Template.fromAddress` field contains the spoofed sender email (e.g., `security@verify-account.com`)
+- When a simulation is sent, it uses that address instead of generic PhishWise address
+- Fallback chain: Template fromAddress → SENDER_EMAIL env var → default noreply@phishwise.app
+
+**Example template scenarios:**
+- "Account Security Alert" → `security@verify-account.com`
+- "Password Expiration Notice" → `admin@company-domain.com`
+- "Urgent Action Required" → `support@system-update.io`
+- "Billing Issue" → `billing@payment-services.net`
+
+---
+
 ### Reset Password Email (`/api/auth/forgot-password`)
 
 **What to check:**

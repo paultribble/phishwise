@@ -1,4 +1,9 @@
 import { TrainingModuleConfig } from "./types";
+import {
+  SECURITY_ACCOUNT_LOCKOUT,
+  SECURITY_PASSWORD_RESET,
+  SECURITY_VERIFY_IDENTITY,
+} from "@/lib/email-templates-generic";
 
 export const securityAlertModule: TrainingModuleConfig = {
   name: "Security Alerts & Account Warnings",
@@ -64,87 +69,8 @@ Once they get into one account, they often try to reset passwords on others. You
 Always check account security issues by going directly to the website yourself, never through an email link.
 `,
   templates: [
-    {
-      name: "Unusual Sign-In Activity",
-      subject: "Immediate Action Required — Account Access Limited",
-      fromAddress: "security-alert@account-protection-center.com",
-      body: `Hello,
-
-We detected unusual activity on your account. For your protection, access has been temporarily limited.
-
-To restore access, confirm your identity using the link below:
-
-[Verify and Restore Access]
-
-If you do not confirm within 2 hours, your account may remain locked for security reasons.
-
-Thank you,
-Account Security Team`,
-      difficulty: 2,
-    },
-    {
-      name: "Password Expired Warning",
-      subject: "Password Expired — Update Required Today",
-      fromAddress: "security@account-updates.com",
-      body: `Dear User,
-
-Your password has expired due to updated security requirements. Update your password now to restore full access.
-
-[Update Password]
-
-This is a mandatory security update. Please complete this as soon as possible.
-
-Account Management`,
-      difficulty: 2,
-    },
-    {
-      name: "Suspicious Activity Alert",
-      subject: "Security Alert — Suspicious Activity Detected",
-      fromAddress: "alerts@security-monitor.com",
-      body: `Your account has detected suspicious activity. We need you to verify your identity immediately.
-
-Click here to verify your account:
-
-[Verify Account]
-
-Failure to verify may result in account suspension.
-
-Security Operations Center`,
-      difficulty: 1,
-    },
-    {
-      name: "Login Attempt from Unknown Location",
-      subject: "Security Alert: Login Attempt From Unknown Location",
-      fromAddress: "notifications@account-security.com",
-      body: `Hi there,
-
-We detected a login attempt on your account from an unknown location (IP: 203.45.67.89).
-
-If this wasn't you, secure your account immediately:
-
-[Review Account Activity]
-
-Please confirm whether you recognize this activity.
-
-Account Security Team`,
-      difficulty: 3,
-    },
-    {
-      name: "Account Lockout Imminent",
-      subject: "URGENT: Your Account Will Be Locked in 1 Hour",
-      fromAddress: "security@account-services.com",
-      body: `ATTENTION REQUIRED!
-
-We have detected multiple failed login attempts on your account. Your account will be automatically locked in 1 hour for your protection.
-
-To prevent lockout, verify your account immediately:
-
-[Prevent Account Lockout]
-
-Do not delay - act now to keep your account active.
-
-Account Security Team`,
-      difficulty: 3,
-    },
+    SECURITY_ACCOUNT_LOCKOUT,
+    SECURITY_PASSWORD_RESET,
+    SECURITY_VERIFY_IDENTITY,
   ],
 };

@@ -1,4 +1,8 @@
 import { TrainingModuleConfig } from "./types";
+import {
+  SHIPPING_DELIVERY_FAILED,
+  SHIPPING_PACKAGE_ON_HOLD,
+} from "@/lib/email-templates-generic";
 
 export const shippingModule: TrainingModuleConfig = {
   name: "Shipping, Delivery, and Order Problems",
@@ -62,85 +66,7 @@ Sometimes they claim you owe a small shipping charge. Sometimes they send you to
 Always verify delivery information by going directly to the shipping company's official website, never through an email link.
 `,
   templates: [
-    {
-      name: "Delivery Attempt Failed",
-      subject: "Delivery Attempt Failed – Action Needed",
-      fromAddress: "support@delivery-update-center.com",
-      body: `Dear Customer,
-
-We attempted to deliver your package today but were unable to complete delivery due to an address issue.
-
-Confirm your shipping details within 24 hours to avoid return to sender:
-
-[Confirm Delivery]
-
-Thank you for your business.
-
-Shipping Support Team`,
-      difficulty: 2,
-    },
-    {
-      name: "Package On Hold Notice",
-      subject: "Final Notice – Package Pending",
-      fromAddress: "notifications@shipping-alerts.com",
-      body: `Your package is currently pending due to incomplete delivery information.
-
-Failure to confirm your address today may result in the package being returned.
-
-Please verify your details below:
-
-[Verify Delivery Information]
-
-Thank you,
-Shipping Support Team`,
-      difficulty: 2,
-    },
-    {
-      name: "Shipping Fee Required",
-      subject: "Package On Hold – Small Fee Required",
-      fromAddress: "billing@shipping-services.com",
-      body: `Your parcel is currently on hold due to unpaid shipping fees of $2.99.
-
-To release your package, submit payment using the secure link below:
-
-[Pay Shipping Fee]
-
-Do not delay – packages are held for 30 days only.
-
-Delivery Services`,
-      difficulty: 2,
-    },
-    {
-      name: "Reschedule Delivery Request",
-      subject: "Action Required: Reschedule Your Delivery",
-      fromAddress: "trackpkg@delivery-services.com",
-      body: `We have a package for you, but we need to confirm your availability before we can deliver it.
-
-Please reschedule your delivery within 24 hours or the package will be returned:
-
-[Reschedule Delivery]
-
-Click the link above to choose a new delivery date.
-
-Package Tracking Center`,
-      difficulty: 3,
-    },
-    {
-      name: "Package Clearance Notice",
-      subject: "Customs Clearance Required for Your Package",
-      fromAddress: "customs@international-shipping.com",
-      body: `Dear Recipient,
-
-Your international package requires customs clearance. A small processing fee of $15 is required to proceed.
-
-Authorize payment now to receive your package:
-
-[Authorize Payment]
-
-Your package is currently in our facility awaiting your response.
-
-International Shipping Services`,
-      difficulty: 4,
-    },
+    SHIPPING_DELIVERY_FAILED,
+    SHIPPING_PACKAGE_ON_HOLD,
   ],
 };

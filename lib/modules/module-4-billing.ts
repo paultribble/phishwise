@@ -1,4 +1,11 @@
 import { TrainingModuleConfig } from "./types";
+import {
+  BILLING_PAYMENT_FAILED,
+  BILLING_INVOICE_VERIFICATION,
+  BILLING_REFUND_AVAILABLE,
+  BILLING_UNEXPECTED_CHARGE,
+  BILLING_LIMITED_REFUND,
+} from "@/lib/email-templates-generic";
 
 export const billingModule: TrainingModuleConfig = {
   name: "Billing, Invoices, and Refund Scams",
@@ -61,89 +68,10 @@ Sometimes they ask you to call a fake support number. Sometimes they send you to
 Always verify charges and payments by going directly to the company's official website, never through an email link.
 `,
   templates: [
-    {
-      name: "Payment Issue Detected",
-      subject: "Urgent: Payment Issue Detected",
-      fromAddress: "billing-support@account-update-center.com",
-      body: `Dear Customer,
-
-We were unable to process your recent payment of $528.17 for your subscription renewal.
-
-Your service will be suspended within 24 hours unless payment is confirmed.
-
-Please review your invoice and update your billing information below:
-
-[Review and Update Payment]
-
-Thank you,
-Billing Department`,
-      difficulty: 2,
-    },
-    {
-      name: "Invoice Verification Required",
-      subject: "Invoice #88421 – Payment Confirmation Required",
-      fromAddress: "invoices@billing-confirmation.com",
-      body: `Dear Customer,
-
-Thank you for your payment of $479.99 for your Premium Protection Plan.
-
-If you did not authorize this charge, click below within 24 hours to cancel:
-
-[Review Invoice]
-
-Please respond promptly to avoid any service interruption.
-
-Billing Team`,
-      difficulty: 2,
-    },
-    {
-      name: "Refund Available Notice",
-      subject: "Refund Available – Action Required",
-      fromAddress: "refunds@account-services.com",
-      body: `We attempted to process your refund of $312.40.
-
-Due to a verification issue, your refund is on hold.
-
-Confirm your billing details here to release funds:
-
-[Confirm Refund]
-
-Please act quickly as refunds expire after 30 days.
-
-Refund Processing Center`,
-      difficulty: 2,
-    },
-    {
-      name: "Unexpected Charge Notice",
-      subject: "Suspicious Transaction on Your Account",
-      fromAddress: "fraud-alert@billing-center.com",
-      body: `We detected an unexpected charge of $99.99 on your account for "Premium Subscription."
-
-If you don't recognize this charge, please click below to dispute it immediately:
-
-[Dispute Charge]
-
-Our fraud team is standing by to help resolve this issue.
-
-Account Security Team`,
-      difficulty: 3,
-    },
-    {
-      name: "Limited Time Refund Offer",
-      subject: "Last Chance: $50 Refund Available Today Only",
-      fromAddress: "promotions@payment-update-center.com",
-      body: `Great news!
-
-You qualify for a one-time refund of $50 from your recent purchase.
-
-This offer expires in 24 hours. Claim your refund now:
-
-[Claim Your Refund]
-
-Don't miss out on this limited-time offer!
-
-Payment Services`,
-      difficulty: 3,
-    },
+    BILLING_PAYMENT_FAILED,
+    BILLING_INVOICE_VERIFICATION,
+    BILLING_REFUND_AVAILABLE,
+    BILLING_UNEXPECTED_CHARGE,
+    BILLING_LIMITED_REFUND,
   ],
 };

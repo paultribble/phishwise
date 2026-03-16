@@ -1,4 +1,8 @@
 import { TrainingModuleConfig } from "./types";
+import {
+  IMPERSONATION_URGENT_REQUEST,
+  IMPERSONATION_BUDGET_APPROVAL,
+} from "@/lib/email-templates-generic";
 
 export const impersonationModule: TrainingModuleConfig = {
   name: "Impersonation: Trusted Person or Organization",
@@ -88,106 +92,7 @@ Impersonation is particularly dangerous because it bypasses technical security â
 Always verify the identity of someone making an unusual request, especially for sensitive information or urgent action. Use trusted contact methods to confirm before acting.
 `,
   templates: [
-    {
-      name: "CEO Wire Transfer Request",
-      subject: "URGENT: Wire Transfer Needed",
-      fromAddress: "ceo@company-internal.net",
-      body: `Hi,
-
-I need a quick favor. We have an urgent vendor payment that needs to go out today.
-
-Wire $50,000 to:
-Account: 4532-1098-5647
-Routing: 021000021
-Bank: First National
-
-This needs to happen by 3pm today. Please handle this quietly and don't loop in accounting yet â€” I'll notify them after it's sent.
-
-Thanks for your quick action on this.
-
-[CEO Name]`,
-      difficulty: 3,
-    },
-    {
-      name: "IT Password Verification",
-      subject: "URGENT: Security Update - Verify Your Account",
-      fromAddress: "it-security@company-auth.com",
-      body: `Hello,
-
-As part of our new security requirements, we need you to verify your account credentials immediately.
-
-Please provide:
-- Your username
-- Your current password
-- Your two-factor authentication code
-
-Verify here: [Verify Account Credentials]
-
-This is required for all employees by end of business today. Failure to verify may result in account suspension.
-
-IT Security Team`,
-      difficulty: 2,
-    },
-    {
-      name: "HR Direct Deposit Change",
-      subject: "ACTION REQUIRED: Update Your Direct Deposit Information",
-      fromAddress: "payroll@hr-benefits.company.com",
-      body: `Dear [Name],
-
-We are migrating our payroll system and need you to re-enter your direct deposit information to avoid missed paychecks.
-
-Update your information now: [Update Direct Deposit]
-
-Required fields:
-- Bank name
-- Account number
-- Routing number
-- SSN (last 4)
-
-This must be completed by Friday. Payroll will be delayed if not updated.
-
-HR/Payroll Department`,
-      difficulty: 2,
-    },
-    {
-      name: "Coworker Approval Request",
-      subject: "Quick favor - need your approval on this",
-      fromAddress: "jsmith@company.com",
-      body: `Hey,
-
-Sorry to bother you, but I need a quick approval on something. Budget request got stuck in the system and I need it processed by end of day.
-
-Can you approve this for me? It's just a formality.
-
-[Approve Budget Request]
-
-Thanks for your help. Let me know if you need anything from me.
-
-John Smith
-Finance Team`,
-      difficulty: 3,
-    },
-    {
-      name: "Vendor Invoice Payment",
-      subject: "OVERDUE INVOICE - PAYMENT REQUIRED IMMEDIATELY",
-      fromAddress: "accounts@vendor-services.biz",
-      body: `Attention: Payment Required
-
-Invoice #INV-2024-8847
-Amount: $12,547.50
-Due Date: OVERDUE
-
-Your company has not paid this invoice. Our records show it was sent on [date].
-
-Please process payment immediately to avoid service suspension and late fees.
-
-Pay now: [Process Payment]
-
-If you have questions, contact our billing department.
-
-[Vendor Name]
-Accounts Receivable`,
-      difficulty: 2,
-    },
+    IMPERSONATION_URGENT_REQUEST,
+    IMPERSONATION_BUDGET_APPROVAL,
   ],
 };

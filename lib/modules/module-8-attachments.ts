@@ -1,4 +1,8 @@
 import { TrainingModuleConfig } from "./types";
+import {
+  ATTACHMENTS_SHARED_DOCUMENT,
+  ATTACHMENTS_FORM_SUBMISSION,
+} from "@/lib/email-templates-generic";
 
 export const attachmentsModule: TrainingModuleConfig = {
   name: "Attachments & Document Links",
@@ -98,98 +102,7 @@ Attachment attacks are particularly dangerous because malware can run silently i
 Be extremely cautious with attachments and document links. Malware can be silently installed from a single click. When in doubt, verify with the sender through a trusted method before opening anything.
 `,
   templates: [
-    {
-      name: "Fake Invoice Attachment",
-      subject: "Please Review Attached Invoice for Payment",
-      fromAddress: "billing@vendor-systems.net",
-      body: `Dear Customer,
-
-Please find the attached invoice for your recent order.
-
-Invoice Number: INV-2024-447892
-Amount Due: $3,847.50
-
-Please review and process payment at your earliest convenience.
-
-[Download Invoice - invoice_2024.pdf]
-
-Thank you for your business.
-
-Accounts Department`,
-      difficulty: 2,
-    },
-    {
-      name: "Document Sharing Link",
-      subject: "You Have Been Shared a Document",
-      fromAddress: "notifications@docshare.net",
-      body: `Hello,
-
-Someone has shared a document with you:
-
-Shared Document: "Q4 Budget Review"
-From: John Smith
-
-You can view this document here:
-
-[View Shared Document]
-
-Please note: You will need to log in to view this document.
-
-Document Sharing System`,
-      difficulty: 2,
-    },
-    {
-      name: "Resume Attachment",
-      subject: "Job Application - Senior Manager Position",
-      fromAddress: "jdoe@email-account.net",
-      body: `Hello,
-
-I am very interested in the Senior Manager position posted on your website.
-
-Please find my resume attached. I have 8 years of experience in project management and team leadership.
-
-I look forward to hearing from you.
-
-[Resume_JDoe.pdf]
-
-Best regards,
-Jane Doe`,
-      difficulty: 1,
-    },
-    {
-      name: "Macro-Enabled Word Document",
-      subject: "Meeting Notes - Project Kickoff",
-      fromAddress: "alice@company-sync.net",
-      body: `Hi everyone,
-
-Attached are the notes from yesterday's project kickoff meeting.
-
-Please review and let me know if I missed anything or if you have any corrections.
-
-[Project_Kickoff_Notes.docx]
-
-Thanks!
-Alice Johnson`,
-      difficulty: 2,
-    },
-    {
-      name: "Urgent Tax Document",
-      subject: "URGENT: Tax Document Requires Your Signature",
-      fromAddress: "tax@irs-document-center.com",
-      body: `URGENT NOTICE
-
-We have prepared your tax documentation for the 2024 tax year.
-
-Your immediate signature is required on the attached form to avoid penalties and interest.
-
-Download and sign here:
-
-[Download Tax Form - W9_2024.zip]
-
-This document expires in 24 hours. Please respond immediately.
-
-IRS Document Processing Center`,
-      difficulty: 3,
-    },
+    ATTACHMENTS_SHARED_DOCUMENT,
+    ATTACHMENTS_FORM_SUBMISSION,
   ],
 };

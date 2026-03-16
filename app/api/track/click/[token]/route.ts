@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { apiLogger } from "@/lib/logger";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
+export const dynamic = "force-dynamic";
+
 const log = apiLogger("/api/track/click/[token]");
 
 /**

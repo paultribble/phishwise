@@ -1,0 +1,92 @@
+<mjml>
+  <mj-body background-color="#f5f5f5">
+    <!-- Header -->
+    <mj-section background-color="#003087" padding="15px">
+      <mj-column>
+        <mj-text font-size="20px" font-weight="bold" color="#ffffff">
+          PayPal
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Alert -->
+    <mj-section background-color="#fef5e7" padding="20px">
+      <mj-column>
+        <mj-text color="#7d6608" font-size="14px">
+          <strong>⚠️ Action Required: Payment Issue Detected</strong>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content -->
+    <mj-section background-color="#ffffff" padding="30px">
+      <mj-column>
+        <mj-text color="#003087" font-size="14px">
+          Hello,
+        </mj-text>
+        <mj-text color="#333" font-size="14px" padding-top="15px">
+          We've detected an issue with your PayPal account. Your payment method was declined on a recent transaction.
+        </mj-text>
+
+        <mj-text color="#333" font-size="14px" padding-top="20px">
+          <strong>Transaction Details:</strong>
+        </mj-text>
+        <mj-table cellpadding="8" border="1">
+          <tr style="background-color: #f9f9f9; border: 1px solid #ddd;">
+            <td style="border: 1px solid #ddd;"><strong>Date:</strong></td>
+            <td style="border: 1px solid #ddd;">March 15, 2026</td>
+          </tr>
+          <tr style="background-color: #ffffff; border: 1px solid #ddd;">
+            <td style="border: 1px solid #ddd;"><strong>Amount:</strong></td>
+            <td style="border: 1px solid #ddd;">$47.99</td>
+          </tr>
+          <tr style="background-color: #f9f9f9; border: 1px solid #ddd;">
+            <td style="border: 1px solid #ddd;"><strong>Merchant:</strong></td>
+            <td style="border: 1px solid #ddd;">Online Services Inc.</td>
+          </tr>
+        </mj-table>
+
+        <mj-text color="#333" font-size="14px" padding-top="20px">
+          To resolve this issue, please update your payment information immediately.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- CTA Button -->
+    <mj-section background-color="#ffffff" padding="0 30px 20px">
+      <mj-column>
+        <mj-button
+          background-color="#003087"
+          href="{{PHISHING_LINK}}"
+          font-size="14px"
+          font-weight="bold"
+          padding="12px 30px"
+          color="#ffffff"
+        >
+          Update Payment Method
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <!-- Security Notice -->
+    <mj-section background-color="#ffffff" padding="0 30px 30px">
+      <mj-column>
+        <mj-text color="#555" font-size="11px">
+          For your security, we recommend updating your payment method within 24 hours. If you don't recognize this transaction, please contact us immediately.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#f5f5f5" padding="20px">
+      <mj-column>
+        <mj-text color="#666" font-size="11px" align="center">
+          PayPal, Inc. | 2211 N. First St, San Jose, CA 95131
+          <br/>
+          <a href="#" style="color: #003087;">Account Settings</a> |
+          <a href="#" style="color: #003087;">Security Center</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

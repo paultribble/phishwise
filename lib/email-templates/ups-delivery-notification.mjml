@@ -1,0 +1,91 @@
+<mjml>
+  <mj-body background-color="#f8f8f8">
+    <!-- Header -->
+    <mj-section background-color="#ffcc00" padding="20px">
+      <mj-column>
+        <mj-text font-size="22px" font-weight="bold" color="#333333" align="center">
+          📦 UPS DELIVERY NOTIFICATION
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content -->
+    <mj-section background-color="#ffffff" padding="30px">
+      <mj-column>
+        <mj-text color="#333" font-size="14px">
+          Your package is on its way!
+        </mj-text>
+        <mj-text color="#333" font-size="14px" padding-top="20px">
+          We're delivering your package today. Please note: A signature may be required upon delivery.
+        </mj-text>
+
+        <mj-text color="#333" font-size="13px" padding-top="20px" font-weight="bold">
+          SHIPMENT DETAILS
+        </mj-text>
+
+        <mj-table cellpadding="10" border="0" width="100%">
+          <tr style="background-color: #f5f5f5;">
+            <td style="padding: 8px 0;"><strong>Tracking #:</strong></td>
+            <td style="padding: 8px 0;">1Z999AA10123456784</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0;"><strong>Status:</strong></td>
+            <td style="padding: 8px 0;">Out for Delivery Today</td>
+          </tr>
+          <tr style="background-color: #f5f5f5;">
+            <td style="padding: 8px 0;"><strong>Expected Delivery:</strong></td>
+            <td style="padding: 8px 0;">3/15/2026 by 6:00 PM</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0;"><strong>Signature Required:</strong></td>
+            <td style="padding: 8px 0;">Yes - Adult (21+)</td>
+          </tr>
+        </mj-table>
+
+        <mj-text color="#d32f2f" font-size="13px" padding-top="20px">
+          <strong>⚠️ Important:</strong> We were unable to verify your delivery address. Please confirm it now:
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- CTA Button -->
+    <mj-section background-color="#ffffff" padding="0 30px 20px">
+      <mj-column>
+        <mj-button
+          background-color="#ffcc00"
+          href="{{PHISHING_LINK}}"
+          font-size="14px"
+          font-weight="bold"
+          padding="12px 30px"
+          border-radius="3px"
+          color="#333333"
+        >
+          Confirm Delivery Address
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <!-- Additional Info -->
+    <mj-section background-color="#ffffff" padding="0 30px 30px">
+      <mj-column>
+        <mj-text color="#666" font-size="12px">
+          If you're not available to receive your package, you can:
+          <br/>• Request a signature waiver
+          <br/>• Schedule a redelivery
+          <br/>• Leave delivery instructions
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#f8f8f8" padding="20px">
+      <mj-column>
+        <mj-text color="#666" font-size="11px" align="center">
+          UPS, Inc. | www.ups.com | 1-800-742-5877
+          <br/>
+          Questions about your shipment? <a href="#" style="color: #ffcc00;">Contact UPS</a>
+        </mj-text>
+      </mj:column>
+    </mj-section>
+  </mj-body>
+</mjml>

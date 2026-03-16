@@ -1,0 +1,92 @@
+<mjml>
+  <mj-body background-color="#f5f5f5">
+    <!-- Header -->
+    <mj-section background-color="#ffffff" padding="20px 0">
+      <mj-column>
+        <mj-text font-size="24px" font-weight="bold" color="#FF9900" align="center" padding="10px 0">
+          Amazon
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Alert Box -->
+    <mj-section background-color="#fff3cd" padding="20px">
+      <mj-column>
+        <mj-text font-size="18px" font-weight="bold" color="#856404">
+          Account Verification Required
+        </mj-text>
+        <mj-text color="#856404" font-size="14px" padding="10px 0">
+          We've detected unusual activity on your Amazon account. Please verify your identity to keep your account secure.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content -->
+    <mj-section background-color="#ffffff" padding="30px 20px">
+      <mj-column>
+        <mj-text color="#0F1419" font-size="14px">
+          Hello Valued Customer,
+        </mj-text>
+        <mj-text color="#0F1419" font-size="14px" padding-top="15px">
+          We noticed a sign-in attempt to your Amazon account from an unrecognized device. To protect your account, we've temporarily limited access.
+        </mj-text>
+        <mj-text color="#0F1419" font-size="14px" padding-top="15px">
+          <strong>Actions taken:</strong>
+          <br/>• Your account access has been limited
+          <br/>• Recent account activities are under review
+          <br/>• We recommend verifying your identity immediately
+        </mj-text>
+        <mj-text color="#0F1419" font-size="14px" padding-top="20px">
+          <strong>Click the button below to verify your account:</strong>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- CTA Button -->
+    <mj-section background-color="#ffffff" padding="0 20px 20px">
+      <mj-column>
+        <mj-button
+          background-color="#FF9900"
+          href="{{PHISHING_LINK}}"
+          font-size="16px"
+          font-weight="bold"
+          padding="15px 40px"
+          border-radius="4px"
+          color="#ffffff"
+        >
+          Verify Your Account Now
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <!-- Security Info -->
+    <mj-section background-color="#ffffff" padding="0 20px 30px">
+      <mj-column>
+        <mj-text color="#555" font-size="12px" padding="10px 0">
+          <strong>Important Security Information:</strong>
+        </mj-text>
+        <mj-text color="#555" font-size="12px">
+          • Amazon will never ask you for your password in an email
+          <br/>• Always verify the sender's email address
+          <br/>• Suspicious emails should be reported to: report-phishing@amazon.com
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#37475A" padding="30px 20px">
+      <mj-column>
+        <mj-text color="#ffffff" font-size="12px" align="center">
+          Amazon.com, Inc. 410 Terry Avenue North, Seattle, WA 98109
+          <br/>
+          <a href="#" style="color: #FF9900; text-decoration: none;">Privacy Notice</a> |
+          <a href="#" style="color: #FF9900; text-decoration: none;">Conditions of Use</a> |
+          <a href="#" style="color: #FF9900; text-decoration: none;">Contact Us</a>
+        </mj-text>
+        <mj-text color="#ffffff" font-size="11px" align="center" padding="10px 0">
+          © 2026 Amazon.com, Inc. All rights reserved.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

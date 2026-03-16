@@ -38,7 +38,18 @@ export async function sendPhishingEmail({
     }
 
     // Determine the base URL for tracking links
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    // Try multiple sources to find the correct URL
+    let baseUrl = process.env.NEXTAUTH_URL;
+
+    // Fallback to VERCEL_URL if NEXTAUTH_URL is not set
+    if (!baseUrl && process.env.VERCEL_URL) {
+      baseUrl = `https://${process.env.VERCEL_URL}`;
+    }
+
+    // Final fallback
+    if (!baseUrl) {
+      baseUrl = "http://localhost:3000";
+    }
 
     // Build the click tracking URL if not provided
     // This URL will be what the phishing link redirects to, which then redirects to training

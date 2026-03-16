@@ -1,11 +1,11 @@
 import { TrainingModuleConfig } from "./types";
 import {
-  AMAZON_ACCOUNT_VERIFY,
-  MICROSOFT_PASSWORD_RESET,
-  PAYPAL_BILLING_ALERT,
-  APPLE_SECURITY_ALERT,
-  EBAY_ACCOUNT_CONFIRM,
-} from "@/lib/email-templates";
+  AMAZON_MODERN,
+  MICROSOFT_MODERN,
+  PAYPAL_MODERN,
+  APPLE_MODERN,
+  EBAY_MODERN,
+} from "@/lib/email-templates-modern";
 
 export const accountPasswordModule: TrainingModuleConfig = {
   name: "Account & Password Traps",
@@ -62,39 +62,39 @@ Always verify account issues by going directly to the website yourself, never th
 `,
   templates: [
     {
-      name: AMAZON_ACCOUNT_VERIFY.name,
-      subject: AMAZON_ACCOUNT_VERIFY.subject,
+      name: AMAZON_MODERN.name,
+      subject: AMAZON_MODERN.subject,
       fromAddress: "security-alerts@amazon.com",
-      body: AMAZON_ACCOUNT_VERIFY.body,
-      difficulty: AMAZON_ACCOUNT_VERIFY.difficulty,
+      body: AMAZON_MODERN.body,
+      difficulty: AMAZON_MODERN.difficulty,
     },
     {
-      name: MICROSOFT_PASSWORD_RESET.name,
-      subject: MICROSOFT_PASSWORD_RESET.subject,
+      name: MICROSOFT_MODERN.name,
+      subject: MICROSOFT_MODERN.subject,
       fromAddress: "account-security@microsoft.com",
-      body: MICROSOFT_PASSWORD_RESET.body,
-      difficulty: MICROSOFT_PASSWORD_RESET.difficulty,
+      body: MICROSOFT_MODERN.body,
+      difficulty: MICROSOFT_MODERN.difficulty,
     },
     {
-      name: APPLE_SECURITY_ALERT.name,
-      subject: APPLE_SECURITY_ALERT.subject,
+      name: APPLE_MODERN.name,
+      subject: APPLE_MODERN.subject,
       fromAddress: "noreply@apple.com",
-      body: APPLE_SECURITY_ALERT.body,
-      difficulty: APPLE_SECURITY_ALERT.difficulty,
+      body: APPLE_MODERN.body,
+      difficulty: APPLE_MODERN.difficulty,
     },
     {
-      name: EBAY_ACCOUNT_CONFIRM.name,
-      subject: EBAY_ACCOUNT_CONFIRM.subject,
+      name: EBAY_MODERN.name,
+      subject: EBAY_MODERN.subject,
       fromAddress: "noreply@ebay.com",
-      body: EBAY_ACCOUNT_CONFIRM.body,
-      difficulty: EBAY_ACCOUNT_CONFIRM.difficulty,
+      body: EBAY_MODERN.body,
+      difficulty: EBAY_MODERN.difficulty,
     },
     {
-      name: PAYPAL_BILLING_ALERT.name,
-      subject: PAYPAL_BILLING_ALERT.subject,
+      name: PAYPAL_MODERN.name,
+      subject: PAYPAL_MODERN.subject,
       fromAddress: "security@paypal.com",
-      body: PAYPAL_BILLING_ALERT.body,
-      difficulty: PAYPAL_BILLING_ALERT.difficulty,
+      body: PAYPAL_MODERN.body,
+      difficulty: PAYPAL_MODERN.difficulty,
     },
   ],
 };

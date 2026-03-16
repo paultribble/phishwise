@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Mail, MousePointerClick, BookCheck, TrendingDown, CheckCircle2 } from "lucide-react";
+import { AmbientBackground } from "@/components/landing/AmbientBackground";
 
 type SimEntry = {
   id: string;
@@ -108,7 +109,12 @@ function UserDashboardContent() {
       : 0;
 
   return (
-    <div className="min-h-screen bg-[#0f0f1a] px-4 py-8 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#0f0f1a] px-4 py-8 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Animated background */}
+      <AmbientBackground variant="subtle" />
+
+      {/* Content wrapper */}
+      <div className="relative z-10">
       <div className="mx-auto max-w-7xl space-y-8">
         {/* Welcome Header */}
         <div>
@@ -305,6 +311,7 @@ function UserDashboardContent() {
             </span>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

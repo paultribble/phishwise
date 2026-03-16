@@ -25,6 +25,7 @@ import {
   Download,
 } from "lucide-react";
 import { bebas, playfair } from "@/lib/fonts";
+import { AmbientBackground } from "@/components/landing/AmbientBackground";
 import {
   LineChart,
   Line,
@@ -405,7 +406,12 @@ export default function ManagerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0f0f1a] space-y-8">
+    <div className="min-h-screen bg-[#0f0f1a] space-y-8 relative overflow-hidden">
+      {/* Animated background */}
+      <AmbientBackground variant="subtle" />
+
+      {/* Content wrapper */}
+      <div className="relative z-10">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
@@ -456,8 +462,8 @@ export default function ManagerDashboard() {
       </div>
 
       {/* School Snapshot Card */}
-      <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-6">
-        <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
+      <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[#1a1a2e]/80 backdrop-blur-sm p-6">
+        <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.4) 50%, transparent)" }} />
         <div className="space-y-4">
           <div>
             <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-2">
@@ -1007,6 +1013,7 @@ export default function ManagerDashboard() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

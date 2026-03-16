@@ -62,72 +62,70 @@ export default async function TrainingOverviewPage() {
   const hasModules = pending.length > 0 || completed.length > 0;
 
   return (
-    <div className="min-h-screen">
-      <main className="mx-auto max-w-4xl px-6 py-12">
+    <div className="min-h-screen bg-[#0f0f1a]">
+      <main className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="space-y-8">
           {/* Header */}
           <div>
-            <h1 className={`text-4xl font-bold text-gray-200 ${bebas.className}`}>
-              Training Overview
+            <h1 className="text-3xl sm:text-4xl font-bold text-white">
+              Training Modules
             </h1>
-            <p className="mt-2 text-lg text-gray-400">
+            <p className="mt-2 text-base text-slate-400">
               View and complete your assigned training modules
             </p>
           </div>
 
           {/* Empty State */}
           {!hasModules && (
-            <Card className="border-gray-700 bg-phish-blue/30">
-              <CardContent className="flex flex-col items-center gap-4 py-12">
-                <p className="text-center text-gray-400">
+            <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-8">
+              <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-center text-slate-300">
                   You have no training modules assigned yet.
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-slate-400">
                   Check back later or contact your manager for more information.
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* Pending Modules */}
           {pending.length > 0 && (
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-200">
+              <h2 className="text-lg font-semibold text-white">
                 Pending Modules
               </h2>
-              <div className="grid gap-4">
+              <div className="space-y-3">
                 {pending.map((mod) => (
-                  <Card
+                  <div
                     key={mod.id}
-                    className="border-warning-500/50 bg-warning-500/10"
+                    className="relative overflow-hidden rounded-xl border border-amber-500/20 bg-amber-500/10 backdrop-blur-sm p-6"
                   >
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-gray-200">
-                            {mod.name}
-                          </CardTitle>
-                          <CardDescription className="text-gray-400 mt-1">
-                            {mod.description}
-                          </CardDescription>
-                        </div>
-                        <Badge variant="warning">Pending</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-500">
+                    <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(251,146,60,0.5) 50%, transparent)" }} />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-semibold text-white truncate">
+                          {mod.name}
+                        </h3>
+                        <p className="text-sm text-amber-200/70 mt-1">
+                          {mod.description}
+                        </p>
+                        <p className="text-xs text-amber-200/50 mt-2">
                           Assigned: {mod.assignedAt.toLocaleDateString()}
                         </p>
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <Badge className="bg-amber-600 text-white border-0">Pending</Badge>
                         <Link
                           href={`/training/${mod.id}`}
-                          className="rounded-md bg-warning-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-warning-700"
+                          className="inline-flex items-center rounded-lg bg-amber-600 hover:bg-amber-700 px-4 py-2 text-sm font-medium text-white transition-colors"
                         >
                           Start Module
                         </Link>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
               </div>
             </section>
@@ -136,42 +134,39 @@ export default async function TrainingOverviewPage() {
           {/* Completed Modules */}
           {completed.length > 0 && (
             <section className="space-y-4">
-              <h2 className="text-xl font-semibold text-gray-200">
+              <h2 className="text-lg font-semibold text-white">
                 Completed Modules
               </h2>
-              <div className="grid gap-4">
+              <div className="space-y-3">
                 {completed.map((mod) => (
-                  <Card
+                  <div
                     key={mod.id}
-                    className="border-gray-700 bg-phish-blue/20"
+                    className="relative overflow-hidden rounded-xl border border-emerald-500/20 bg-emerald-500/10 backdrop-blur-sm p-6"
                   >
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-gray-200">
-                            {mod.name}
-                          </CardTitle>
-                          <CardDescription className="text-gray-400 mt-1">
-                            {mod.description}
-                          </CardDescription>
-                        </div>
-                        <Badge variant="success">Completed</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-500">
+                    <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(16,185,129,0.5) 50%, transparent)" }} />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-semibold text-white truncate">
+                          {mod.name}
+                        </h3>
+                        <p className="text-sm text-emerald-200/70 mt-1">
+                          {mod.description}
+                        </p>
+                        <p className="text-xs text-emerald-200/50 mt-2">
                           Completed: {mod.completedAt?.toLocaleDateString()}
                         </p>
+                      </div>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <Badge className="bg-emerald-600 text-white border-0">Completed</Badge>
                         <Link
                           href={`/training/${mod.id}`}
-                          className="rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-800"
+                          className="inline-flex items-center rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-2 text-sm font-medium text-slate-300 transition-colors"
                         >
                           Review
                         </Link>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
               </div>
             </section>

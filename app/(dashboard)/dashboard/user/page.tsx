@@ -38,9 +38,14 @@ function UserDashboardContent() {
     if (status !== "authenticated") return;
     Promise.all([
       fetch("/api/users").then((r) => r.json()),
-      fetch("/api/simulations?limit=5").then((r) => r.json()),
+      fetch("/api/simulations?limit=1000").then((r) => r.json()),
     ]).then(([userData, simData]) => {
-      if (userData.metrics) setStats(userData.metrics);
+      if (userData.metrics) {
+        setStats(userData.metrics);
+      } else {
+        // If no metrics yet, ensure we have zeros instead of undefined
+        setStats({ totalSent: 0, totalClicked: 0, totalCompleted: 0 });
+      }
       if (simData.simulations) {
         setHistory(
           simData.simulations.map((s: { id: string; template: { subject: string }; sentAt: string; clicked: boolean; completedAt: string | null }) => ({
@@ -215,15 +220,15 @@ function UserDashboardContent() {
         <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm">
           <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
           <div className="p-6">
-            <h2 className="text-lg font-semibold text-white">Recent Simulations</h2>
+            <h2 className="text-lg font-semibold text-white">All Simulations</h2>
             <p className="mt-1 text-sm text-slate-400">
-              Your last 5 phishing simulation results
+              Your complete phishing simulation history (most recent at top)
             </p>
           </div>
-          <div className="overflow-x-auto px-6 pb-6">
+          <div className="overflow-y-auto overflow-x-auto px-6 pb-6" style={{ maxHeight: "300px" }}>
             <table className="w-full text-sm" role="table">
-              <thead>
-                <tr className="border-b border-white/10 text-left">
+              <thead className="sticky top-0 bg-[#1a1a2e] border-b border-white/10">
+                <tr className="text-left">
                   <th className="pb-3 pr-4 font-medium text-slate-400">Subject</th>
                   <th className="pb-3 pr-4 font-medium text-slate-400">Date</th>
                   <th className="pb-3 pr-4 font-medium text-slate-400">Status</th>
@@ -241,7 +246,7 @@ function UserDashboardContent() {
                   history.map((sim) => (
                     <tr
                       key={sim.id}
-                      className="border-b border-white/5 last:border-0"
+                      className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]"
                     >
                       <td className="py-3 pr-4 text-slate-300">{sim.subject}</td>
                       <td className="py-3 pr-4 text-slate-400">{sim.sentAt}</td>

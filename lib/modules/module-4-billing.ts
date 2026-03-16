@@ -100,9 +100,7 @@ Billing Team`,
       name: "Refund Available Notice",
       subject: "Refund Available – Action Required",
       fromAddress: "refunds@account-services.com",
-      body: `Hello,
-
-We attempted to process your refund of $312.40.
+      body: `We attempted to process your refund of $312.40.
 
 Due to a verification issue, your refund is on hold.
 
@@ -119,9 +117,7 @@ Refund Processing Center`,
       name: "Unexpected Charge Notice",
       subject: "Suspicious Transaction on Your Account",
       fromAddress: "fraud-alert@billing-center.com",
-      body: `Hi there,
-
-We detected an unexpected charge of $99.99 on your account for "Premium Subscription."
+      body: `We detected an unexpected charge of $99.99 on your account for "Premium Subscription."
 
 If you don't recognize this charge, please click below to dispute it immediately:
 

@@ -8,10 +8,11 @@ export interface EmailTemplateData {
   fromAddress: string;
   body: string;
   trackingLink: string;
+  userName?: string;
 }
 
 export function generatePhishingEmail(data: EmailTemplateData): string {
-  const { subject, fromAddress, body, trackingLink } = data;
+  const { subject, fromAddress, body, trackingLink, userName } = data;
 
   return `
 <!DOCTYPE html>
@@ -31,6 +32,7 @@ export function generatePhishingEmail(data: EmailTemplateData): string {
         </tr>
         <tr>
             <td style="padding: 30px 20px;">
+                ${userName ? `<p style="margin: 0 0 15px 0; color: #333; font-size: 14px;">Hello ${escapeHtml(userName)},</p>` : ""}
                 <div style="color: #333; font-size: 14px; line-height: 1.6;">
                     ${body}
                 </div>

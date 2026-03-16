@@ -57,9 +57,7 @@ Always verify account issues by going directly to the website yourself, never th
       name: "Unusual Sign-In Attempt",
       subject: "Unusual Sign-In Attempt Detected",
       fromAddress: "security@account-support-alerts.com",
-      body: `Hello,
-
-We detected an unusual sign-in attempt on your account from a new device.
+      body: `We detected an unusual sign-in attempt on your account from a new device.
 
 For your protection, access to your account has been temporarily limited. Please verify your identity to restore full access.
 
@@ -76,9 +74,7 @@ Account Security Team`,
       name: "Password Reset Required",
       subject: "Password Reset Required - Action Needed",
       fromAddress: "support@account-services.com",
-      body: `Dear User,
-
-Your account password has expired and must be reset immediately. Failure to reset your password within 24 hours will result in account suspension.
+      body: `Your account password has expired and must be reset immediately. Failure to reset your password within 24 hours will result in account suspension.
 
 Click the link below to reset your password:
 
@@ -108,9 +104,7 @@ Security Team`,
       name: "Confirm Your Account Login",
       subject: "Confirm Your Account Login Information",
       fromAddress: "security-check@account-verify.net",
-      body: `Hello,
-
-We noticed an unusual login attempt on your account. To keep your account secure, please confirm your login information by clicking below:
+      body: `We noticed an unusual login attempt on your account. To keep your account secure, please confirm your login information by clicking below:
 
 [Confirm Login Details]
 
@@ -124,9 +118,7 @@ Account Security Department`,
       name: "Account Review Required",
       subject: "Please Review Your Account Settings",
       fromAddress: "review@account-update-center.com",
-      body: `Hi there,
-
-We're conducting a routine security review of your account. To continue using our service, you'll need to review and confirm your account details.
+      body: `We're conducting a routine security review of your account. To continue using our service, you'll need to review and confirm your account details.
 
 [Review Account Now]
 

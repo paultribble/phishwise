@@ -83,9 +83,7 @@ Shipping Support Team`,
       name: "Package On Hold Notice",
       subject: "Final Notice – Package Pending",
       fromAddress: "notifications@shipping-alerts.com",
-      body: `Hello,
-
-Your package is currently pending due to incomplete delivery information.
+      body: `Your package is currently pending due to incomplete delivery information.
 
 Failure to confirm your address today may result in the package being returned.
 
@@ -101,9 +99,7 @@ Shipping Support Team`,
       name: "Shipping Fee Required",
       subject: "Package On Hold – Small Fee Required",
       fromAddress: "billing@shipping-services.com",
-      body: `Hello,
-
-Your parcel is currently on hold due to unpaid shipping fees of $2.99.
+      body: `Your parcel is currently on hold due to unpaid shipping fees of $2.99.
 
 To release your package, submit payment using the secure link below:
 
@@ -118,9 +114,7 @@ Delivery Services`,
       name: "Reschedule Delivery Request",
       subject: "Action Required: Reschedule Your Delivery",
       fromAddress: "trackpkg@delivery-services.com",
-      body: `Hi there,
-
-We have a package for you, but we need to confirm your availability before we can deliver it.
+      body: `We have a package for you, but we need to confirm your availability before we can deliver it.
 
 Please reschedule your delivery within 24 hours or the package will be returned:
 

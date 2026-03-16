@@ -3,7 +3,8 @@ import { prisma } from "@/lib/db";
 
 /**
  * GET /api/training/modules
- * Returns all available training modules
+ * Returns all available training modules with their email templates
+ * Used by manager dashboard for simulation template selection
  */
 export async function GET() {
   try {
@@ -14,8 +15,16 @@ export async function GET() {
         name: true,
         description: true,
         orderIndex: true,
-        _count: {
-          select: { templates: true },
+        templates: {
+          where: { isActive: true },
+          select: {
+            id: true,
+            name: true,
+            subject: true,
+            difficulty: true,
+            fromAddress: true,
+          },
+          orderBy: { name: "asc" },
         },
       },
       orderBy: { orderIndex: "asc" },

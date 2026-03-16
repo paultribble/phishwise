@@ -105,7 +105,17 @@ export default function ManagerDashboard() {
   const [selectAll, setSelectAll] = useState(false);
   const [riskFilter, setRiskFilter] = useState<"all" | "low" | "medium" | "high">("all");
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
-  const [templates, setTemplates] = useState<Array<{ id: string; name: string; moduleId: string; moduleName: string }>>([]);
+  const [templates, setTemplates] = useState<
+    Array<{
+      id: string;
+      name: string;
+      subject: string;
+      difficulty: number;
+      fromAddress: string;
+      moduleId: string;
+      moduleName: string;
+    }>
+  >([]);
   const [debugOutput, setDebugOutput] = useState<string[]>([]);
 
   useEffect(() => {
@@ -162,15 +172,19 @@ export default function ManagerDashboard() {
     try {
       const res = await fetch("/api/training/modules");
       const data = await res.json();
-      const templateList = data.flatMap((module: any) =>
+      const templateList = data.modules.flatMap((module: any) =>
         (module.templates || []).map((t: any) => ({
           id: t.id,
           name: t.name,
+          subject: t.subject,
+          difficulty: t.difficulty,
+          fromAddress: t.fromAddress,
           moduleId: module.id,
           moduleName: module.name,
         }))
       );
       setTemplates(templateList);
+      addDebugLog(`Loaded ${templateList.length} templates from ${data.modules.length} modules`);
     } catch (error) {
       addDebugLog(`Failed to load templates: ${error}`);
     }
@@ -639,10 +653,10 @@ export default function ManagerDashboard() {
               </p>
             </div>
 
-            {/* Template Selection */}
+            {/* Template Selection - Grouped by Module */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                Email Template
+                Email Template (grouped by module)
               </label>
               <select
                 value={selectedTemplateId}
@@ -650,11 +664,31 @@ export default function ManagerDashboard() {
                 className="w-full rounded-md border border-white/10 bg-[#252540] px-3 py-2 text-sm text-white focus:border-blue-600 focus:outline-none"
               >
                 <option value="">-- Select a template --</option>
-                {templates.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name} (Module: {t.moduleName})
-                  </option>
-                ))}
+                {Array.from(new Map(templates.map((t) => [t.moduleId, t.moduleName])).entries()).map(
+                  ([moduleId, moduleName]) => (
+                    <optgroup key={moduleId} label={moduleName}>
+                      {templates
+                        .filter((t) => t.moduleId === moduleId)
+                        .map((t) => {
+                          const difficultyColors = {
+                            1: "🟢",
+                            2: "🟡",
+                            3: "🟠",
+                            4: "🔴",
+                            5: "🔴🔴",
+                          };
+                          const diffLabel =
+                            difficultyColors[t.difficulty as keyof typeof difficultyColors] ||
+                            `Level ${t.difficulty}`;
+                          return (
+                            <option key={t.id} value={t.id}>
+                              {t.name} • {diffLabel} • From: {t.fromAddress || "noreply@phishwise.app"}
+                            </option>
+                          );
+                        })}
+                    </optgroup>
+                  )
+                )}
               </select>
             </div>
 

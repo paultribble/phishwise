@@ -14,6 +14,12 @@ export interface EmailTemplateData {
 export function generatePhishingEmail(data: EmailTemplateData): string {
   const { subject, fromAddress, body, trackingLink, userName } = data;
 
+  // Replace placeholder text in body with actual clickable links
+  const bodyWithLinks = body
+    .replace(/\[([^\]]+)\]/g, (match, linkText) => {
+      return `<a href="${trackingLink}" style="color: #1D4ED8; text-decoration: underline; font-weight: bold;">${escapeHtml(linkText)}</a>`;
+    });
+
   return `
 <!DOCTYPE html>
 <html>
@@ -34,18 +40,8 @@ export function generatePhishingEmail(data: EmailTemplateData): string {
             <td style="padding: 30px 20px;">
                 ${userName ? `<p style="margin: 0 0 15px 0; color: #333; font-size: 14px;">Hello ${escapeHtml(userName)},</p>` : ""}
                 <div style="color: #333; font-size: 14px; line-height: 1.6;">
-                    ${body}
+                    ${bodyWithLinks}
                 </div>
-                <p style="margin-top: 20px; text-align: center;">
-                    <a href="${trackingLink}" style="display: inline-block; padding: 10px 20px; background-color: #1D4ED8; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
-                        Click Here
-                    </a>
-                </p>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding: 20px; background-color: #f9f9f9; border-top: 1px solid #eee; text-align: center; font-size: 11px; color: #999;">
-                <p style="margin: 0;">PhishWise Simulation - This is a training exercise</p>
             </td>
         </tr>
     </table>

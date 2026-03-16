@@ -208,6 +208,9 @@ async function main() {
       const clicked = Math.random() < user.clickRate;
       const opened = Math.random() < (0.6 + user.clickRate * 0.2); // Higher open rate for high-click users
 
+      // Generate unique tracking token (must start with tk_ for click tracking endpoint)
+      const uniqueToken = `tk_${Date.now()}_${user.id}_${i}_${Math.random().toString(36).substring(7)}`;
+
       await prisma.simulationEmail.create({
         data: {
           userId: user.id,
@@ -218,7 +221,7 @@ async function main() {
           clicked: clicked,
           clickedAt: clicked ? new Date(sentDate.getTime() + 3600000) : null,
           status: clicked ? "clicked" : opened ? "opened" : "sent",
-          trackingToken: `token_${user.id}_${i}`,
+          trackingToken: uniqueToken,
         },
       });
 

@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
-import { generatePhishingEmail } from "@/lib/email-template";
+import { generatePhishingEmail, extractFriendlyName } from "@/lib/email-template";
 import { z } from "zod";
 import { errors } from "@/lib/errors";
 import { apiLogger } from "@/lib/logger";
@@ -94,17 +94,8 @@ export async function POST(request: NextRequest) {
     }
     const trackingUrl = `${baseUrl}/api/track/click/${simulation.trackingToken}`;
 
-    // Extract friendly name from template name
-    // Example: "Amazon Account Verification" → use as-is
-    // Or extract from domain: "security@amazon.com" → "Amazon Account Security"
-    let friendlyName = template.name.split(" - ")[0]; // Remove any suffix after dash
-
-    // If name is too generic, build from domain
-    if (!friendlyName || friendlyName.length < 5) {
-      const domain = (template.fromAddress || "security@company.com").split("@")[1].split(".")[0];
-      const company = domain.charAt(0).toUpperCase() + domain.slice(1);
-      friendlyName = `${company} Account Security`;
-    }
+    // Extract friendly name from email address (e.g., "security@amazon.com" → "Amazon")
+    const friendlyName = extractFriendlyName(template.fromAddress || "security@verify-account.com", template.name);
 
     const htmlContent = generatePhishingEmail({
       subject: template.subject,

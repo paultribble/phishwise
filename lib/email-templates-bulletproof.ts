@@ -73,8 +73,7 @@ export const AMAZON_BULLETPROOF: BulletproofEmailTemplate = {
               </table>
 
               <p style="margin:25px 0 0 0; font-size:12px; color:#999; border-top:1px solid #eee; padding-top:20px;">
-                If the button doesn't work, copy and paste this link:<br>
-                <span style="color:#0066c0; word-break:break-all; font-size:11px;">{{ACTION_URL}}</span>
+                If the button doesn't work, <a href="{{ACTION_URL}}" style="color:#0066c0; text-decoration:underline;">click here to verify your account</a>.
               </p>
 
               <p style="margin:20px 0 0 0; font-size:12px; color:#666;">Amazon never asks for passwords via email. If you didn't authorize this, <a href="{{ACTION_URL}}" style="color:#0066c0;">secure your account now</a>.</p>

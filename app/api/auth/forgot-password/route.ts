@@ -81,10 +81,7 @@ export async function POST(request: NextRequest) {
 
               <!-- Fallback link -->
               <p style="margin:20px 0 0 0; font-size:12px; color:#666;">
-                If the button doesn't work, copy and paste this link:<br>
-                <span style="color:#2563eb; word-break:break-all; font-size:11px;">
-                  <a href="${resetUrl}" style="color:#2563eb; text-decoration:none;">${resetUrl}</a>
-                </span>
+                If the button doesn't work, <a href="${resetUrl}" style="color:#2563eb; text-decoration:underline;">click here to reset your password</a>.
               </p>
 
               <!-- Footer message -->

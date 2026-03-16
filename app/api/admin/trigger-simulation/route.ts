@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { sendPhishingEmail } from "@/lib/email/send";
+import { extractFriendlyName } from "@/lib/email-template";
 import { generateTrackingToken, getRecentTemplateIds, selectTemplate } from "@/lib/scheduler/logic";
 import { z } from "zod";
 import { errors } from "@/lib/errors";
@@ -92,13 +93,8 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Extract friendly name from template name or domain
-    let friendlyName = template.name.split(" - ")[0];
-    if (!friendlyName || friendlyName.length < 5) {
-      const domain = (template.fromAddress || "security@company.com").split("@")[1].split(".")[0];
-      const company = domain.charAt(0).toUpperCase() + domain.slice(1);
-      friendlyName = `${company} Account Security`;
-    }
+    // Extract friendly name from email address (e.g., "security@amazon.com" → "Amazon")
+    const friendlyName = extractFriendlyName(template.fromAddress || "security@verify-account.com", template.name);
 
     const sendResult = await sendPhishingEmail({
       to: user.email,

@@ -13,6 +13,41 @@ export interface EmailTemplateData {
   fromName?: string; // Friendly sender name (displayed to recipient)
 }
 
+/**
+ * Extract friendly company name from email address or template name
+ * Examples:
+ *   "security@amazon.com" → "Amazon"
+ *   "noreply@microsoft.com" → "Microsoft"
+ *   "support@paypal.com" → "PayPal"
+ */
+export function extractFriendlyName(fromAddress: string, templateName?: string): string {
+  // Try to extract from email domain (e.g., "security@amazon.com" → "amazon")
+  const domainMatch = fromAddress.match(/@([^.]+)\./);
+  if (domainMatch && domainMatch[1]) {
+    const domain = domainMatch[1].toLowerCase();
+
+    // Special cases for proper casing
+    const capitalizations: { [key: string]: string } = {
+      "amazon": "Amazon",
+      "microsoft": "Microsoft",
+      "paypal": "PayPal",
+      "apple": "Apple",
+      "google": "Google",
+      "ebay": "eBay",
+      "fedex": "FedEx",
+    };
+
+    return capitalizations[domain] || (domain.charAt(0).toUpperCase() + domain.slice(1));
+  }
+
+  // Fallback to template name if provided
+  if (templateName) {
+    return templateName.split(" - ")[0].split(" ")[0]; // Get first word
+  }
+
+  return "Account";
+}
+
 export function generatePhishingEmail(data: EmailTemplateData): string {
   const { subject, fromAddress, body, trackingLink, userName } = data;
 

@@ -81,10 +81,7 @@ export async function POST(request: NextRequest) {
 
               <!-- Fallback link -->
               <p style="margin:20px 0 0 0; font-size:12px; color:#666;">
-                If the button doesn't work, copy and paste this link:<br>
-                <span style="color:#2563eb; word-break:break-all; font-size:11px;">
-                  <a href="${signinUrl}" style="color:#2563eb; text-decoration:none;">${signinUrl}</a>
-                </span>
+                If the button doesn't work, <a href="${signinUrl}" style="color:#2563eb; text-decoration:underline;">click here to sign in</a>.
               </p>
 
               <!-- Footer message -->

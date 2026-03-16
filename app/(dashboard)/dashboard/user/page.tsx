@@ -109,18 +109,18 @@ function UserDashboardContent() {
 
   return (
     <div className="min-h-screen bg-[#0f0f1a] px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl space-y-8">
-        {/* Welcome */}
+      <div className="mx-auto max-w-7xl space-y-8">
+        {/* Welcome Header */}
         <div>
           <h1 className="text-3xl font-bold text-white">
             Welcome back, {session.user.name?.split(" ")[0] ?? "User"}
           </h1>
           <p className="mt-1 text-slate-400">
-            Here&apos;s your phishing awareness progress
+            Track your phishing awareness progress
           </p>
         </div>
 
-        {/* Training Complete Success Banner */}
+        {/* Status Banners */}
         {searchParams.get("completed") === "true" && (
           <div className="relative overflow-hidden rounded-xl border border-emerald-500/20 bg-emerald-500/10 backdrop-blur-sm p-4">
             <div className="flex items-center gap-3">
@@ -130,34 +130,33 @@ function UserDashboardContent() {
           </div>
         )}
 
-        {/* Pending Training */}
+        {/* Pending Training Alert */}
         {pendingTraining.length > 0 && (
-          <div className="relative overflow-hidden rounded-xl border border-amber-500/20 bg-amber-500/10 backdrop-blur-sm">
-            <div className="p-6">
-              <h2 className="text-lg font-semibold text-amber-300">Pending Training</h2>
-              <p className="mt-1 text-sm text-amber-200/70">
-                Complete these modules to improve your awareness score
-              </p>
-              <div className="mt-4 space-y-3">
-                {pendingTraining.map((mod) => (
-                  <div key={mod.id} className="flex items-center justify-between rounded-lg border border-amber-500/20 bg-black/20 px-4 py-3">
-                    <span className="text-slate-200">{mod.name}</span>
-                    <Link
-                      href={`/training/${mod.id}`}
-                      className="text-sm font-medium text-amber-400 hover:text-amber-300"
-                    >
-                      Complete Training &rarr;
-                    </Link>
-                  </div>
-                ))}
-              </div>
+          <div className="relative overflow-hidden rounded-xl border border-amber-500/20 bg-amber-500/10 backdrop-blur-sm p-6">
+            <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(251,146,60,0.5) 50%, transparent)" }} />
+            <h2 className="text-lg font-semibold text-amber-300">Pending Training</h2>
+            <p className="mt-1 text-sm text-amber-200/70">
+              Complete these modules to improve your awareness score
+            </p>
+            <div className="mt-4 space-y-3">
+              {pendingTraining.map((mod) => (
+                <div key={mod.id} className="flex items-center justify-between rounded-lg border border-amber-500/20 bg-black/20 px-4 py-3">
+                  <span className="text-slate-200">{mod.name}</span>
+                  <Link
+                    href={`/training/${mod.id}`}
+                    className="text-sm font-medium text-amber-400 hover:text-amber-300 cursor-pointer"
+                  >
+                    Complete Training →
+                  </Link>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Join School — only shown when user has no school */}
+        {/* Join School CTA */}
         {!session.user.schoolId && (
-          <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-6">
+          <div className="relative overflow-hidden rounded-xl border border-blue-500/20 bg-blue-500/10 backdrop-blur-sm p-6">
             <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
             <h2 className="text-lg font-semibold text-white">Get Started</h2>
             <p className="mt-1 text-sm text-slate-400">
@@ -166,16 +165,20 @@ function UserDashboardContent() {
             <div className="mt-4">
               <Link
                 href="/dashboard/onboarding"
-                className="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white shadow-[0_0_20px_rgba(37,99,235,0.35)] transition-colors hover:bg-blue-600"
+                className="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white shadow-[0_0_20px_rgba(37,99,235,0.35)] transition-colors hover:bg-blue-600 cursor-pointer"
               >
-                Join or Create a School &rarr;
+                Join or Create a School →
               </Link>
             </div>
           </div>
         )}
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {/* Key Metrics Section */}
+        <div>
+          <h2 className="mb-4 text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
+            Your Performance
+          </h2>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {[
             { label: "Emails Received", value: stats.totalSent, icon: Mail, iconColor: "text-blue-400", valueColor: "text-white" },
             { label: "Links Clicked", value: stats.totalClicked, icon: MousePointerClick, iconColor: "text-red-400", valueColor: "text-red-400" },
@@ -183,62 +186,71 @@ function UserDashboardContent() {
             { label: "Click Rate", value: `${clickRate}%`, icon: TrendingDown, iconColor: "text-amber-400", valueColor: "text-white" },
           ].map((stat) => (
             <div key={stat.label} className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-5">
-              <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-400">{stat.label}</span>
-                <stat.icon className={`h-4 w-4 ${stat.iconColor}`} />
-              </div>
-              <div className={`mt-2 text-2xl font-bold ${stat.valueColor}`}>
-                {stat.value}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">{stat.label}</span>
+                  <stat.icon className={`h-4 w-4 ${stat.iconColor}`} />
+                </div>
+                <div className={`text-2xl font-bold ${stat.valueColor}`}>
+                  {stat.value}
+                </div>
               </div>
             </div>
           ))}
         </div>
+        </div>
 
-        {/* Awareness Score */}
+        {/* Awareness Score & Insights */}
         <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-6">
           <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
-          <h2 className="text-lg font-semibold text-white">Awareness Score</h2>
-          <p className="mt-1 text-sm text-slate-400">
-            Percentage of simulations you correctly identified as phishing
-          </p>
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-400">Progress</span>
-              <span className="font-medium text-white">{completionRate}%</span>
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-lg font-semibold text-white">Awareness Score</h2>
+              <p className="mt-1 text-sm text-slate-400">
+                Percentage of simulations you correctly identified as safe
+              </p>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-blue-600 transition-all duration-500"
-                style={{ width: `${completionRate}%` }}
-              />
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-400">Correctly Identified</span>
+                <span className="font-semibold text-emerald-400">{completionRate}%</span>
+              </div>
+              <div className="h-3 w-full overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-blue-600 to-emerald-500 transition-all duration-500"
+                  style={{ width: `${completionRate}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-500">
+                {completionRate >= 80 ? "Excellent awareness!" : completionRate >= 60 ? "Good job, keep improving!" : "Complete training to boost your score"}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Recent Simulations */}
+        {/* Recent Activity Section */}
         <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm">
           <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
-          <div className="p-6">
-            <h2 className="text-lg font-semibold text-white">All Simulations</h2>
+          <div className="p-6 border-b border-white/[0.06]">
+            <h2 className="text-lg font-semibold text-white">Recent Simulations</h2>
             <p className="mt-1 text-sm text-slate-400">
-              Your complete phishing simulation history (most recent at top)
+              Your phishing simulation history (most recent at top)
             </p>
           </div>
-          <div className="overflow-y-auto overflow-x-auto px-6 pb-6" style={{ maxHeight: "300px" }}>
+          <div className="overflow-x-auto">
             <table className="w-full text-sm" role="table">
               <thead className="sticky top-0 bg-[#1a1a2e] border-b border-white/10">
                 <tr className="text-left">
-                  <th className="pb-3 pr-4 font-medium text-slate-400">Subject</th>
-                  <th className="pb-3 pr-4 font-medium text-slate-400">Date</th>
-                  <th className="pb-3 pr-4 font-medium text-slate-400">Status</th>
-                  <th className="pb-3 font-medium text-slate-400">Training</th>
+                  <th className="px-6 py-3 font-medium text-slate-400">Subject</th>
+                  <th className="px-6 py-3 font-medium text-slate-400">Date</th>
+                  <th className="px-6 py-3 font-medium text-slate-400">Status</th>
+                  <th className="px-6 py-3 font-medium text-slate-400">Training</th>
                 </tr>
               </thead>
               <tbody>
                 {history.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-6 text-center text-slate-500">
+                    <td colSpan={4} className="py-8 text-center text-slate-500">
                       No simulations yet
                     </td>
                   </tr>
@@ -246,18 +258,18 @@ function UserDashboardContent() {
                   history.map((sim) => (
                     <tr
                       key={sim.id}
-                      className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]"
+                      className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors"
                     >
-                      <td className="py-3 pr-4 text-slate-300">{sim.subject}</td>
-                      <td className="py-3 pr-4 text-slate-400">{sim.sentAt}</td>
-                      <td className="py-3 pr-4">
+                      <td className="px-6 py-3 text-slate-300">{sim.subject}</td>
+                      <td className="px-6 py-3 text-slate-400 text-sm">{sim.sentAt}</td>
+                      <td className="px-6 py-3">
                         {sim.clicked ? (
                           <Badge variant="danger">Clicked</Badge>
                         ) : (
                           <Badge variant="success">Safe</Badge>
                         )}
                       </td>
-                      <td className="py-3">
+                      <td className="px-6 py-3">
                         {sim.clicked && sim.completedAt ? (
                           <Badge variant="outline" className="text-emerald-400 border-emerald-500">
                             Completed
@@ -267,7 +279,7 @@ function UserDashboardContent() {
                             Pending
                           </Badge>
                         ) : (
-                          <span className="text-slate-500">&mdash;</span>
+                          <span className="text-slate-500">—</span>
                         )}
                       </td>
                     </tr>
@@ -278,18 +290,18 @@ function UserDashboardContent() {
           </div>
         </div>
 
-        {/* Demo Email Send Button with inline feedback */}
-        <div className="flex flex-col items-center gap-2">
+        {/* Action Area */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
           <button
             onClick={handleSendDemoEmail}
             disabled={sendingEmail}
-            className="text-xs text-slate-500 hover:text-slate-400 underline disabled:opacity-50"
+            className="px-4 py-2.5 rounded-lg border border-blue-500/20 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors disabled:opacity-50 text-sm font-medium cursor-pointer"
           >
             {sendingEmail ? "Sending..." : "Send me a demo phishing email"}
           </button>
           {emailFeedback && (
-            <span className={`text-xs font-medium ${emailFeedback.type === "success" ? "text-emerald-400" : "text-red-400"}`}>
-              {emailFeedback.type === "success" && "\u2713 "}{emailFeedback.message}
+            <span className={`text-sm font-medium ${emailFeedback.type === "success" ? "text-emerald-400" : "text-red-400"}`}>
+              {emailFeedback.type === "success" && "✓ "}{emailFeedback.message}
             </span>
           )}
         </div>

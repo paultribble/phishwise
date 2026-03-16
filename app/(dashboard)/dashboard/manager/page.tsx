@@ -14,8 +14,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
-  Users,
   Mail,
+  MousePointerClick,
   TrendingDown,
   ShieldAlert,
   Copy,
@@ -455,57 +455,199 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div className={`${glassCard} p-5 relative overflow-hidden`}>
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none" />
-          <div className="flex items-center justify-between pb-2">
-            <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
-              Total Users
+      {/* School Snapshot Card */}
+      <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-6">
+        <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-2">
+              School Overview
             </p>
-            <Users className="h-4 w-4 text-blue-400" />
+            <p className={`text-2xl font-bold text-white ${playfair.className}`}>
+              {analytics?.school.name}
+            </p>
           </div>
-          <div className="text-2xl font-bold text-white">
-            {analytics?.school.totalUsers ?? 0}
+          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/[0.06]">
+            <div>
+              <p className="text-xs text-slate-500 mb-1">Invite Code</p>
+              <div className="flex items-center gap-2">
+                <code className="text-sm font-mono text-emerald-400 bg-black/30 px-2 py-1 rounded">
+                  {analytics?.school.inviteCode}
+                </code>
+                <button
+                  onClick={handleCopy}
+                  className="p-1.5 rounded hover:bg-white/10 cursor-pointer transition-colors"
+                  title="Copy invite code"
+                >
+                  {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4 text-slate-400" />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500 mb-1">Total Members</p>
+              <p className="text-xl font-bold text-white">{analytics?.school.totalUsers ?? 0}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div>
+        <h2 className="mb-4 text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
+          School Performance
+        </h2>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className={`${glassCard} p-5 relative overflow-hidden`}>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Simulations Sent</span>
+              <Mail className="h-4 w-4 text-blue-400" />
+            </div>
+            <div className="text-2xl font-bold text-white">
+              {analytics?.aggregateStats.totalSimulationsSent ?? 0}
+            </div>
           </div>
         </div>
 
         <div className={`${glassCard} p-5 relative overflow-hidden`}>
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none" />
-          <div className="flex items-center justify-between pb-2">
-            <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
-              Simulations Sent
-            </p>
-            <Mail className="h-4 w-4 text-blue-400" />
-          </div>
-          <div className="text-2xl font-bold text-white">
-            {analytics?.aggregateStats.totalSimulationsSent ?? 0}
-          </div>
-        </div>
-
-        <div className={`${glassCard} p-5 relative overflow-hidden`}>
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />
-          <div className="flex items-center justify-between pb-2">
-            <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
-              Avg Click Rate
-            </p>
-            <TrendingDown className="h-4 w-4 text-amber-400" />
-          </div>
-          <div className="text-2xl font-bold text-amber-400">
-            {analytics?.aggregateStats.averageClickRate ?? 0}%
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Simulations Clicked</span>
+              <MousePointerClick className="h-4 w-4 text-red-400" />
+            </div>
+            <div className="text-2xl font-bold text-red-400">
+              {analytics?.aggregateStats.totalSimulationsClicked ?? 0}
+            </div>
           </div>
         </div>
 
         <div className={`${glassCard} p-5 relative overflow-hidden`}>
-          <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent pointer-events-none" />
-          <div className="flex items-center justify-between pb-2">
-            <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
-              Users at Risk
-            </p>
-            <ShieldAlert className="h-4 w-4 text-red-400" />
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Avg Click Rate</span>
+              <TrendingDown className="h-4 w-4 text-amber-400" />
+            </div>
+            <div className="text-2xl font-bold text-amber-400">
+              {analytics?.aggregateStats.averageClickRate ?? 0}%
+            </div>
           </div>
-          <div className="text-2xl font-bold text-red-400">
-            {analytics?.aggregateStats.usersNeedingAttention ?? 0}
+        </div>
+
+        <div className={`${glassCard} p-5 relative overflow-hidden`}>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Users at Risk</span>
+              <ShieldAlert className="h-4 w-4 text-red-400" />
+            </div>
+            <div className="text-2xl font-bold text-red-400">
+              {analytics?.aggregateStats.usersNeedingAttention ?? 0}
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      {/* Team Performance Section */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
+            Team Performance
+          </h2>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setShowTriggerModal(true);
+                loadTemplates();
+                setDebugOutput([]);
+              }}
+              className="text-sm px-3 py-1.5 rounded border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors cursor-pointer"
+            >
+              <Send className="mr-1 inline h-3 w-3" />
+              Send Simulation
+            </button>
+          </div>
+        </div>
+
+        <div className={glassCard}>
+          <div className="p-6 border-b border-white/[0.06]">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-white">User Performance</h3>
+                <p className="mt-1 text-sm text-slate-300">
+                  Click rates and training completion for all users
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm" role="table">
+              <thead className="sticky top-0 bg-[#1a1a2e] border-b border-white/[0.06]">
+                <tr className="text-left">
+                  <th className="px-6 py-3 font-medium text-slate-300">User</th>
+                  <th className="px-6 py-3 font-medium text-slate-300">Sent</th>
+                  <th className="px-6 py-3 font-medium text-slate-300">Clicked</th>
+                  <th className="px-6 py-3 font-medium text-slate-300">Click Rate</th>
+                  <th className="px-6 py-3 font-medium text-slate-300">Training</th>
+                  <th className="px-6 py-3 font-medium text-slate-300">Risk</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!analytics?.userPerformance || analytics.userPerformance.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-slate-500">
+                      No users in this school yet
+                    </td>
+                  </tr>
+                ) : (
+                  analytics.userPerformance.map((user) => {
+                    let riskColor = "text-emerald-400";
+                    let riskLabel = "Low";
+                    if (user.clickRate > 50) {
+                      riskColor = "text-red-400";
+                      riskLabel = "High";
+                    } else if (user.clickRate > 30) {
+                      riskColor = "text-amber-400";
+                      riskLabel = "Medium";
+                    }
+
+                    return (
+                      <tr
+                        key={user.userId}
+                        className="border-b border-white/[0.03] last:border-0 hover:bg-white/[0.02] transition-colors"
+                      >
+                        <td className="px-6 py-3">
+                          <div>
+                            <div className="font-medium text-white">{user.name}</div>
+                            <div className="text-xs text-slate-400">{user.email}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-3 text-slate-300">{user.totalSent}</td>
+                        <td className="px-6 py-3 text-slate-300">{user.totalClicked}</td>
+                        <td className="px-6 py-3">
+                          <div className="flex items-center gap-2">
+                            <Progress
+                              value={user.clickRate}
+                              className="h-2 w-16 bg-gray-700"
+                            />
+                            <span className={riskColor}>
+                              {user.clickRate}%
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-3 text-slate-300">
+                          {user.trainingsCompleted}
+                        </td>
+                        <td className="px-6 py-3">
+                          <Badge variant={riskLabel === "Low" ? "success" : riskLabel === "Medium" ? "warning" : "danger"}>
+                            {riskLabel}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -534,8 +676,12 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* Analytics & Insights Section */}
+      <div>
+        <h2 className="mb-4 text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
+          Analytics & Insights
+        </h2>
+        <div className="grid gap-6 lg:grid-cols-2">
         {/* Click Rate Trend */}
         <div className={glassCard}>
           <div className="p-6">
@@ -590,87 +736,6 @@ export default function ManagerDashboard() {
             </ResponsiveContainer>
           </div>
         </div>
-      </div>
-
-      {/* User Performance Table */}
-      <div className={glassCard}>
-        <div className="p-6">
-          <h3 className="text-lg font-semibold text-white">User Performance</h3>
-          <p className="mt-1 text-sm text-slate-300">
-            Click rates and training completion for all users in your school
-          </p>
-        </div>
-        <div className="px-6 pb-6">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm" role="table">
-              <thead>
-                <tr className="border-b border-white/[0.06] text-left">
-                  <th className="pb-3 pr-4 font-medium text-slate-300">User</th>
-                  <th className="pb-3 pr-4 font-medium text-slate-300">Sent</th>
-                  <th className="pb-3 pr-4 font-medium text-slate-300">Clicked</th>
-                  <th className="pb-3 pr-4 font-medium text-slate-300">Click Rate</th>
-                  <th className="pb-3 pr-4 font-medium text-slate-300">Training</th>
-                  <th className="pb-3 font-medium text-slate-300">Risk</th>
-                </tr>
-              </thead>
-              <tbody>
-                {!analytics?.userPerformance || analytics.userPerformance.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-6 text-center text-gray-500">
-                      No users in this school yet
-                    </td>
-                  </tr>
-                ) : (
-                  analytics.userPerformance.map((user) => {
-                    let riskColor = "text-emerald-400";
-                    let riskLabel = "Low";
-                    if (user.clickRate > 50) {
-                      riskColor = "text-red-400";
-                      riskLabel = "High";
-                    } else if (user.clickRate > 30) {
-                      riskColor = "text-amber-400";
-                      riskLabel = "Medium";
-                    }
-
-                    return (
-                      <tr
-                        key={user.userId}
-                        className="border-b border-white/[0.03] last:border-0"
-                      >
-                        <td className="py-3 pr-4">
-                          <div>
-                            <div className="font-medium text-white">{user.name}</div>
-                            <div className="text-xs text-slate-400">{user.email}</div>
-                          </div>
-                        </td>
-                        <td className="py-3 pr-4 text-slate-300">{user.totalSent}</td>
-                        <td className="py-3 pr-4 text-slate-300">{user.totalClicked}</td>
-                        <td className="py-3 pr-4">
-                          <div className="flex items-center gap-2">
-                            <Progress
-                              value={user.clickRate}
-                              className="h-2 w-16 bg-gray-700"
-                            />
-                            <span className={riskColor}>
-                              {user.clickRate}%
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-3 pr-4 text-slate-300">
-                          {user.trainingsCompleted}
-                        </td>
-                        <td className="py-3">
-                          <Badge variant={riskLabel === "Low" ? "success" : riskLabel === "Medium" ? "warning" : "danger"}>
-                            {riskLabel}
-                          </Badge>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
         </div>
       </div>
 

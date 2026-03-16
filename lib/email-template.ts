@@ -1,6 +1,7 @@
 /**
  * Email template generator for phishing simulations
- * Creates realistic HTML emails for testing
+ * Replaces all placeholders: {{USER_NAME}}, {{ACTION_URL}}, {{DATE}}, {{TIME}}, {{LOCATION}}, {{DEVICE}}
+ * Supports bulletproof table-based HTML templates with inline styles
  */
 
 export interface EmailTemplateData {
@@ -14,37 +15,29 @@ export interface EmailTemplateData {
 export function generatePhishingEmail(data: EmailTemplateData): string {
   const { subject, fromAddress, body, trackingLink, userName } = data;
 
-  // Replace {{USER_NAME}} placeholders with actual user name (for compatibility with HTML templates)
-  const bodyWithPersonalization = body.replace(/\{\{USER_NAME\}\}/g, userName ? escapeHtml(userName) : 'Valued User');
+  // Generate timestamp info
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
 
-  // Replace all href="#" with actual tracking links (for HTML button templates)
-  const bodyWithLinks = bodyWithPersonalization.replace(/href="#"/g, `href="${trackingLink}"`);
+  // Replace all template placeholders
+  let processedBody = body
+    // User personalization
+    .replace(/\{\{USER_NAME\}\}/g, userName ? escapeHtml(userName) : 'Valued User')
+    // Tracking link - supports both bulletproof {{ACTION_URL}} and legacy href="#"
+    .replace(/\{\{ACTION_URL\}\}/g, trackingLink)
+    .replace(/\{\{PHISHING_LINK\}\}/g, trackingLink)
+    .replace(/\{\{tracking_url\}\}/g, trackingLink)
+    .replace(/href="#"/g, `href="${trackingLink}"`)
+    // Time/location info
+    .replace(/\{\{DATE\}\}/g, dateStr)
+    .replace(/\{\{TIME\}\}/g, timeStr)
+    .replace(/\{\{LOCATION\}\}/g, 'Unknown Location') // Client IP geolocation could be added here
+    .replace(/\{\{DEVICE\}\}/g, 'Unknown Device'); // User-Agent parsing could be added here
 
-  return `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${escapeHtml(subject)}</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }
-        .email-container { max-width: 600px; margin: 0 auto; background-color: white; }
-        .email-header { padding: 20px; border-bottom: 1px solid #eee; }
-        .email-body { padding: 30px 20px; }
-    </style>
-</head>
-<body>
-    <div class="email-container">
-        <div class="email-header">
-            <p style="margin: 0; color: #666; font-size: 12px;">From: <strong>${escapeHtml(fromAddress)}</strong></p>
-            <p style="margin: 10px 0 0 0; color: #666; font-size: 12px;">Subject: ${escapeHtml(subject)}</p>
-        </div>
-        <div class="email-body">
-            ${bodyWithLinks}
-        </div>
-    </div>
-</body>
-</html>`.trim();
+  // Return the processed template as-is (bulletproof templates already have full HTML structure)
+  // This preserves all table-based layouts and inline styles from the template
+  return processedBody;
 }
 
 function escapeHtml(text: string): string {

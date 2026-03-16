@@ -187,19 +187,23 @@ export async function POST(request: NextRequest) {
 
         // Build email content
         addLog(`  → Generating email HTML`);
-        const trackingUrl = `${process.env.NEXTAUTH_URL}/api/track/click/${simulation.trackingToken}`;
 
-        // Personalize template body with user name
-        const personalizedBody = template.body
-          .replace(/\{\{USER_NAME\}\}/g, user.name || user.email.split("@")[0])
-          .replace(/\{\{USER_EMAIL\}\}/g, user.email);
+        // Build environment-aware tracking URL
+        let baseUrl = process.env.NEXTAUTH_URL;
+        if (!baseUrl && process.env.VERCEL_URL) {
+          baseUrl = `https://${process.env.VERCEL_URL}`;
+        }
+        if (!baseUrl) {
+          baseUrl = "http://localhost:3000";
+        }
+        const trackingUrl = `${baseUrl}/api/track/click/${simulation.trackingToken}`;
 
         const htmlContent = generatePhishingEmail({
           subject: template.subject,
           fromAddress: template.fromAddress || "security@verify-account.com",
-          body: personalizedBody,
+          body: template.body,
           trackingLink: trackingUrl,
-          userName: user.name || user.email.split("@")[0],
+          userName: user.name || undefined,
         });
 
         // Send email

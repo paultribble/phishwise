@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     const targetUser = await prisma.user.findUnique({
       where: { id: userId },
-      select: { email: true, schoolId: true },
+      select: { email: true, name: true, schoolId: true },
     });
 
     if (!targetUser) {
@@ -84,13 +84,22 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const trackingUrl = `${process.env.NEXTAUTH_URL}/api/track/click/${simulation.trackingToken}`;
+    // Build environment-aware tracking URL
+    let baseUrl = process.env.NEXTAUTH_URL;
+    if (!baseUrl && process.env.VERCEL_URL) {
+      baseUrl = `https://${process.env.VERCEL_URL}`;
+    }
+    if (!baseUrl) {
+      baseUrl = "http://localhost:3000";
+    }
+    const trackingUrl = `${baseUrl}/api/track/click/${simulation.trackingToken}`;
 
     const htmlContent = generatePhishingEmail({
       subject: template.subject,
       fromAddress: template.fromAddress || "security@verify-account.com",
       body: template.body,
       trackingLink: trackingUrl,
+      userName: targetUser.name || undefined,
     });
 
     await sendEmail({

@@ -24,6 +24,19 @@ async function main() {
 
   console.log("🌱 Starting database seed...");
 
+  // Clean up existing data to avoid conflicts
+  console.log("🧹 Cleaning up existing seed data...");
+  try {
+    await prisma.simulationEmail.deleteMany({});
+    await prisma.userHistory.deleteMany({});
+    await prisma.userMetrics.deleteMany({});
+    await prisma.userTraining.deleteMany({});
+    await prisma.campaign.deleteMany({});
+    console.log("✅ Cleaned up simulation and tracking data");
+  } catch (error) {
+    console.log("ℹ️  No existing data to clean (first run)");
+  }
+
   // Demo password (same for all demo accounts)
   const demoPassword = "PhishWise2025!";
   const hashedPassword = await bcryptjs.hash(demoPassword, 12);

@@ -109,13 +109,13 @@ function UserDashboardContent() {
       : 0;
 
   return (
-    <div className="min-h-screen bg-[#0f0f1a] px-4 py-8 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-[#0f0f1a] relative overflow-hidden">
       {/* Animated background */}
       <AmbientBackground variant="subtle" />
 
       {/* Content wrapper */}
-      <div className="relative z-10">
-      <div className="mx-auto max-w-7xl space-y-8">
+      <div className="relative z-10 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl space-y-8">
         {/* Welcome Header */}
         <div>
           <h1 className="text-3xl font-bold text-white">

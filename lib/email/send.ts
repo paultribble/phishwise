@@ -15,6 +15,9 @@ interface PhishingEmailOptions {
  * - Replaces {{USER_NAME}} with the user's name
  * - Replaces {{PHISHING_LINK}} with the click tracking URL
  * - Injects a tracking pixel for open detection
+ *
+ * IMPORTANT: The htmlBody MUST contain {{PHISHING_LINK}} placeholder
+ * which will be replaced with the actual tracking URL that redirects back to PhishWise
  */
 export async function sendPhishingEmail({
   to,
@@ -34,17 +37,21 @@ export async function sendPhishingEmail({
       };
     }
 
-    // Build the click tracking URL if not provided
-    const clickUrl = clickTrackingUrl || `/api/track/click/${trackingToken}`;
+    // Determine the base URL for tracking links
+    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
-    // Replace template placeholders
+    // Build the click tracking URL if not provided
+    // This URL will be what the phishing link redirects to, which then redirects to training
+    const clickUrl = clickTrackingUrl || `${baseUrl}/api/track/click/${trackingToken}`;
+
+    // Replace template placeholders with actual values
     let processedHtml = htmlBody
-      .replace(/\{\{USER_NAME\}\}/g, userName)
+      .replace(/\{\{USER_NAME\}\}/g, escapeHtml(userName))
       .replace(/\{\{PHISHING_LINK\}\}/g, clickUrl)
       .replace(/\{\{tracking_url\}\}/g, clickUrl);
 
     // Inject tracking pixel for open detection (before closing body tag)
-    const openPixelUrl = `/api/track/open/${trackingToken}`;
+    const openPixelUrl = `${baseUrl}/api/track/open/${trackingToken}`;
     const trackingPixel = `<img src="${openPixelUrl}" width="1" height="1" alt="" style="display:none;" />`;
 
     if (processedHtml.includes("</body>")) {
@@ -69,4 +76,15 @@ export async function sendPhishingEmail({
     const errorMsg = error instanceof Error ? error.message : String(error);
     return { success: false, error: errorMsg };
   }
+}
+
+function escapeHtml(text: string): string {
+  const map: { [key: string]: string } = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  };
+  return text.replace(/[&<>"']/g, (char) => map[char]);
 }

@@ -1,8 +1,16 @@
 import { TrainingModuleConfig } from "./types";
+import {
+  AMAZON_ACCOUNT_VERIFY,
+  MICROSOFT_PASSWORD_RESET,
+  PAYPAL_BILLING_ALERT,
+  APPLE_SECURITY_ALERT,
+  EBAY_ACCOUNT_CONFIRM,
+} from "@/lib/email-templates";
 
 export const accountPasswordModule: TrainingModuleConfig = {
   name: "Account & Password Traps",
-  description: "Learn to identify phishing emails that try to steal your username, password, or login codes.",
+  description:
+    "Learn to identify phishing emails that try to steal your username, password, or login codes.",
   orderIndex: 3,
   content: `# Account & Password Traps
 
@@ -54,117 +62,39 @@ Always verify account issues by going directly to the website yourself, never th
 `,
   templates: [
     {
-      name: "Amazon - Unusual Sign-In Attempt",
-      subject: "Amazon.com: Unusual sign-in activity",
+      name: AMAZON_ACCOUNT_VERIFY.name,
+      subject: AMAZON_ACCOUNT_VERIFY.subject,
       fromAddress: "security-alerts@amazon.com",
-      body: `<div style="font-family: Arial, sans-serif; color: #333;">
-<p>Hello {{USER_NAME}},</p>
-
-<p>We detected an unusual sign-in attempt on your Amazon account from a new device in an unfamiliar location.</p>
-
-<p>For your security, we've temporarily restricted access to your account. To regain access, please verify your identity:</p>
-
-<p style="text-align: center;">
-  <a href="#" style="background-color: #FF9900; color: white; padding: 12px 30px; text-decoration: none; border-radius: 3px; font-weight: bold; display: inline-block;">Verify Your Identity</a>
-</p>
-
-<p>If you don't recognize this sign-in attempt, we recommend changing your password immediately.</p>
-
-<p style="font-size: 12px; color: #666;">
-Amazon.com, Inc.<br>
-410 Terry Avenue North<br>
-Seattle, WA 98109<br>
-United States
-</p>
-</div>`,
-      difficulty: 2,
+      body: AMAZON_ACCOUNT_VERIFY.body,
+      difficulty: AMAZON_ACCOUNT_VERIFY.difficulty,
     },
     {
-      name: "Microsoft - Password Reset Required",
-      subject: "Microsoft account password reset",
+      name: MICROSOFT_PASSWORD_RESET.name,
+      subject: MICROSOFT_PASSWORD_RESET.subject,
       fromAddress: "account-security@microsoft.com",
-      body: `<div style="font-family: Segoe UI, Arial, sans-serif; color: #333;">
-<p>Hi {{USER_NAME}},</p>
-
-<p>For security reasons, you need to reset your Microsoft account password.</p>
-
-<p>Someone may have tried to use your account. As a precaution, we've restricted it.</p>
-
-<p style="text-align: center; margin: 30px 0;">
-  <a href="#" style="background-color: #0078d4; color: white; padding: 12px 35px; text-decoration: none; border-radius: 2px; font-weight: bold; display: inline-block;">Reset Your Password Now</a>
-</p>
-
-<p>If you didn't request this change, your account may be compromised. Change your password immediately.</p>
-
-<p style="font-size: 12px; color: #666; margin-top: 30px;">
-Microsoft Corporation<br>
-One Microsoft Way<br>
-Redmond, WA 98052<br>
-USA
-</p>
-</div>`,
-      difficulty: 2,
+      body: MICROSOFT_PASSWORD_RESET.body,
+      difficulty: MICROSOFT_PASSWORD_RESET.difficulty,
     },
     {
-      name: "Apple - Account Verification Required",
-      subject: "Your Apple ID has been restricted",
+      name: APPLE_SECURITY_ALERT.name,
+      subject: APPLE_SECURITY_ALERT.subject,
       fromAddress: "noreply@apple.com",
-      body: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #333;">
-<p>Hello {{USER_NAME}},</p>
-
-<p>Your Apple ID has been temporarily restricted due to unusual sign-in activity.</p>
-
-<p>To restore full access to your account and prevent unauthorized use, please verify your identity:</p>
-
-<p style="text-align: center; margin: 30px 0;">
-  <a href="#" style="background-color: #007AFF; color: white; padding: 12px 35px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Verify Apple ID</a>
-</p>
-
-<p style="font-size: 12px; color: #666; margin-top: 30px;">
-Apple Inc.<br>
-One Apple Park Way<br>
-Cupertino, CA 95014<br>
-United States
-</p>
-</div>`,
-      difficulty: 1,
+      body: APPLE_SECURITY_ALERT.body,
+      difficulty: APPLE_SECURITY_ALERT.difficulty,
     },
     {
-      name: "eBay - Login Confirmation Required",
-      subject: "eBay: Confirm your password",
+      name: EBAY_ACCOUNT_CONFIRM.name,
+      subject: EBAY_ACCOUNT_CONFIRM.subject,
       fromAddress: "noreply@ebay.com",
-      body: `<div style="font-family: Arial, Helvetica, sans-serif; color: #333;">
-<p>Hello {{USER_NAME}},</p>
-
-<p>We've noticed unusual activity on your eBay account and need you to confirm your account information.</p>
-
-<p>For your protection, click below to confirm your account:</p>
-
-<p style="text-align: center; margin: 30px 0;">
-  <a href="#" style="background-color: #E53238; color: white; padding: 12px 35px; text-decoration: none; border-radius: 3px; font-weight: bold; display: inline-block; font-size: 14px;">Confirm Account</a>
-</p>
-
-<p style="font-size: 12px; color: #666; margin-top: 30px;">
-eBay Inc.<br>
-2025 Hamilton Avenue<br>
-San Jose, CA 95125<br>
-United States
-</p>
-</div>`,
-      difficulty: 3,
+      body: EBAY_ACCOUNT_CONFIRM.body,
+      difficulty: EBAY_ACCOUNT_CONFIRM.difficulty,
     },
     {
-      name: "Account Review Required",
-      subject: "Please Review Your Account Settings",
-      fromAddress: "review@account-update-center.com",
-      body: `We're conducting a routine security review of your account. To continue using our service, you'll need to review and confirm your account details.
-
-[Review Account Now]
-
-This is part of our ongoing security improvements. Your prompt response is appreciated.
-
-Account Management Team`,
-      difficulty: 3,
+      name: PAYPAL_BILLING_ALERT.name,
+      subject: PAYPAL_BILLING_ALERT.subject,
+      fromAddress: "security@paypal.com",
+      body: PAYPAL_BILLING_ALERT.body,
+      difficulty: PAYPAL_BILLING_ALERT.difficulty,
     },
   ],
 };

@@ -102,9 +102,9 @@ export async function GET(
       }
     }
 
-    // Redirect to training module
+    // Redirect to "you got phished" warning page, then to training
     return NextResponse.redirect(
-      new URL(`/training/${simEmail.template.moduleId}?token=${token}`, req.url)
+      new URL(`/training/${simEmail.template.moduleId}/caught?token=${token}`, req.url)
     );
   } catch (error) {
     console.error("Click tracking error:", error);

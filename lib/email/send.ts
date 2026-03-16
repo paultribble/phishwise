@@ -37,22 +37,26 @@ export async function sendPhishingEmail({
       };
     }
 
-    // Determine the base URL for tracking links
-    // Try multiple sources to find the correct URL
+    // Determine the base URL for tracking links (environment-aware for preview/production)
+    // NEXTAUTH_URL is set in production and staging Vercel deployments
+    // VERCEL_URL is auto-set by Vercel for preview branches and production
+    // This ensures emails redirect to the correct environment
     let baseUrl = process.env.NEXTAUTH_URL;
 
-    // Fallback to VERCEL_URL if NEXTAUTH_URL is not set
+    // Fallback to VERCEL_URL if NEXTAUTH_URL is not explicitly set
+    // VERCEL_URL format: "project-name-xxxxx.vercel.app"
     if (!baseUrl && process.env.VERCEL_URL) {
+      // Ensure HTTPS for all Vercel URLs
       baseUrl = `https://${process.env.VERCEL_URL}`;
     }
 
-    // Final fallback
+    // Final fallback for local development
     if (!baseUrl) {
       baseUrl = "http://localhost:3000";
     }
 
-    // Build the click tracking URL if not provided
-    // This URL will be what the phishing link redirects to, which then redirects to training
+    // Build the absolute click tracking URL
+    // When user clicks this link in email → hits /api/track/click/[token] → redirects to caught page
     const clickUrl = clickTrackingUrl || `${baseUrl}/api/track/click/${trackingToken}`;
 
     // Replace template placeholders with actual values

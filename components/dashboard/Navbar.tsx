@@ -36,7 +36,7 @@ const userNav = [
 
 const managerNav = [
   { label: "Overview", href: "/dashboard/manager", icon: LayoutDashboard },
-  { label: "Training", href: "/training", icon: BookOpen },
+  { label: "Training", href: "/dashboard/manager/modules", icon: BookOpen },
 ];
 
 const adminNav = [

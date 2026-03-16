@@ -21,7 +21,7 @@ type SimEntry = {
   subject: string;
   sentAt: string;
   clicked: boolean;
-  completedAt: string | null;
+  trainingCompleted: boolean | null;
 };
 
 function UserDashboardContent() {
@@ -49,12 +49,12 @@ function UserDashboardContent() {
       }
       if (simData.simulations) {
         setHistory(
-          simData.simulations.map((s: { id: string; template: { subject: string }; sentAt: string; clicked: boolean; completedAt: string | null }) => ({
+          simData.simulations.map((s: { id: string; template: { subject: string }; sentAt: string; clicked: boolean; trainingCompleted: boolean | null }) => ({
             id: s.id,
             subject: s.template.subject,
             sentAt: new Date(s.sentAt).toLocaleDateString(),
             clicked: s.clicked,
-            completedAt: s.completedAt,
+            trainingCompleted: s.trainingCompleted,
           }))
         );
       }
@@ -272,11 +272,11 @@ function UserDashboardContent() {
                         )}
                       </td>
                       <td className="px-6 py-3">
-                        {sim.clicked && sim.completedAt ? (
+                        {sim.trainingCompleted === true ? (
                           <Badge variant="outline" className="text-emerald-400 border-emerald-500">
                             Completed
                           </Badge>
-                        ) : sim.clicked ? (
+                        ) : sim.trainingCompleted === false ? (
                           <Badge variant="outline" className="text-amber-400 border-amber-500">
                             Pending
                           </Badge>

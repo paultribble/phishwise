@@ -133,6 +133,7 @@ model UserTraining {
   moduleId String
   module   TrainingModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, moduleId])
   @@index([userId])
   @@index([moduleId])
 }

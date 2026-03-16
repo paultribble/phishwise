@@ -3,21 +3,15 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Send, Users, ChevronRight } from "lucide-react";
+import { AmbientBackground } from "@/components/landing/AmbientBackground";
+import { BookOpen, ChevronRight, ArrowLeft, Zap } from "lucide-react";
 
 type Module = {
   id: string;
   name: string;
   description: string;
+  content: string;
   orderIndex: number;
   _count: {
     templates: number;
@@ -50,7 +44,6 @@ export default function ManagerModulesPage() {
     ])
       .then(([modulesData, analyticsData]) => {
         setModules(modulesData.modules || []);
-        // Extract users from analytics
         if (analyticsData.userPerformance) {
           setUsers(
             analyticsData.userPerformance.map((u: any) => ({
@@ -71,8 +64,8 @@ export default function ManagerModulesPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+      <div className="min-h-screen bg-[#0f0f1a] flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
       </div>
     );
   }
@@ -108,9 +101,7 @@ export default function ManagerModulesPage() {
         return;
       }
 
-      setSuccess(
-        `${selectedModule.name} assigned to ${selectedUser.name}`
-      );
+      setSuccess(`${selectedModule.name} assigned to ${selectedUser.name}`);
       setSelectedModule(null);
       setSelectedUser(null);
 
@@ -123,184 +114,194 @@ export default function ManagerModulesPage() {
     }
   }
 
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-200">Training Modules</h1>
-        <p className="mt-2 text-gray-400">
-          Assign training modules to test user proficiency and track progress
-        </p>
-      </div>
+  // Detail view
+  if (selectedModule) {
+    return (
+      <div className="min-h-screen bg-[#0f0f1a] relative overflow-hidden">
+        <AmbientBackground variant="subtle" />
+        <div className="relative z-10 px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl space-y-8">
+            {/* Back button */}
+            <button
+              onClick={() => setSelectedModule(null)}
+              className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Modules
+            </button>
 
-      {/* Quick Assign Card */}
-      <Card className="border-primary-500/50 bg-primary-500/10">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-200">
-            <Send className="h-5 w-5" />
-            Assign Module to User
-          </CardTitle>
-          <CardDescription className="text-gray-400">
-            Select a module and user to assign training
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Module Selection */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">
-                Module
-              </label>
-              <select
-                value={selectedModule?.id || ""}
-                onChange={(e) => {
-                  const mod = modules.find((m) => m.id === e.target.value);
-                  setSelectedModule(mod || null);
-                }}
-                className="w-full rounded-md border border-gray-600 bg-gray-900 px-3 py-2 text-sm text-gray-200 focus:border-primary-500 focus:outline-none"
-              >
-                <option value="">Choose a module...</option>
-                {modules.map((mod) => (
-                  <option key={mod.id} value={mod.id}>
-                    {mod.name} ({mod._count.templates} templates)
-                  </option>
-                ))}
-              </select>
+            {/* Module Detail Card */}
+            <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-8">
+              <div className="absolute top-0 left-6 right-6 h-px pointer-events-none"
+                style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
+
+              <div className="space-y-6">
+                <div>
+                  <h1 className="text-4xl font-bold text-white mb-2">
+                    {selectedModule.name}
+                  </h1>
+                  <p className="text-slate-300">{selectedModule.description}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-950/80 border border-blue-800/40">
+                    <BookOpen className="h-5 w-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
+                      Templates
+                    </p>
+                    <p className="text-2xl font-bold text-white mt-1">
+                      {selectedModule._count.templates}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* User Selection */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">User</label>
-              <select
-                value={selectedUser?.id || ""}
-                onChange={(e) => {
-                  const user = users.find((u) => u.id === e.target.value);
-                  setSelectedUser(user || null);
-                }}
-                className="w-full rounded-md border border-gray-600 bg-gray-900 px-3 py-2 text-sm text-gray-200 focus:border-primary-500 focus:outline-none"
-              >
-                <option value="">Choose a user...</option>
-                {users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name} ({user.email})
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Assignment Form */}
+            <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-8">
+              <div className="absolute top-0 left-6 right-6 h-px pointer-events-none"
+                style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
 
-            {/* Action Button */}
-            <div className="flex items-end">
-              <button
-                onClick={handleAssignModule}
-                disabled={!selectedModule || !selectedUser || assigning}
-                className="w-full rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {assigning ? "Assigning..." : "Assign Module"}
-              </button>
+              <h2 className="text-lg font-semibold text-white mb-6">Assign to User</h2>
+
+              <div className="space-y-4">
+                {/* User Selection */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
+                    Select User
+                  </label>
+                  <select
+                    value={selectedUser?.id || ""}
+                    onChange={(e) => {
+                      const user = users.find((u) => u.id === e.target.value);
+                      setSelectedUser(user || null);
+                    }}
+                    className="w-full bg-[#252540] border border-white/10 rounded-lg text-gray-200 placeholder-slate-500 focus:border-blue-600 focus:ring-1 focus:ring-blue-600/50 px-4 py-2.5 text-sm"
+                  >
+                    <option value="">Choose a user...</option>
+                    {users.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.name} ({user.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Messages */}
+                {error && (
+                  <div className="text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                    {error}
+                  </div>
+                )}
+                {success && (
+                  <div className="text-sm text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
+                    ✓ {success}
+                  </div>
+                )}
+
+                {/* Button */}
+                <button
+                  onClick={handleAssignModule}
+                  disabled={!selectedUser || assigning}
+                  className="w-full bg-blue-700 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold shadow-[0_0_20px_rgba(37,99,235,0.35)] hover:shadow-[0_0_28px_rgba(37,99,235,0.55)] rounded-lg transition-all py-2.5 flex items-center justify-center gap-2"
+                >
+                  <Zap className="h-4 w-4" />
+                  {assigning ? "Assigning..." : "Assign Module"}
+                </button>
+              </div>
             </div>
           </div>
-
-          {/* Messages */}
-          {error && (
-            <div className="text-sm text-danger-300 bg-danger-500/10 border border-danger-500/50 rounded-md p-3">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="text-sm text-success-300 bg-success-500/10 border border-success-500/50 rounded-md p-3">
-              ✓ {success}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Modules Grid */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-200 mb-4">
-          Available Modules
-        </h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          {modules.length === 0 ? (
-            <Card className="col-span-full border-gray-700 bg-phish-blue/20">
-              <CardContent className="py-12 text-center">
-                <p className="text-gray-400">No modules available</p>
-              </CardContent>
-            </Card>
-          ) : (
-            modules.map((mod) => (
-              <Card
-                key={mod.id}
-                className="border-gray-700 bg-phish-blue/20 hover:bg-phish-blue/30 transition-colors"
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-gray-200 flex items-center gap-2">
-                        <BookOpen className="h-5 w-5 text-primary-400" />
-                        {mod.name}
-                      </CardTitle>
-                      <CardDescription className="text-gray-400 mt-1">
-                        {mod.description}
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <Badge variant="default" className="bg-primary-600">
-                      {mod._count.templates} templates
-                    </Badge>
-                    <span className="text-sm text-gray-500">
-                      Module #{mod.orderIndex}
-                    </span>
-                  </div>
-
-                  <div className="pt-2">
-                    <p className="text-sm text-gray-400 mb-3">
-                      Test user proficiency with this module. Each module
-                      contains multiple realistic phishing scenarios to train
-                      employees.
-                    </p>
-                    <button
-                      onClick={() => setSelectedModule(mod)}
-                      className="flex items-center gap-1 text-sm text-primary-400 hover:text-primary-300 transition-colors"
-                    >
-                      Assign this module
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
         </div>
       </div>
+    );
+  }
 
-      {/* Info Card */}
-      <Card className="border-gray-700 bg-phish-blue/20">
-        <CardHeader>
-          <CardTitle className="text-gray-200">How It Works</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-gray-300 text-sm">
-          <p>
-            <strong>1. Assign Modules:</strong> Select a training module and
-            assign it to a specific user to test their proficiency.
-          </p>
-          <p>
-            <strong>2. User Clicks Phishing Email:</strong> When users click on
-            simulated phishing emails from that module, they&apos;re redirected to
-            the training content.
-          </p>
-          <p>
-            <strong>3. Complete Training:</strong> Users must complete the
-            module and pass the quiz to mark the module as complete.
-          </p>
-          <p>
-            <strong>4. Track Progress:</strong> Monitor completion rates and
-            improvement in your dashboard.
-          </p>
-        </CardContent>
-      </Card>
+  // List view
+  return (
+    <div className="min-h-screen bg-[#0f0f1a] relative overflow-hidden">
+      <AmbientBackground variant="subtle" />
+      <div className="relative z-10 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl space-y-8">
+          {/* Header */}
+          <div>
+            <h1 className="text-3xl font-bold text-white">Training Modules</h1>
+            <p className="mt-1 text-slate-400">
+              Select a module to view details and assign to users
+            </p>
+          </div>
+
+          {/* Modules Grid */}
+          {modules.length === 0 ? (
+            <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-12 text-center">
+              <p className="text-slate-400">No modules available</p>
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {modules.map((mod) => (
+                <button
+                  key={mod.id}
+                  onClick={() => setSelectedModule(mod)}
+                  className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-6 text-left hover:border-blue-400/20 hover:bg-[#232338]/80 transition-all group"
+                >
+                  <div className="absolute top-0 left-6 right-6 h-px pointer-events-none"
+                    style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
+
+                  <div className="space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-950/80 border border-blue-800/40 group-hover:border-blue-700/60 transition-colors">
+                        <BookOpen className="h-5 w-5 text-blue-400" />
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-blue-400/50 group-hover:text-blue-400 transition-colors" />
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-white text-lg group-hover:text-blue-400 transition-colors">
+                        {mod.name}
+                      </h3>
+                      <p className="text-sm text-slate-400 mt-1 line-clamp-2">
+                        {mod.description}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-2">
+                      <Badge variant="outline" className="bg-blue-950/50 border-blue-800/40 text-blue-300">
+                        {mod._count.templates} templates
+                      </Badge>
+                      <span className="text-xs text-slate-500">
+                        Module #{mod.orderIndex}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Info Card */}
+          <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-6">
+            <div className="absolute top-0 left-6 right-6 h-px pointer-events-none"
+              style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
+
+            <h2 className="text-lg font-semibold text-white mb-4">How Assignment Works</h2>
+            <div className="space-y-3 text-slate-300 text-sm">
+              <p>
+                <span className="text-blue-400 font-semibold">1. Select Module:</span> Click any module card to view details and assign it to users.
+              </p>
+              <p>
+                <span className="text-blue-400 font-semibold">2. Choose User:</span> Select a user from your school to assign the training module.
+              </p>
+              <p>
+                <span className="text-blue-400 font-semibold">3. User Completes:</span> When users click phishing emails from this module, they&apos;re redirected to complete training.
+              </p>
+              <p>
+                <span className="text-blue-400 font-semibold">4. Track Progress:</span> Monitor completion in your dashboard analytics.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

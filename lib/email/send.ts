@@ -11,13 +11,13 @@ interface PhishingEmailOptions {
 }
 
 /**
- * Sends a phishing simulation email with tracking.
+ * Sends a simulation email with tracking.
  * - Replaces {{USER_NAME}} with the user's name
- * - Replaces {{PHISHING_LINK}} with the click tracking URL
+ * - Replaces {{ACTION_URL}} with the click tracking URL
  * - Injects a tracking pixel for open detection
  *
- * IMPORTANT: The htmlBody MUST contain {{PHISHING_LINK}} placeholder
- * which will be replaced with the actual tracking URL that redirects back to PhishWise
+ * IMPORTANT: The htmlBody MUST contain {{ACTION_URL}} placeholder
+ * which will be replaced with the actual tracking URL
  */
 export async function sendPhishingEmail({
   to,
@@ -58,7 +58,8 @@ export async function sendPhishingEmail({
     // Replace template placeholders with actual values
     let processedHtml = htmlBody
       .replace(/\{\{USER_NAME\}\}/g, escapeHtml(userName))
-      .replace(/\{\{PHISHING_LINK\}\}/g, clickUrl)
+      .replace(/\{\{ACTION_URL\}\}/g, clickUrl)
+      .replace(/\{\{PHISHING_LINK\}\}/g, clickUrl) // backwards compatibility
       .replace(/\{\{tracking_url\}\}/g, clickUrl);
 
     // Inject tracking pixel for open detection (before closing body tag)

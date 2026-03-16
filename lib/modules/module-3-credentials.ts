@@ -1,11 +1,11 @@
 import { TrainingModuleConfig } from "./types";
 import {
-  AMAZON_MODERN,
-  MICROSOFT_MODERN,
-  PAYPAL_MODERN,
-  APPLE_MODERN,
-  EBAY_MODERN,
-} from "@/lib/email-templates-modern";
+  AMAZON_BULLETPROOF,
+  MICROSOFT_BULLETPROOF,
+  PAYPAL_BULLETPROOF,
+  APPLE_BULLETPROOF,
+  EBAY_BULLETPROOF,
+} from "@/lib/email-templates-bulletproof";
 
 export const accountPasswordModule: TrainingModuleConfig = {
   name: "Account & Password Traps",
@@ -62,39 +62,39 @@ Always verify account issues by going directly to the website yourself, never th
 `,
   templates: [
     {
-      name: AMAZON_MODERN.name,
-      subject: AMAZON_MODERN.subject,
+      name: AMAZON_BULLETPROOF.name,
+      subject: AMAZON_BULLETPROOF.subject,
       fromAddress: "security-alerts@amazon.com",
-      body: AMAZON_MODERN.body,
-      difficulty: AMAZON_MODERN.difficulty,
+      body: AMAZON_BULLETPROOF.body,
+      difficulty: AMAZON_BULLETPROOF.difficulty,
     },
     {
-      name: MICROSOFT_MODERN.name,
-      subject: MICROSOFT_MODERN.subject,
+      name: MICROSOFT_BULLETPROOF.name,
+      subject: MICROSOFT_BULLETPROOF.subject,
       fromAddress: "account-security@microsoft.com",
-      body: MICROSOFT_MODERN.body,
-      difficulty: MICROSOFT_MODERN.difficulty,
+      body: MICROSOFT_BULLETPROOF.body,
+      difficulty: MICROSOFT_BULLETPROOF.difficulty,
     },
     {
-      name: APPLE_MODERN.name,
-      subject: APPLE_MODERN.subject,
+      name: APPLE_BULLETPROOF.name,
+      subject: APPLE_BULLETPROOF.subject,
       fromAddress: "noreply@apple.com",
-      body: APPLE_MODERN.body,
-      difficulty: APPLE_MODERN.difficulty,
+      body: APPLE_BULLETPROOF.body,
+      difficulty: APPLE_BULLETPROOF.difficulty,
     },
     {
-      name: EBAY_MODERN.name,
-      subject: EBAY_MODERN.subject,
+      name: EBAY_BULLETPROOF.name,
+      subject: EBAY_BULLETPROOF.subject,
       fromAddress: "noreply@ebay.com",
-      body: EBAY_MODERN.body,
-      difficulty: EBAY_MODERN.difficulty,
+      body: EBAY_BULLETPROOF.body,
+      difficulty: EBAY_BULLETPROOF.difficulty,
     },
     {
-      name: PAYPAL_MODERN.name,
-      subject: PAYPAL_MODERN.subject,
+      name: PAYPAL_BULLETPROOF.name,
+      subject: PAYPAL_BULLETPROOF.subject,
       fromAddress: "security@paypal.com",
-      body: PAYPAL_MODERN.body,
-      difficulty: PAYPAL_MODERN.difficulty,
+      body: PAYPAL_BULLETPROOF.body,
+      difficulty: PAYPAL_BULLETPROOF.difficulty,
     },
   ],
 };

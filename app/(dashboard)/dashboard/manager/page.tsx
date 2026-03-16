@@ -463,7 +463,6 @@ export default function ManagerDashboard() {
 
       {/* School Snapshot Card */}
       <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[#1a1a2e]/80 backdrop-blur-sm p-6">
-        <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.4) 50%, transparent)" }} />
         <div className="space-y-4">
           <div>
             <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-2">

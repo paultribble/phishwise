@@ -139,7 +139,6 @@ function UserDashboardContent() {
         {/* Pending Training Alert */}
         {pendingTraining.length > 0 && (
           <div className="relative overflow-hidden rounded-xl border border-amber-500/20 bg-amber-500/10 backdrop-blur-sm p-6">
-            <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(251,146,60,0.5) 50%, transparent)" }} />
             <h2 className="text-lg font-semibold text-amber-300">Pending Training</h2>
             <p className="mt-1 text-sm text-amber-200/70">
               Complete these modules to improve your awareness score
@@ -163,7 +162,6 @@ function UserDashboardContent() {
         {/* Join School CTA */}
         {!session.user.schoolId && (
           <div className="relative overflow-hidden rounded-xl border border-blue-500/20 bg-blue-500/10 backdrop-blur-sm p-6">
-            <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
             <h2 className="text-lg font-semibold text-white">Get Started</h2>
             <p className="mt-1 text-sm text-slate-400">
               Join a school or create one to start your phishing awareness training.
@@ -208,7 +206,6 @@ function UserDashboardContent() {
 
         {/* Awareness Score & Insights */}
         <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-6">
-          <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
           <div className="space-y-6">
             <div>
               <h2 className="text-lg font-semibold text-white">Awareness Score</h2>
@@ -236,7 +233,6 @@ function UserDashboardContent() {
 
         {/* Recent Activity Section */}
         <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm">
-          <div className="absolute top-0 left-6 right-6 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(37,99,235,0.5) 50%, transparent)" }} />
           <div className="p-6 border-b border-white/[0.06]">
             <h2 className="text-lg font-semibold text-white">Recent Simulations</h2>
             <p className="mt-1 text-sm text-slate-400">

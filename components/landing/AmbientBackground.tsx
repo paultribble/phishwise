@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Ambient floating orbs + dot-grid overlay used throughout the landing page.
  * Positioned absolute, pointer-events-none — drop inside any relative section.

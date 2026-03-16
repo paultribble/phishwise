@@ -54,64 +54,103 @@ Always verify account issues by going directly to the website yourself, never th
 `,
   templates: [
     {
-      name: "Unusual Sign-In Attempt",
-      subject: "Unusual Sign-In Attempt Detected",
-      fromAddress: "security@account-support-alerts.com",
-      body: `We detected an unusual sign-in attempt on your account from a new device.
+      name: "Amazon - Unusual Sign-In Attempt",
+      subject: "Amazon.com: Unusual sign-in activity",
+      fromAddress: "security-alerts@amazon.com",
+      body: `<div style="font-family: Arial, sans-serif; color: #333;">
+<p>Hello {{USER_NAME}},</p>
 
-For your protection, access to your account has been temporarily limited. Please verify your identity to restore full access.
+<p>We detected an unusual sign-in attempt on your Amazon account from a new device in an unfamiliar location.</p>
 
-[Verify your account now]
+<p>For your security, we've temporarily restricted access to your account. To regain access, please verify your identity:</p>
 
-If no action is taken within 24 hours, your account may be suspended to prevent unauthorized use.
+<p style="text-align: center;">
+  <a href="#" style="background-color: #FF9900; color: white; padding: 12px 30px; text-decoration: none; border-radius: 3px; font-weight: bold; display: inline-block;">Verify Your Identity</a>
+</p>
 
-Thank you for helping us keep your account secure.
+<p>If you don't recognize this sign-in attempt, we recommend changing your password immediately.</p>
 
-Account Security Team`,
+<p style="font-size: 12px; color: #666;">
+Amazon.com, Inc.<br>
+410 Terry Avenue North<br>
+Seattle, WA 98109<br>
+United States
+</p>
+</div>`,
       difficulty: 2,
     },
     {
-      name: "Password Reset Required",
-      subject: "Password Reset Required - Action Needed",
-      fromAddress: "support@account-services.com",
-      body: `Your account password has expired and must be reset immediately. Failure to reset your password within 24 hours will result in account suspension.
+      name: "Microsoft - Password Reset Required",
+      subject: "Microsoft account password reset",
+      fromAddress: "account-security@microsoft.com",
+      body: `<div style="font-family: Segoe UI, Arial, sans-serif; color: #333;">
+<p>Hi {{USER_NAME}},</p>
 
-Click the link below to reset your password:
+<p>For security reasons, you need to reset your Microsoft account password.</p>
 
-[Reset Your Password]
+<p>Someone may have tried to use your account. As a precaution, we've restricted it.</p>
 
-This is a security measure to protect your account. Do not share this message with anyone.
+<p style="text-align: center; margin: 30px 0;">
+  <a href="#" style="background-color: #0078d4; color: white; padding: 12px 35px; text-decoration: none; border-radius: 2px; font-weight: bold; display: inline-block;">Reset Your Password Now</a>
+</p>
 
-Account Support Team`,
+<p>If you didn't request this change, your account may be compromised. Change your password immediately.</p>
+
+<p style="font-size: 12px; color: #666; margin-top: 30px;">
+Microsoft Corporation<br>
+One Microsoft Way<br>
+Redmond, WA 98052<br>
+USA
+</p>
+</div>`,
       difficulty: 2,
     },
     {
-      name: "Verify Your Identity Now",
-      subject: "URGENT: Verify Your Identity Now",
-      fromAddress: "verify@identity-confirmation.com",
-      body: `Your account access has been restricted due to suspicious activity.
+      name: "Apple - Account Verification Required",
+      subject: "Your Apple ID has been restricted",
+      fromAddress: "noreply@apple.com",
+      body: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #333;">
+<p>Hello {{USER_NAME}},</p>
 
-We need to verify your identity to restore full access to your account.
+<p>Your Apple ID has been temporarily restricted due to unusual sign-in activity.</p>
 
-Please verify now: [Verify Identity]
+<p>To restore full access to your account and prevent unauthorized use, please verify your identity:</p>
 
-Time is running out - you have 12 hours to complete this verification.
+<p style="text-align: center; margin: 30px 0;">
+  <a href="#" style="background-color: #007AFF; color: white; padding: 12px 35px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Verify Apple ID</a>
+</p>
 
-Security Team`,
+<p style="font-size: 12px; color: #666; margin-top: 30px;">
+Apple Inc.<br>
+One Apple Park Way<br>
+Cupertino, CA 95014<br>
+United States
+</p>
+</div>`,
       difficulty: 1,
     },
     {
-      name: "Confirm Your Account Login",
-      subject: "Confirm Your Account Login Information",
-      fromAddress: "security-check@account-verify.net",
-      body: `We noticed an unusual login attempt on your account. To keep your account secure, please confirm your login information by clicking below:
+      name: "eBay - Login Confirmation Required",
+      subject: "eBay: Confirm your password",
+      fromAddress: "noreply@ebay.com",
+      body: `<div style="font-family: Arial, Helvetica, sans-serif; color: #333;">
+<p>Hello {{USER_NAME}},</p>
 
-[Confirm Login Details]
+<p>We've noticed unusual activity on your eBay account and need you to confirm your account information.</p>
 
-Your cooperation is important to us. If you did not attempt to log in, please secure your account immediately by resetting your password.
+<p>For your protection, click below to confirm your account:</p>
 
-Best regards,
-Account Security Department`,
+<p style="text-align: center; margin: 30px 0;">
+  <a href="#" style="background-color: #E53238; color: white; padding: 12px 35px; text-decoration: none; border-radius: 3px; font-weight: bold; display: inline-block; font-size: 14px;">Confirm Account</a>
+</p>
+
+<p style="font-size: 12px; color: #666; margin-top: 30px;">
+eBay Inc.<br>
+2025 Hamilton Avenue<br>
+San Jose, CA 95125<br>
+United States
+</p>
+</div>`,
       difficulty: 3,
     },
     {

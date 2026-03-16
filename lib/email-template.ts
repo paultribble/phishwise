@@ -14,40 +14,37 @@ export interface EmailTemplateData {
 export function generatePhishingEmail(data: EmailTemplateData): string {
   const { subject, fromAddress, body, trackingLink, userName } = data;
 
-  // Replace placeholder text in body with actual clickable links
-  const bodyWithLinks = body
-    .replace(/\[([^\]]+)\]/g, (match, linkText) => {
-      return `<a href="${trackingLink}" style="color: #1D4ED8; text-decoration: underline; font-weight: bold;">${escapeHtml(linkText)}</a>`;
-    });
+  // Replace {{USER_NAME}} placeholders with actual user name (for compatibility with HTML templates)
+  const bodyWithPersonalization = body.replace(/\{\{USER_NAME\}\}/g, userName ? escapeHtml(userName) : 'Valued User');
 
-  return `
-<!DOCTYPE html>
+  // Replace all href="#" with actual tracking links (for HTML button templates)
+  const bodyWithLinks = bodyWithPersonalization.replace(/href="#"/g, `href="${trackingLink}"`);
+
+  return `<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${escapeHtml(subject)}</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }
+        .email-container { max-width: 600px; margin: 0 auto; background-color: white; }
+        .email-header { padding: 20px; border-bottom: 1px solid #eee; }
+        .email-body { padding: 30px 20px; }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px;">
-    <table style="max-width: 600px; margin: 0 auto; background-color: white; border-collapse: collapse;">
-        <tr>
-            <td style="padding: 20px; border-bottom: 1px solid #eee;">
-                <p style="margin: 0; color: #666; font-size: 12px;">From: <strong>${escapeHtml(fromAddress)}</strong></p>
-                <p style="margin: 10px 0 0 0; color: #666; font-size: 12px;">Subject: ${escapeHtml(subject)}</p>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding: 30px 20px;">
-                ${userName ? `<p style="margin: 0 0 15px 0; color: #333; font-size: 14px;">Hello ${escapeHtml(userName)},</p>` : ""}
-                <div style="color: #333; font-size: 14px; line-height: 1.6;">
-                    ${bodyWithLinks}
-                </div>
-            </td>
-        </tr>
-    </table>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <p style="margin: 0; color: #666; font-size: 12px;">From: <strong>${escapeHtml(fromAddress)}</strong></p>
+            <p style="margin: 10px 0 0 0; color: #666; font-size: 12px;">Subject: ${escapeHtml(subject)}</p>
+        </div>
+        <div class="email-body">
+            ${bodyWithLinks}
+        </div>
+    </div>
 </body>
-</html>
-  `.trim();
+</html>`.trim();
 }
 
 function escapeHtml(text: string): string {

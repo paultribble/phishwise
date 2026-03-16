@@ -10,6 +10,7 @@ export interface EmailTemplateData {
   body: string;
   trackingLink: string;
   userName?: string;
+  fromName?: string; // Friendly sender name (displayed to recipient)
 }
 
 export function generatePhishingEmail(data: EmailTemplateData): string {

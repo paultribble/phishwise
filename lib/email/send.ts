@@ -7,6 +7,7 @@ interface PhishingEmailOptions {
   htmlBody: string;
   trackingToken: string;
   fromAddress?: string;
+  fromName?: string; // Friendly sender name (e.g., "Amazon Account Security")
   clickTrackingUrl?: string;
 }
 
@@ -26,6 +27,7 @@ export async function sendPhishingEmail({
   htmlBody,
   trackingToken,
   fromAddress,
+  fromName,
   clickTrackingUrl,
 }: PhishingEmailOptions) {
   try {
@@ -79,12 +81,15 @@ export async function sendPhishingEmail({
     // Send the email
     // Use the provided from address (spoofed), or fall back to default
     const replyToAddress = fromAddress || "security@verify-account.com";
+    // Use provided friendly name, or generate from reply-to domain
+    const senderName = fromName || replyToAddress.split("@")[0].replace(/[_-]/g, " ").toUpperCase();
 
     await sendEmail({
       to,
       subject,
       html: processedHtml,
       replyTo: replyToAddress,
+      fromName: senderName,
     });
 
     return { success: true };

@@ -92,6 +92,14 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Extract friendly name from template name or domain
+    let friendlyName = template.name.split(" - ")[0];
+    if (!friendlyName || friendlyName.length < 5) {
+      const domain = (template.fromAddress || "security@company.com").split("@")[1].split(".")[0];
+      const company = domain.charAt(0).toUpperCase() + domain.slice(1);
+      friendlyName = `${company} Account Security`;
+    }
+
     const sendResult = await sendPhishingEmail({
       to: user.email,
       userName: user.name || "User",
@@ -99,6 +107,7 @@ export async function POST(req: NextRequest) {
       htmlBody: template.body,
       trackingToken: token,
       fromAddress: template.fromAddress || undefined,
+      fromName: friendlyName,
     });
 
     if (!sendResult.success) {

@@ -198,12 +198,21 @@ export async function POST(request: NextRequest) {
         }
         const trackingUrl = `${baseUrl}/api/track/click/${simulation.trackingToken}`;
 
+        // Extract friendly name from template name or domain
+        let friendlyName = template.name.split(" - ")[0];
+        if (!friendlyName || friendlyName.length < 5) {
+          const domain = (template.fromAddress || "security@company.com").split("@")[1].split(".")[0];
+          const company = domain.charAt(0).toUpperCase() + domain.slice(1);
+          friendlyName = `${company} Account Security`;
+        }
+
         const htmlContent = generatePhishingEmail({
           subject: template.subject,
           fromAddress: template.fromAddress || "security@verify-account.com",
           body: template.body,
           trackingLink: trackingUrl,
           userName: user.name || undefined,
+          fromName: friendlyName,
         });
 
         // Send email

@@ -2,32 +2,31 @@ interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
-  from?: string;
+  replyTo?: string;
 }
 
 /**
  * Sends an email using Resend.
  * Requires RESEND_API_KEY environment variable.
  *
- * Sender address priority:
- * 1. Provided `from` parameter (custom phishing template address for realistic spoofing)
- * 2. SENDER_EMAIL environment variable
- * 3. Default "noreply@phishwise.app"
+ * From address: Uses verified domain (noreply@phishwise.org)
+ * Reply-To address (optional): Custom spoofed address for realistic phishing simulation
  *
- * Note: Domain must be verified in Resend console for custom sender addresses.
- * Use spoofed addresses like "security@account-support.com" to simulate realistic phishing emails.
+ * For phishing simulations:
+ * - replyTo: "security@account-support.com" (visible to recipient, spoofed)
+ * - from: "noreply@phishwise.org" (verified domain, required by Resend)
+ *
+ * Recipients see the spoofed address as "from" in most email clients,
+ * and if they reply, it goes to the spoofed address.
  */
-export async function sendEmail({ to, subject, html, from }: SendEmailOptions) {
-  // Determine sender address with priority chain
-  const senderAddress =
-    from ||
-    process.env.SENDER_EMAIL ||
-    "noreply@phishwise.app";
+export async function sendEmail({ to, subject, html, replyTo }: SendEmailOptions) {
+  // Verified domain for Resend (must be validated in Resend console)
+  const fromAddress = "noreply@phishwise.org";
 
   // Verify Resend API key is configured
   if (!process.env.RESEND_API_KEY) {
     console.warn("[Email] RESEND_API_KEY not configured. Email not sent:");
-    console.warn({ to, subject, from: senderAddress });
+    console.warn({ to, subject, from: fromAddress, replyTo });
     return;
   }
 
@@ -36,12 +35,19 @@ export async function sendEmail({ to, subject, html, from }: SendEmailOptions) {
     const { Resend } = await import("resend");
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    await resend.emails.send({
-      from: senderAddress,
+    const sendOptions: any = {
+      from: fromAddress,
       to,
       subject,
       html,
-    });
+    };
+
+    // Add reply-to for spoofed address (visible to recipient)
+    if (replyTo) {
+      sendOptions.reply_to = replyTo;
+    }
+
+    await resend.emails.send(sendOptions);
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     throw new Error(`Resend error: ${errorMsg}`);

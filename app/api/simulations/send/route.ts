@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       to: targetUser.email,
       subject: template.subject,
       html: htmlContent,
-      from: template.fromAddress || "PhishWise <noreply@phishwise.app>",
+      replyTo: template.fromAddress || "security@verify-account.com",
     });
 
     await prisma.userHistory.create({

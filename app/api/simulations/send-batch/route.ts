@@ -196,12 +196,12 @@ export async function POST(request: NextRequest) {
         });
 
         // Send email
-        addLog(`  → Sending email via Resend (from: ${template.fromAddress || "noreply@phishwise.app"})`);
+        addLog(`  → Sending email via Resend (spoofed from: ${template.fromAddress || "security@verify-account.com"})`);
         await sendEmail({
           to: user.email,
           subject: template.subject,
           html: htmlContent,
-          from: template.fromAddress || "PhishWise <noreply@phishwise.app>",
+          replyTo: template.fromAddress || "security@verify-account.com",
         });
         addLog(`  ✅ Email sent successfully to ${user.email}`);
 

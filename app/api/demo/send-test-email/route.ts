@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       to: targetEmail,
       subject: "Unusual Sign-In Attempt Detected",
       html,
-      from: "PhishWise Security <security@phishwise-demo.com>",
+      replyTo: "security@phishwise-demo.com",
     });
 
     logger.info('Test email requested', { route: '/api/demo/send-test-email', userId: session.user.email });

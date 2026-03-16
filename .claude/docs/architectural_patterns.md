@@ -91,13 +91,42 @@ Always use `select` within `include` to avoid over-fetching related data.
 
 ## Email Abstraction
 
-`lib/email.ts` implements email delivery via Resend:
-1. Requires `RESEND_API_KEY` environment variable
-2. Supports custom sender addresses via `from` parameter (for realistic phishing template spoofing)
-3. Falls back to `SENDER_EMAIL` env or default "noreply@phishwise.app" if no `from` provided
-4. Logs to console if API key not configured (development fallback)
+`lib/email.ts` implements email delivery via Resend with support for realistic phishing simulation:
 
-Provider is dynamically imported at runtime to avoid bundling the SDK until needed.
+**From Address (Verified Domain):**
+- Required by Resend: `noreply@phishwise.org` (must be verified in Resend dashboard)
+- Used in `from` field for all emails
+
+**Spoofed Address (Reply-To):**
+- Passed via `replyTo` parameter to `sendEmail()`
+- Visible to recipients as sender, enables realistic phishing simulation
+- Examples: `security@account-support.com`, `verify@account-alerts.com`
+- Recipients see spoofed address in their email client, replies go to that address
+
+**Usage:**
+```typescript
+// Phishing simulation
+await sendEmail({
+  to: user.email,
+  subject: template.subject,
+  html: content,
+  replyTo: template.fromAddress,  // spoofed address, e.g., security@account-support.com
+});
+// From field automatically set to noreply@phishwise.org
+
+// Regular transactional email
+await sendEmail({
+  to: user.email,
+  subject: "Reset your password",
+  html: content,
+  // No replyTo - uses default from address only
+});
+```
+
+**Resend Setup Required:**
+1. Verify domain in Resend dashboard: https://resend.com/domains
+2. Update DNS records per Resend instructions
+3. Set `RESEND_API_KEY` in `.env.local`
 
 ## Design System
 

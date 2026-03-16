@@ -54,14 +54,14 @@ export async function sendPhishingEmail({
     }
 
     // Send the email
-    // Use the provided from address, or fall back to env config
-    const senderEmail = fromAddress || process.env.SENDER_EMAIL || "noreply@phishwise.app";
+    // Use the provided from address (spoofed), or fall back to default
+    const replyToAddress = fromAddress || "security@verify-account.com";
 
     await sendEmail({
       to,
       subject,
       html: processedHtml,
-      from: senderEmail,
+      replyTo: replyToAddress,
     });
 
     return { success: true };

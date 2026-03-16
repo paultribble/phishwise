@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
           to: randomUser.email,
           subject: randomTemplate.subject,
           html: htmlContent,
-          from: randomTemplate.fromAddress || "PhishWise <noreply@phishwise.app>",
+          replyTo: randomTemplate.fromAddress || "security@verify-account.com",
         });
 
         // Record history

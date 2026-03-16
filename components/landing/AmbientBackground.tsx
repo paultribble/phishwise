@@ -12,7 +12,7 @@ export function AmbientBackground({ variant = "default" }: { variant?: "default"
       <div
         className="anim-float-a absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full"
         style={{
-          background: "radial-gradient(circle at center, rgba(37,99,235,0.35) 0%, rgba(37,99,235,0.12) 50%, transparent 70%)",
+          background: "radial-gradient(circle at center, rgba(37,99,235,0.2) 0%, rgba(37,99,235,0.08) 50%, transparent 70%)",
           filter: "blur(40px)",
         }}
       />
@@ -21,7 +21,7 @@ export function AmbientBackground({ variant = "default" }: { variant?: "default"
       <div
         className="anim-float-b absolute -bottom-24 -right-24 w-[420px] h-[420px] rounded-full"
         style={{
-          background: "radial-gradient(circle at center, rgba(30,58,138,0.35) 0%, rgba(30,58,138,0.12) 50%, transparent 70%)",
+          background: "radial-gradient(circle at center, rgba(30,58,138,0.2) 0%, rgba(30,58,138,0.08) 50%, transparent 70%)",
           filter: "blur(50px)",
           animationDelay: "3s",
         }}
@@ -43,7 +43,7 @@ export function AmbientBackground({ variant = "default" }: { variant?: "default"
       <div
         className="anim-scanline absolute left-0 right-0 h-[2px] pointer-events-none"
         style={{
-          background: "linear-gradient(90deg, transparent 0%, rgba(37,99,235,0.3) 30%, rgba(59,130,246,0.45) 50%, rgba(37,99,235,0.3) 70%, transparent 100%)",
+          background: "linear-gradient(90deg, transparent 0%, rgba(37,99,235,0.15) 30%, rgba(59,130,246,0.25) 50%, rgba(37,99,235,0.15) 70%, transparent 100%)",
           animationDuration: "12s",
         }}
       />

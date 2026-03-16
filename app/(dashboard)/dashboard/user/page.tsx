@@ -38,7 +38,7 @@ function UserDashboardContent() {
     if (status !== "authenticated") return;
     Promise.all([
       fetch("/api/users").then((r) => r.json()),
-      fetch("/api/simulations?limit=1000").then((r) => r.json()),
+      fetch("/api/simulations?limit=50").then((r) => r.json()),
     ]).then(([userData, simData]) => {
       if (userData.metrics) {
         setStats(userData.metrics);

@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Ambient floating orbs + dot-grid overlay used throughout the landing page.
  * Positioned absolute, pointer-events-none — drop inside any relative section.
@@ -14,7 +12,7 @@ export function AmbientBackground({ variant = "default" }: { variant?: "default"
       <div
         className="anim-float-a absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full"
         style={{
-          background: "radial-gradient(circle at center, rgba(37,99,235,0.18) 0%, rgba(37,99,235,0.05) 50%, transparent 70%)",
+          background: "radial-gradient(circle at center, rgba(37,99,235,0.2) 0%, rgba(37,99,235,0.08) 50%, transparent 70%)",
           filter: "blur(40px)",
         }}
       />
@@ -23,7 +21,7 @@ export function AmbientBackground({ variant = "default" }: { variant?: "default"
       <div
         className="anim-float-b absolute -bottom-24 -right-24 w-[420px] h-[420px] rounded-full"
         style={{
-          background: "radial-gradient(circle at center, rgba(30,58,138,0.18) 0%, rgba(30,58,138,0.05) 50%, transparent 70%)",
+          background: "radial-gradient(circle at center, rgba(30,58,138,0.2) 0%, rgba(30,58,138,0.08) 50%, transparent 70%)",
           filter: "blur(50px)",
           animationDelay: "3s",
         }}
@@ -34,7 +32,7 @@ export function AmbientBackground({ variant = "default" }: { variant?: "default"
         <div
           className="anim-float-c absolute top-1/2 right-1/4 w-[240px] h-[240px] rounded-full"
           style={{
-            background: "radial-gradient(circle at center, rgba(59,130,246,0.12) 0%, transparent 70%)",
+            background: "radial-gradient(circle at center, rgba(59,130,246,0.25) 0%, transparent 70%)",
             filter: "blur(30px)",
             animationDelay: "1.5s",
           }}

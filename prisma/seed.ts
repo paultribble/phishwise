@@ -231,6 +231,51 @@ async function main() {
 
   console.log(`✅ Created ${simulationCount} sample simulations across all users`);
 
+  // Create UserTraining records for all clicked simulations
+  console.log("📝 Creating UserTraining records for clicked simulations...");
+  let trainingRecordCount = 0;
+
+  for (const user of createdUsers) {
+    // Get all clicked simulations for this user with their module IDs
+    const clickedSims = await prisma.simulationEmail.findMany({
+      where: { userId: user.id, clicked: true },
+      include: {
+        template: { select: { moduleId: true } },
+      },
+    });
+
+    // Deduplicate by moduleId and create UserTraining record
+    const moduleIdSet = new Set<string>();
+    for (const sim of clickedSims) {
+      const moduleId = sim.template.moduleId;
+      if (!moduleIdSet.has(moduleId)) {
+        moduleIdSet.add(moduleId);
+
+        // Create UserTraining record (or skip if already exists)
+        await prisma.userTraining.upsert({
+          where: {
+            userId_moduleId: {
+              userId: user.id,
+              moduleId: moduleId,
+            },
+          },
+          update: {},
+          create: {
+            userId: user.id,
+            moduleId: moduleId,
+            assignedAt: sim.clickedAt || new Date(),
+            completedAt: Math.random() < 0.3 ? new Date(sim.clickedAt!.getTime() + 7200000) : null, // 30% completed
+            score: Math.random() < 0.3 ? Math.floor(Math.random() * 40) + 60 : null, // 60-100 if completed
+          },
+        });
+
+        trainingRecordCount++;
+      }
+    }
+  }
+
+  console.log(`✅ Created ${trainingRecordCount} UserTraining records`);
+
   // Initialize user metrics for all demo users
   console.log("📈 Initializing user metrics...");
   for (const user of createdUsers) {
@@ -243,22 +288,24 @@ async function main() {
       where: { userId: user.id, clicked: true },
     });
 
-    // Randomly assign some users to have completed training
-    const trainingCompleted = Math.random() < 0.5 ? Math.floor(Math.random() * 5) : 0;
+    // Count actual completed training
+    const completedCount = await prisma.userTraining.count({
+      where: { userId: user.id, completedAt: { not: null } },
+    });
 
     await prisma.userMetrics.upsert({
       where: { userId: user.id },
       update: {
         totalSent: stats._count,
         totalClicked: clickedCount,
-        totalCompleted: trainingCompleted,
+        totalCompleted: completedCount,
         lastActivity: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Random activity in last 30 days
       },
       create: {
         userId: user.id,
         totalSent: stats._count,
         totalClicked: clickedCount,
-        totalCompleted: trainingCompleted,
+        totalCompleted: completedCount,
         lastActivity: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
       },
     });

@@ -32,7 +32,7 @@ export async function GET(
 
   try {
     const simEmail = await prisma.simulationEmail.findUnique({
-      where: { token },
+      where: { trackingToken: token },
       include: {
         template: { select: { moduleId: true } },
         user: { select: { id: true, name: true } },

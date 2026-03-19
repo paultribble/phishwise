@@ -46,16 +46,33 @@ export async function GET(request: NextRequest) {
     take: limit,
     skip: offset,
     include: {
-      template: { select: { name: true, subject: true, difficulty: true } },
+      template: { select: { name: true, subject: true, difficulty: true, moduleId: true } },
       campaign: { select: { name: true } },
     },
   });
+
+  // Fetch all UserTraining records for this user to check completion status
+  const userTraining = await prisma.userTraining.findMany({
+    where: { userId: session.user.id },
+    select: { moduleId: true, completedAt: true },
+  });
+
+  // Build map of moduleId → completedAt (or null if not completed)
+  const trainingMap = new Map<string, boolean | null>(
+    userTraining.map((ut) => [ut.moduleId, ut.completedAt !== null])
+  );
+
+  // Attach trainingCompleted status to each simulation
+  const simulationsWithTraining = simulations.map((sim) => ({
+    ...sim,
+    trainingCompleted: sim.clicked ? trainingMap.get(sim.template.moduleId) ?? null : null,
+  }));
 
   const total = await prisma.simulationEmail.count({
     where: { userId: session.user.id },
   });
 
-  return NextResponse.json({ simulations, total });
+  return NextResponse.json({ simulations: simulationsWithTraining, total });
 }
 
 /**

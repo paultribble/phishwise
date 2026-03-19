@@ -21,7 +21,7 @@ type SimEntry = {
   subject: string;
   sentAt: string;
   clicked: boolean;
-  completedAt: string | null;
+  trainingCompleted: boolean | null;
 };
 
 function UserDashboardContent() {
@@ -49,12 +49,12 @@ function UserDashboardContent() {
       }
       if (simData.simulations) {
         setHistory(
-          simData.simulations.map((s: { id: string; template: { subject: string }; sentAt: string; clicked: boolean; completedAt: string | null }) => ({
+          simData.simulations.map((s: { id: string; template: { subject: string }; sentAt: string; clicked: boolean; trainingCompleted: boolean | null }) => ({
             id: s.id,
             subject: s.template.subject,
             sentAt: new Date(s.sentAt).toLocaleDateString(),
             clicked: s.clicked,
-            completedAt: s.completedAt,
+            trainingCompleted: s.trainingCompleted,
           }))
         );
       }
@@ -109,13 +109,13 @@ function UserDashboardContent() {
       : 0;
 
   return (
-    <div className="min-h-screen bg-[#0f0f1a] px-4 py-8 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-[#0f0f1a] relative overflow-hidden">
       {/* Animated background */}
       <AmbientBackground variant="subtle" />
 
       {/* Content wrapper */}
-      <div className="relative z-10">
-      <div className="mx-auto max-w-7xl space-y-8">
+      <div className="relative z-10 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl space-y-8">
         {/* Welcome Header */}
         <div>
           <h1 className="text-3xl font-bold text-white">
@@ -272,11 +272,11 @@ function UserDashboardContent() {
                         )}
                       </td>
                       <td className="px-6 py-3">
-                        {sim.clicked && sim.completedAt ? (
+                        {sim.trainingCompleted === true ? (
                           <Badge variant="outline" className="text-emerald-400 border-emerald-500">
                             Completed
                           </Badge>
-                        ) : sim.clicked ? (
+                        ) : sim.trainingCompleted === false ? (
                           <Badge variant="outline" className="text-amber-400 border-amber-500">
                             Pending
                           </Badge>

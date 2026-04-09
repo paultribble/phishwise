@@ -25,7 +25,7 @@ export async function GET() {
       where: { id: session.user.id },
       include: {
         metrics: true,
-        school: { select: { id: true, name: true, inviteCode: true } },
+        school: { select: { id: true, name: true, inviteCode: true, frequency: true } },
       },
     });
 

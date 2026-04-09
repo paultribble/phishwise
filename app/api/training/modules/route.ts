@@ -10,11 +10,7 @@ export async function GET() {
   try {
     const modules = await prisma.trainingModule.findMany({
       where: { isActive: true },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        orderIndex: true,
+      include: {
         templates: {
           where: { isActive: true },
           select: {
@@ -26,6 +22,7 @@ export async function GET() {
           },
           orderBy: { name: "asc" },
         },
+        _count: { select: { templates: true } },
       },
       orderBy: { orderIndex: "asc" },
     });

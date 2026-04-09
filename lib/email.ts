@@ -1,9 +1,28 @@
+import crypto from 'crypto';
+
 interface SendEmailOptions {
   to: string;
   subject: string;
   html: string;
   replyTo?: string;
   fromName?: string; // Friendly name for the sender (e.g., "Amazon Account Security")
+  isSimulation?: boolean;
+  userId?: string;
+}
+
+/**
+ * Generates an HMAC-signed unsubscribe token for a user.
+ * Token format: userId.timestamp.signature
+ * Valid for 30 days.
+ */
+export function generateUnsubscribeToken(userId: string): string {
+  const timestamp = Date.now().toString();
+  const message = `${userId}.${timestamp}`;
+  const signature = crypto
+    .createHmac('sha256', process.env.NEXTAUTH_SECRET || '')
+    .update(message)
+    .digest('hex');
+  return `${message}.${signature}`;
 }
 
 /**
@@ -25,7 +44,7 @@ interface SendEmailOptions {
  *
  * This maximizes phishing realism while keeping Resend's verified domain requirement.
  */
-export async function sendEmail({ to, subject, html, replyTo, fromName }: SendEmailOptions) {
+export async function sendEmail({ to, subject, html, replyTo, fromName, isSimulation, userId }: SendEmailOptions) {
   // Verified domain for Resend (must be validated in Resend console)
   const baseEmail = "noreply@phishwise.org";
 
@@ -54,6 +73,14 @@ export async function sendEmail({ to, subject, html, replyTo, fromName }: SendEm
     // Add reply-to for spoofed address (visible to recipient)
     if (replyTo) {
       sendOptions.reply_to = replyTo;
+    }
+
+    // Append unsubscribe footer for simulation emails
+    if (isSimulation && userId) {
+      const baseUrl = process.env.NEXTAUTH_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+      const unsubToken = generateUnsubscribeToken(userId);
+      const unsubUrl = `${baseUrl}/api/users/unsubscribe?token=${unsubToken}`;
+      sendOptions.html += `<p style="font-size:11px; color:#666; margin-top:24px; border-top:1px solid #eee; padding-top:16px;">This is a phishing awareness simulation from PhishWise.<br><a href="${unsubUrl}">Unsubscribe from simulations</a></p>`;
     }
 
     await resend.emails.send(sendOptions);

@@ -82,7 +82,7 @@ describe('Navbar', () => {
     expect(screen.queryByText('Users')).toBeNull()
   })
 
-  it('renders manager nav items (Overview, Users, Training) for MANAGER role', () => {
+  it('renders manager nav items (Overview, Training) for MANAGER role', () => {
     vi.mocked(useSession).mockReturnValue({
       data: { user: { id: 'manager-1', name: 'Manager User', email: 'manager@example.com', role: 'MANAGER', schoolId: 'school-1', image: null } },
       status: 'authenticated',
@@ -92,12 +92,11 @@ describe('Navbar', () => {
     render(<Navbar />)
 
     expect(screen.getAllByText('Overview').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Users').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Training').length).toBeGreaterThan(0)
     expect(screen.queryByText('Dashboard')).toBeNull()
   })
 
-  it('renders manager nav items for ADMIN role', () => {
+  it('renders admin nav items (Overview, Users, Templates, Modules, Scheduler) for ADMIN role', () => {
     vi.mocked(useSession).mockReturnValue({
       data: { user: { id: 'admin-1', name: 'Admin User', email: 'admin@example.com', role: 'ADMIN', schoolId: 'school-1', image: null } },
       status: 'authenticated',
@@ -106,9 +105,11 @@ describe('Navbar', () => {
 
     render(<Navbar />)
 
-    // ADMIN shares the manager nav (isManager check includes ADMIN)
     expect(screen.getAllByText('Overview').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Users').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Templates').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Modules').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Scheduler').length).toBeGreaterThan(0)
   })
 
   it('renders sign out button when user is logged in', () => {

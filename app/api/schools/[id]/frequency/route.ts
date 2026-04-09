@@ -9,8 +9,18 @@ import { apiLogger } from "@/lib/logger";
 const log = apiLogger("/api/schools/[id]/frequency");
 
 const VALID_FREQUENCIES = ["daily", "weekly", "biweekly", "monthly"] as const;
+
+// Basic 5-field cron validation: minute hour day month weekday
+const cronPattern =
+  /^(\*|\d{1,2}|\*\/\d{1,2})\s+(\*|\d{1,2}|\*\/\d{1,2})\s+(\*|\d{1,2}|\*\/\d{1,2})\s+(\*|\d{1,2}|\*\/\d{1,2})\s+(\*|[0-6]|\*\/[0-6])$/;
+
 const schema = z.object({
   frequency: z.enum(VALID_FREQUENCIES),
+  cronExpression: z
+    .string()
+    .regex(cronPattern, "Invalid cron expression (must be 5 fields: minute hour day month weekday)")
+    .nullable()
+    .optional(),
 });
 
 /**
@@ -37,7 +47,7 @@ export async function PATCH(
       const e = errors.invalidFrequency([...VALID_FREQUENCIES]);
       return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
-    const { frequency } = parsed.data;
+    const { frequency, cronExpression } = parsed.data;
 
     const school = await prisma.school.findUnique({
       where: { id: params.id },
@@ -58,7 +68,10 @@ export async function PATCH(
 
     const updated = await prisma.school.update({
       where: { id: params.id },
-      data: { frequency },
+      data: {
+        frequency,
+        ...(cronExpression !== undefined && { cronExpression }),
+      },
     });
 
     log.info({ userId: session.user.id, schoolId: params.id, frequency }, "Frequency updated");

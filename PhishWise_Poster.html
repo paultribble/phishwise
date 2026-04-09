@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1600">
+<title>PhishWise Scam Trainer — CSCE Capstone Team 20</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1600px;
+    height: 1080px;
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+  }
+
+  .poster {
+    width: 1600px;
+    height: 1080px;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ─── Left Sidebar ──────────────────────────────────── */
+  .sidebar {
+    width: 68px;
+    background: #6E0000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .sidebar-bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    opacity: 0.15;
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .sidebar-bg span {
+    display: block;
+    color: #fff;
+    font-size: 6.5px;
+    letter-spacing: 1.5px;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    line-height: 12px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-label {
+    position: relative;
+    z-index: 2;
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    letter-spacing: 5px;
+    white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  /* ─── Main Area ─────────────────────────────────────── */
+  .main {
+    flex: 1;
+    background: #eae6de;
+    display: flex;
+    flex-direction: column;
+    padding: 15px 18px 12px 18px;
+    gap: 11px;
+  }
+
+  /* ─── Header ────────────────────────────────────────── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 9px;
+    border-bottom: 2.5px solid #6E0000;
+  }
+
+  .header-left h1 {
+    font-size: 34px;
+    font-style: italic;
+    color: #6E0000;
+    font-weight: bold;
+    line-height: 1.1;
+    font-family: 'Times New Roman', Times, serif;
+  }
+
+  .header-left .dept {
+    font-size: 13px;
+    color: #333;
+    margin-top: 5px;
+    line-height: 1.4;
+  }
+
+  .header-left .members {
+    font-size: 12.5px;
+    color: #444;
+    font-style: italic;
+    margin-top: 3px;
+  }
+
+  /* ─── UARK Logo ─────────────────────────────────────── */
+  .logo-block {
+    flex-shrink: 0;
+    text-align: right;
+    padding-top: 2px;
+  }
+
+  /* ─── 3-Column Layout ───────────────────────────────── */
+  .columns {
+    display: flex;
+    gap: 13px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+  }
+
+  /* ─── Panel ─────────────────────────────────────────── */
+  .panel {
+    background: #fff;
+    border: 1px solid #c5bdb0;
+    border-radius: 2px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .panel.grow {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .panel-hdr {
+    background: #6E0000;
+    color: #fff;
+    text-align: center;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 0.3px;
+  }
+
+  .panel-body {
+    padding: 8px 11px;
+    font-size: 11.5px;
+    line-height: 1.54;
+    color: #222;
+    text-align: justify;
+  }
+
+  .panel-body ul {
+    padding-left: 14px;
+    margin-top: 3px;
+  }
+
+  .panel-body ul li {
+    margin-bottom: 2px;
+  }
+
+  .panel-body p + p,
+  .panel-body p + ul,
+  .panel-body ul + p {
+    margin-top: 5px;
+  }
+
+  /* ─── Stat callouts ─────────────────────────────────── */
+  .stat-strip {
+    display: flex;
+    gap: 5px;
+    margin: 5px 0 3px;
+  }
+
+  .stat-chip {
+    flex: 1;
+    background: #f5f0e8;
+    border: 1px solid #d0c8b8;
+    border-radius: 3px;
+    text-align: center;
+    padding: 5px 3px;
+  }
+
+  .stat-chip .n {
+    display: block;
+    font-size: 16px;
+    font-weight: bold;
+    color: #6E0000;
+    line-height: 1.15;
+  }
+
+  .stat-chip .l {
+    display: block;
+    font-size: 9.5px;
+    color: #555;
+    margin-top: 1px;
+    line-height: 1.2;
+  }
+
+  /* ─── Role Badge ────────────────────────────────────── */
+  .badge {
+    display: inline-block;
+    background: #6E0000;
+    color: #fff;
+    padding: 1px 8px;
+    border-radius: 3px;
+    font-size: 10.5px;
+    font-weight: bold;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  .role-row {
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: #222;
+    line-height: 1.45;
+  }
+
+  /* ─── Tech Grid ─────────────────────────────────────── */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .tech-item {
+    background: #f5f0e8;
+    border: 1px solid #d0c8b8;
+    padding: 3px 7px;
+    border-radius: 2px;
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+
+  .tech-item .lbl {
+    display: block;
+    color: #6E0000;
+    font-weight: bold;
+    font-size: 9.5px;
+    margin-bottom: 1px;
+  }
+
+  /* ─── Security/highlight items ──────────────────────── */
+  .hi-item {
+    border-left: 3px solid #6E0000;
+    background: #fdfaf5;
+    padding: 3px 8px;
+    margin-bottom: 5px;
+    font-size: 11px;
+    line-height: 1.42;
+  }
+
+  .hi-item strong { color: #6E0000; }
+
+  /* ─── Image Placeholder ─────────────────────────────── */
+  .img-placeholder {
+    background: #f0ece4;
+    border: 1.5px dashed #a89880;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 4px;
+    color: #998870;
+    font-size: 11px;
+    font-style: italic;
+    border-radius: 2px;
+  }
+
+  .img-placeholder .ph-icon {
+    font-size: 22px;
+    line-height: 1;
+    opacity: 0.5;
+  }
+
+  /* ─── Workflow diagram ──────────────────────────────── */
+  .flow-wrap {
+    background: #fafaf5;
+    border: 1px solid #d0c8b8;
+    padding: 7px 5px 5px;
+    border-radius: 2px;
+    margin-top: 4px;
+  }
+
+  .fig-cap {
+    font-size: 10px;
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    margin-top: 3px;
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- ═══ SIDEBAR ════════════════════════════════════════════════ -->
+  <div class="sidebar">
+    <div class="sidebar-bg">
+      <span>COMPUTER SCIENCE &amp; COMPUTER ENGINEERING &nbsp; COMPUTER SCIENCE &amp; COMPUTER ENGINEERING &nbsp;</span>
+      <span>COMPUTER SCIENCE &amp; COMPUTER ENGINEERING &nbsp; COMPUTER SCIENCE &amp; COMPUTER ENGINEERING &nbsp;</span>
+      <span>COMPUTER SCIENCE &amp; COMPUTER ENGINEERING &nbsp; COMPUTER SCIENCE &amp; COMPUTER ENGINEERING &nbsp;</span>
+    </div>
+    <div class="sidebar-label">Computer Science &amp; Computer Engineering</div>
+  </div>
+
+  <!-- ═══ MAIN ════════════════════════════════════════════════════ -->
+  <div class="main">
+
+    <!-- ── HEADER ─────────────────────────────────────────────── -->
+    <div class="header">
+      <div class="header-left">
+        <h1>PhishWise: Scam Trainer</h1>
+        <div class="dept">
+          Computer Science and Computer Engineering Department &nbsp;|&nbsp;
+          University of Arkansas CSCE Capstone I — Fall 2025
+        </div>
+        <div class="members">
+          Victor Berrios,&nbsp; Shane Norden,&nbsp; Warren Olvey,&nbsp; Milo Pumford,&nbsp; Sarah Smith,&nbsp; Paul Tribble
+        </div>
+      </div>
+
+      <!-- UARK Logo placeholder — replace src with real logo image -->
+      <div class="logo-block">
+        <div style="
+          width: 130px;
+          height: 130px;
+          border: 1.5px dashed #a89880;
+          background: #f5f1eb;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 5px;
+          border-radius: 2px;
+        ">
+          <!-- To use the real logo, replace this div with:
+               <img src="uark_logo.png" width="130" height="130" style="object-fit:contain;"/> -->
+          <div style="font-size:22px; opacity:0.4;">🖼</div>
+          <div style="font-size:9px; color:#998870; font-style:italic; text-align:center; line-height:1.4; padding:0 8px;">UARK Logo<br>Placeholder</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COLUMNS ─────────────────────────────────────────────── -->
+    <div class="columns">
+
+      <!-- ═══ COLUMN 1 ════════════════════════════════════════════ -->
+      <div class="col">
+
+        <div class="panel">
+          <div class="panel-hdr">Introduction</div>
+          <div class="panel-body">
+            <p>PhishWise is a web-based phishing awareness and training system designed to help individuals and households recognize and avoid online scams. The platform sends simulated phishing emails based on common scam patterns, then redirects users to short educational modules when they interact with them.</p>
+            <p>By focusing on individuals, families, and small groups rather than large organizations, PhishWise provides a more personal and accessible training experience than corporate-scale alternatives like KnowBe4 or Sophos.</p>
+            <div class="stat-strip">
+              <div class="stat-chip"><span class="n">3.4B</span><span class="l">phishing emails sent daily</span></div>
+              <div class="stat-chip"><span class="n">100M</span><span class="l">blocked by Google daily</span></div>
+              <div class="stat-chip"><span class="n">73%</span><span class="l">of U.S. adults targeted (Pew)</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hdr">Problem Statement</div>
+          <div class="panel-body">
+            <p>Phishing-related financial damages increased <strong>74%</strong> from 2020 to 2021, reaching <strong>$1.7 billion</strong>. The FBI's IC3 reported individuals 60+ filed 150,000 cybercrime complaints in 2024, losing nearly $5 billion — more than any other age group.</p>
+            <p>Existing training solutions are not accessible to everyday users:</p>
+            <ul>
+              <li><strong>KnowBe4</strong> — $3.25/person minimum, groups of 25–50 only</li>
+              <li><strong>Microsoft Defender</strong> — enterprise Plan 2 subscription only</li>
+              <li><strong>PhishingBox</strong> — free tier: 10 static questions, no real email simulation</li>
+              <li><strong>CanIPhish</strong> — requires administrator setup and campaign configuration</li>
+            </ul>
+            <p>PhishWise addresses this gap with automated, affordable, realistic training for anyone.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hdr">Training Curriculum</div>
+          <div class="panel-body">
+            <p>Eight CISA and NIST-aligned training modules, each following a structured 7-section format:</p>
+            <ul>
+              <li><strong>Overview</strong> — attack type and common usage</li>
+              <li><strong>Social Engineering Tactics</strong> — psychological manipulation methods</li>
+              <li><strong>Red Flags</strong> — warning signs per CISA/NIST standards</li>
+              <li><strong>Attack Objective</strong> — what attackers are after</li>
+              <li><strong>Examples</strong> — annotated real-world scenarios</li>
+              <li><strong>Prevention Steps</strong> — actionable safer-email habits</li>
+              <li><strong>Practice Check</strong> — required quiz if user failed a simulation</li>
+            </ul>
+            <p>20 phishing email <strong>templates</strong> (difficulty 1–5) built with MJML for consistent rendering across email clients. Each uses display-name spoofing and dynamic reply-to fields to mimic real attacks.</p>
+          </div>
+        </div>
+
+        <!-- Image placeholder 1 -->
+        <div class="img-placeholder" style="height: 108px;">
+          <div class="ph-icon">🖼</div>
+          <span>Figure 3: PhishWise Landing Page</span>
+        </div>
+
+      </div>
+
+      <!-- ═══ COLUMN 2 ════════════════════════════════════════════ -->
+      <div class="col">
+
+        <div class="panel">
+          <div class="panel-hdr">System Architecture</div>
+          <div class="panel-body">
+
+            <!-- Architecture diagram — replicating Figure 2 from report -->
+            <div class="flow-wrap">
+              <svg width="100%" height="205" viewBox="0 0 460 205" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L7,3 z" fill="#6E0000"/>
+                  </marker>
+                  <marker id="arr2" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L7,3 z" fill="#777"/>
+                  </marker>
+                </defs>
+
+                <!-- Vercel server box -->
+                <rect x="5" y="5" width="275" height="155" rx="5" fill="none" stroke="#9B1D1D" stroke-width="1.5" stroke-dasharray="5,3"/>
+                <text x="142" y="18" font-family="Arial" font-size="9" text-anchor="middle" fill="#9B1D1D" font-weight="bold">Server (Vercel)</text>
+
+                <!-- Server bullet points -->
+                <text x="15" y="32" font-family="Arial" font-size="8" fill="#444">• Houses database (DB)</text>
+                <text x="15" y="43" font-family="Arial" font-size="8" fill="#444">• Determines when to send emails</text>
+                <text x="15" y="54" font-family="Arial" font-size="8" fill="#444">• Manages website and login</text>
+                <text x="15" y="65" font-family="Arial" font-size="8" fill="#444">• Hosts training modules</text>
+                <text x="15" y="76" font-family="Arial" font-size="8" fill="#444">• REST API (40+ endpoints, Zod-validated)</text>
+
+                <!-- DB cylinder inside server box -->
+                <ellipse cx="140" cy="115" rx="35" ry="10" fill="#4a9bb5" stroke="#2a7a90" stroke-width="1"/>
+                <rect x="105" y="115" width="70" height="35" fill="#4a9bb5" stroke="#2a7a90" stroke-width="1"/>
+                <ellipse cx="140" cy="150" rx="35" ry="10" fill="#3d8fa8" stroke="#2a7a90" stroke-width="1"/>
+                <text x="140" y="137" font-family="Arial" font-size="10" font-weight="bold" text-anchor="middle" fill="white">DB</text>
+
+                <!-- Server → DB label -->
+                <text x="5" y="170" font-family="Arial" font-size="7.5" fill="#555">Server stores user info</text>
+                <text x="5" y="179" font-family="Arial" font-size="7.5" fill="#555">and analytics in DB</text>
+
+                <!-- DB → Server arrow -->
+                <text x="5" y="195" font-family="Arial" font-size="7.5" fill="#555">DB sends user info upon</text>
+                <text x="5" y="204" font-family="Arial" font-size="7.5" fill="#555">admin request</text>
+
+                <!-- Client box -->
+                <rect x="320" y="5" width="135" height="120" rx="5" fill="none" stroke="#777" stroke-width="1.5"/>
+                <text x="387" y="19" font-family="Arial" font-size="9" text-anchor="middle" fill="#444" font-weight="bold">Client</text>
+                <text x="327" y="34" font-family="Arial" font-size="7.5" fill="#444">• Initial signup and login page</text>
+                <text x="327" y="46" font-family="Arial" font-size="7.5" fill="#444">• Receives phishing email</text>
+                <text x="327" y="58" font-family="Arial" font-size="7.5" fill="#444">• Upon clicking, send info to</text>
+                <text x="327" y="68" font-family="Arial" font-size="7.5" fill="#444">  server and redirect to</text>
+                <text x="327" y="78" font-family="Arial" font-size="7.5" fill="#444">  training module</text>
+                <text x="327" y="92" font-family="Arial" font-size="7.5" fill="#444">• React 18 / Next.js 14</text>
+                <text x="327" y="104" font-family="Arial" font-size="7.5" fill="#444">• Tailwind CSS + shadcn/ui</text>
+                <text x="327" y="116" font-family="Arial" font-size="7.5" fill="#444">• Google OAuth 2.0</text>
+
+                <!-- Arrows: Client sends to server -->
+                <line x1="320" y1="50" x2="282" y2="50" stroke="#6E0000" stroke-width="1.2" marker-end="url(#arr)"/>
+                <text x="286" y="44" font-family="Arial" font-size="7" fill="#6E0000" text-anchor="middle">Client sends server</text>
+                <text x="286" y="53" font-family="Arial" font-size="7" fill="#6E0000" text-anchor="middle">info upon interaction</text>
+
+                <!-- Server sends back -->
+                <line x1="282" y1="80" x2="320" y2="80" stroke="#777" stroke-width="1.2" marker-end="url(#arr2)"/>
+                <text x="286" y="75" font-family="Arial" font-size="7" fill="#777" text-anchor="middle">Server sends emails,</text>
+                <text x="286" y="84" font-family="Arial" font-size="7" fill="#777" text-anchor="middle">analytics, or module</text>
+
+                <!-- Resend email service -->
+                <rect x="320" y="145" width="135" height="55" rx="5" fill="#f5f0e8" stroke="#9B1D1D" stroke-width="1"/>
+                <text x="387" y="160" font-family="Arial" font-size="9" text-anchor="middle" fill="#6E0000" font-weight="bold">Email: Resend</text>
+                <text x="327" y="174" font-family="Arial" font-size="7.5" fill="#444">Verified: phishwise.org</text>
+                <text x="327" y="185" font-family="Arial" font-size="7.5" fill="#444">Display-name spoofing</text>
+                <text x="327" y="196" font-family="Arial" font-size="7.5" fill="#444">Unique tracking tokens</text>
+
+                <!-- Server → Resend arrow -->
+                <line x1="275" y1="130" x2="318" y2="155" stroke="#9B1D1D" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arr)"/>
+              </svg>
+              <div class="fig-cap">Figure 2: High-Level Architecture (adapted from project report)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hdr">Tech Stack</div>
+          <div class="panel-body">
+            <div class="tech-grid">
+              <div class="tech-item"><span class="lbl">Framework</span>Next.js 14 App Router + TypeScript (strict mode)</div>
+              <div class="tech-item"><span class="lbl">UI / Styling</span>Tailwind CSS + shadcn/ui — glassmorphism theme</div>
+              <div class="tech-item"><span class="lbl">Database</span>PostgreSQL via Vercel Postgres + Prisma ORM v6.19</div>
+              <div class="tech-item"><span class="lbl">Auth</span>NextAuth.js v4 + Google OAuth 2.0 + bcryptjs</div>
+              <div class="tech-item"><span class="lbl">Email</span>Resend — verified domain phishwise.org + MJML templates</div>
+              <div class="tech-item"><span class="lbl">Validation</span>Zod v3 — every API route, standardized JSON errors</div>
+              <div class="tech-item"><span class="lbl">Rate Limiting</span>Upstash Redis — serverless, 5 sensitive endpoints</div>
+              <div class="tech-item"><span class="lbl">Hosting</span>Vercel — serverless, auto-deploy from GitHub, CDN</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hdr">Performance &amp; Security</div>
+          <div class="panel-body">
+            <div class="hi-item"><strong>Sub-100ms click tracking</strong> — tracking tokens indexed for O(1) lookup; redirect to training module issued in under 100 milliseconds</div>
+            <div class="hi-item"><strong>Security headers</strong> — CSP, HSTS (production), X-Frame-Options, Referrer-Policy, Permissions-Policy via Next.js middleware</div>
+            <div class="hi-item"><strong>15 standardized error codes</strong> — ERR_UNAUTHORIZED, ERR_INVALID_INVITE, ERR_RATE_LIMIT, and 12 more across all routes</div>
+            <div class="hi-item"><strong>Structured JSON logging</strong> — context-aware (route, userId, error); no sensitive data ever logged</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══ COLUMN 3 ════════════════════════════════════════════ -->
+      <div class="col">
+
+        <div class="panel">
+          <div class="panel-hdr">User Roles &amp; Capabilities</div>
+          <div class="panel-body">
+            <div class="role-row">
+              <span class="badge">USER</span>
+              Receives randomized phishing simulations via email. Upon clicking a simulated link, is immediately redirected to the linked training module. Accesses a personal dashboard for simulation history, performance metrics, and an awareness score. May self-report suspected phishing with "I Caught This."
+            </div>
+            <div class="role-row">
+              <span class="badge">MANAGER</span>
+              Creates or administers a "school" (group). Sets simulation frequency (weekly / random / custom). Views an expanded analytics dashboard for all members — click rates, training completion, users at risk. Invites members via secure email join codes and can assign supplemental training modules.
+            </div>
+            <div class="role-row">
+              <span class="badge">ADMIN</span>
+              Maintains platform-wide infrastructure: manages the phishing template library and training module content, oversees the simulation scheduler, and accesses anonymized platform-wide performance data to evaluate trends and improve training effectiveness.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hdr">User Workflow</div>
+          <div class="panel-body">
+            <!-- Flow diagram based on Figure 1 from report -->
+            <div class="flow-wrap">
+              <svg width="100%" height="148" viewBox="0 0 430 148" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <marker id="fa" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+                    <path d="M0,0 L0,6 L7,3 z" fill="#6E0000"/>
+                  </marker>
+                </defs>
+
+                <!-- Boxes — main flow (left column) -->
+                <!-- Box 1: Land on home page -->
+                <rect x="120" y="4" width="140" height="24" rx="3" fill="#f5f0e8" stroke="#9B1D1D" stroke-width="1"/>
+                <text x="190" y="20" font-family="Arial" font-size="9" text-anchor="middle" fill="#222">user lands on home page</text>
+
+                <!-- Box 2: Sign in -->
+                <rect x="120" y="38" width="140" height="24" rx="3" fill="#f5f0e8" stroke="#9B1D1D" stroke-width="1"/>
+                <text x="190" y="54" font-family="Arial" font-size="9" text-anchor="middle" fill="#222">user signs in with Google</text>
+
+                <!-- Box 3: Gets school, becomes manager -->
+                <rect x="95" y="72" width="190" height="24" rx="3" fill="#f5f0e8" stroke="#9B1D1D" stroke-width="1"/>
+                <text x="190" y="83" font-family="Arial" font-size="8.5" text-anchor="middle" fill="#222">user gets dedicated school,</text>
+                <text x="190" y="92" font-family="Arial" font-size="8.5" text-anchor="middle" fill="#222">becomes manager</text>
+
+                <!-- Box 4: Manager controls -->
+                <rect x="80" y="108" width="220" height="34" rx="3" fill="#f5f0e8" stroke="#9B1D1D" stroke-width="1"/>
+                <text x="190" y="121" font-family="Arial" font-size="8.5" text-anchor="middle" fill="#222">manager sets frequency of attacks</text>
+                <text x="190" y="133" font-family="Arial" font-size="8.5" text-anchor="middle" fill="#222">and views all user analytics</text>
+
+                <!-- Arrows in main flow -->
+                <line x1="190" y1="28" x2="190" y2="36" stroke="#6E0000" stroke-width="1.2" marker-end="url(#fa)"/>
+                <line x1="190" y1="62" x2="190" y2="70" stroke="#6E0000" stroke-width="1.2" marker-end="url(#fa)"/>
+                <line x1="190" y1="96" x2="190" y2="106" stroke="#6E0000" stroke-width="1.2" marker-end="url(#fa)"/>
+
+                <!-- Side box: Google services -->
+                <rect x="0" y="35" width="110" height="28" rx="3" fill="#eee" stroke="#aaa" stroke-width="1"/>
+                <text x="55" y="47" font-family="Arial" font-size="8" text-anchor="middle" fill="#555">Google services send</text>
+                <text x="55" y="57" font-family="Arial" font-size="8" text-anchor="middle" fill="#555">server basic user info</text>
+                <line x1="110" y1="49" x2="118" y2="49" stroke="#aaa" stroke-width="1" marker-end="url(#fa)"/>
+
+                <!-- Side box: invite to join school -->
+                <rect x="312" y="69" width="116" height="30" rx="3" fill="#eee" stroke="#aaa" stroke-width="1"/>
+                <text x="370" y="82" font-family="Arial" font-size="8" text-anchor="middle" fill="#555">user gets invite link</text>
+                <text x="370" y="92" font-family="Arial" font-size="8" text-anchor="middle" fill="#555">to join school</text>
+                <line x1="287" y1="82" x2="310" y2="82" stroke="#aaa" stroke-width="1" marker-end="url(#fa)"/>
+
+                <!-- System sends emails — at the bottom -->
+                <rect x="3" y="108" width="70" height="34" rx="3" fill="#eee" stroke="#aaa" stroke-width="1"/>
+                <text x="38" y="120" font-family="Arial" font-size="7.5" text-anchor="middle" fill="#555">System sends</text>
+                <text x="38" y="130" font-family="Arial" font-size="7.5" text-anchor="middle" fill="#555">simulations</text>
+                <text x="38" y="139" font-family="Arial" font-size="7.5" text-anchor="middle" fill="#555">at random time</text>
+
+                <!-- User completes training -->
+                <rect x="358" y="108" width="70" height="34" rx="3" fill="#f5f0e8" stroke="#9B1D1D" stroke-width="1"/>
+                <text x="393" y="121" font-family="Arial" font-size="7.5" text-anchor="middle" fill="#6E0000">User completes</text>
+                <text x="393" y="131" font-family="Arial" font-size="7.5" text-anchor="middle" fill="#6E0000">training module</text>
+
+                <!-- Arrow: fail → redirect -->
+                <line x1="80" y1="128" x2="3" y2="128" stroke="#6E0000" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#fa)"/>
+                <text x="40" y="104" font-family="Arial" font-size="7" text-anchor="middle" fill="#6E0000">Upon failure →</text>
+                <text x="40" y="113" font-family="Arial" font-size="7" text-anchor="middle" fill="#6E0000">redirect to module</text>
+
+                <line x1="300" y1="128" x2="356" y2="128" stroke="#6E0000" stroke-width="1" marker-end="url(#fa)"/>
+              </svg>
+              <div class="fig-cap">Figure 1: User Workflow (adapted from project report)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hdr">Results &amp; Deliverables</div>
+          <div class="panel-body">
+            <p>PhishWise delivers a fully functional proof-of-concept demonstrating the complete simulation-training loop: generating phishing emails, tracking interactions, and redirecting users to appropriate training modules.</p>
+            <div class="stat-strip" style="margin: 5px 0;">
+              <div class="stat-chip"><span class="n">40+</span><span class="l">API Routes</span></div>
+              <div class="stat-chip"><span class="n">12</span><span class="l">DB Models</span></div>
+              <div class="stat-chip"><span class="n">20</span><span class="l">Templates</span></div>
+              <div class="stat-chip"><span class="n">8</span><span class="l">Modules</span></div>
+            </div>
+            <p>The project includes a full documentation package: quickstart guide, OAuth setup guide, Vercel deployment guide, end-user guide, and manager guide covering analytics, invitations, and CSV export.</p>
+          </div>
+        </div>
+
+        <!-- Image placeholder 2 -->
+        <div class="img-placeholder" style="height: 100px;">
+          <div class="ph-icon">🖼</div>
+          <span>Figure 4: Manager Analytics Dashboard</span>
+        </div>
+
+        <div class="panel">
+          <div class="panel-hdr">Acknowledgements</div>
+          <div class="panel-body">
+            <ul>
+              <li>University of Arkansas Dept. of Computer Science &amp; Computer Engineering</li>
+              <li>CSCE Capstone I Program — Fall 2025, Team 20</li>
+              <li>Vercel — serverless hosting and managed PostgreSQL</li>
+              <li>Resend — transactional email delivery via phishwise.org</li>
+              <li>Upstash — serverless Redis rate-limiting infrastructure</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

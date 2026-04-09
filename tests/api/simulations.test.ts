@@ -22,10 +22,47 @@ vi.mock('@/lib/db', () => ({
       findUnique: vi.fn(),
       update: vi.fn(),
     },
+    userTraining: {
+      findMany: vi.fn().mockResolvedValue([]),
+    },
     userMetrics: {
       upsert: vi.fn(),
     },
   },
+}))
+
+vi.mock('@/lib/errors', () => {
+  const ApiError = class extends Error {
+    code: string
+    statusCode: number
+    constructor(code: string, message: string, statusCode: number) {
+      super(message)
+      this.code = code
+      this.statusCode = statusCode
+    }
+    toJSON() {
+      return { error: { code: this.code, message: this.message } }
+    }
+  }
+  return {
+    errors: {
+      unauthorized: () => new ApiError('ERR_UNAUTHORIZED', 'Authentication required', 401),
+      notFound: (r: string) => new ApiError('ERR_NOT_FOUND', `${r} not found`, 404),
+      invalidInput: (f?: string) => new ApiError('ERR_INVALID_INPUT', f ? `Invalid input: ${f}` : 'Invalid request body', 400),
+      internal: () => new ApiError('ERR_INTERNAL', 'Internal server error', 500),
+    },
+    ApiError,
+    ErrorCode: {},
+  }
+})
+
+vi.mock('@/lib/logger', () => ({
+  apiLogger: () => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  }),
 }))
 
 import { GET, POST } from '@/app/api/simulations/route'
@@ -61,7 +98,7 @@ describe('GET /api/simulations', () => {
     const data = await res.json()
 
     expect(res.status).toBe(401)
-    expect(data.error).toBe('Unauthorized')
+    expect(data.error.code).toBe('ERR_UNAUTHORIZED')
   })
 
   it('returns 200 with simulations array when authenticated', async () => {
@@ -110,7 +147,7 @@ describe('POST /api/simulations', () => {
     const data = await res.json()
 
     expect(res.status).toBe(400)
-    expect(data.error).toBe('simulationId is required')
+    expect(data.error.code).toBe('ERR_INVALID_INPUT')
   })
 
   it('returns 404 when simulation not found', async () => {
@@ -121,7 +158,7 @@ describe('POST /api/simulations', () => {
     const data = await res.json()
 
     expect(res.status).toBe(404)
-    expect(data.error).toBe('Simulation not found')
+    expect(data.error.code).toBe('ERR_NOT_FOUND')
   })
 
   it('marks simulation as clicked and returns 200', async () => {

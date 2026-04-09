@@ -27,6 +27,8 @@ model User {
   role           Role      @default(USER)
   schoolId       String?
   lastSimulation DateTime?
+  unsubscribedAt            DateTime?
+  simulationFrequencyOverride String?
 
   // Relations
   school          School?           @relation(fields: [schoolId], references: [id], onDelete: SetNull)
@@ -55,6 +57,7 @@ model School {
 
   frequency       String   @default("weekly")
   enableScheduler Boolean  @default(true)
+  cronExpression  String?
 
   users     User[]
   campaigns Campaign[]

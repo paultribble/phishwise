@@ -20,6 +20,39 @@ vi.mock('@/lib/db', () => ({
   },
 }))
 
+vi.mock('@/lib/errors', () => {
+  const ApiError = class extends Error {
+    code: string
+    statusCode: number
+    constructor(code: string, message: string, statusCode: number) {
+      super(message)
+      this.code = code
+      this.statusCode = statusCode
+    }
+    toJSON() {
+      return { error: { code: this.code, message: this.message } }
+    }
+  }
+  return {
+    errors: {
+      unauthorized: () => new ApiError('ERR_UNAUTHORIZED', 'Authentication required', 401),
+      notFound: (r: string) => new ApiError('ERR_NOT_FOUND', `${r} not found`, 404),
+      internal: () => new ApiError('ERR_INTERNAL', 'Internal server error', 500),
+    },
+    ApiError,
+    ErrorCode: {},
+  }
+})
+
+vi.mock('@/lib/logger', () => ({
+  apiLogger: () => ({
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    debug: vi.fn(),
+  }),
+}))
+
 import { GET } from '@/app/api/users/route'
 import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/db'
@@ -36,7 +69,7 @@ describe('GET /api/users', () => {
     const data = await res.json()
 
     expect(res.status).toBe(401)
-    expect(data.error).toBe('Unauthorized')
+    expect(data.error.code).toBe('ERR_UNAUTHORIZED')
   })
 
   it('returns 200 with user profile and metrics when authenticated', async () => {
@@ -104,7 +137,7 @@ describe('GET /api/users', () => {
     const data = await res.json()
 
     expect(res.status).toBe(404)
-    expect(data.error).toBe('User not found')
+    expect(data.error.code).toBe('ERR_NOT_FOUND')
   })
 
   it('includes pendingTraining in response', async () => {

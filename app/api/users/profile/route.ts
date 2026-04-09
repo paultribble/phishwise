@@ -5,8 +5,15 @@ import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
 
+const VALID_FREQUENCY_OVERRIDES = ["weekly", "random", "off"] as const;
+
 const profileSchema = z.object({
-  name: z.string().trim().min(1).max(100),
+  name: z.string().trim().min(1).max(100).optional(),
+  simulationFrequencyOverride: z
+    .enum(VALID_FREQUENCY_OVERRIDES)
+    .nullable()
+    .optional(),
+  resumeSimulations: z.boolean().optional(),
 });
 
 export async function PATCH(request: NextRequest) {
@@ -27,13 +34,38 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    await prisma.user.update({
+    const { name, simulationFrequencyOverride, resumeSimulations } = result.data;
+
+    const user = await prisma.user.update({
       where: { id: session.user.id },
-      data: { name: result.data.name },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(simulationFrequencyOverride !== undefined && {
+          simulationFrequencyOverride,
+        }),
+        ...(resumeSimulations !== undefined && {
+          unsubscribedAt: resumeSimulations ? null : new Date(),
+        }),
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        schoolId: true,
+        unsubscribedAt: true,
+        simulationFrequencyOverride: true,
+      },
     });
 
-    logger.info('Profile updated', { route: '/api/users/profile', userId: session.user.id, field: 'name' });
-    return NextResponse.json({ success: true });
+    const updatedFields = [
+      name !== undefined && "name",
+      simulationFrequencyOverride !== undefined && "simulationFrequencyOverride",
+      resumeSimulations !== undefined && "unsubscribedAt",
+    ].filter(Boolean);
+
+    logger.info('Profile updated', { route: '/api/users/profile', userId: session.user.id, fields: updatedFields });
+    return NextResponse.json({ success: true, user });
   } catch (error) {
     logger.error("Profile update error", { route: '/api/users/profile', userId: session.user.id, error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(

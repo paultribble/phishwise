@@ -14,7 +14,7 @@ University of Arkansas CSCE Capstone - Team 20.
 - **Styling**: Tailwind CSS + shadcn/ui components (Radix UI primitives) — glassmorphism theme
 - **Database**: PostgreSQL via Vercel Postgres + Prisma ORM (v6.19.2)
 - **Auth**: NextAuth.js v4 with Google OAuth 2.0 + @auth/prisma-adapter (v2.7.0)
-- **Email**: Resend (dev) / SendGrid (prod) — configured in `lib/email.ts`, uses dynamic imports
+- **Email**: Resend only — configured in `lib/email.ts`, verified domain (phishwise.org)
 - **Validation**: Zod (v3.24.1) — all API routes validated
 - **Forms**: React Hook Form (v7.54.2)
 - **Charts**: Recharts (v2.15.0)
@@ -23,7 +23,8 @@ University of Arkansas CSCE Capstone - Team 20.
 - **Password Hashing**: bcryptjs (cost 12, for password change feature)
 - **Hosting**: Vercel (serverless, auto-deployment from GitHub)
 - **Security**: CSP middleware, HSTS headers, X-Frame-Options, rate limiting on sensitive endpoints
-- **Missing**: Testing framework (Jest/Vitest), API documentation, Sentry error tracking
+- **Testing**: Vitest (11 test files, covering auth, API routes, components, email)
+- **Missing**: API documentation (OpenAPI/Swagger), Sentry error tracking
 
 ## Project Structure (Current)
 
@@ -33,6 +34,11 @@ app/                                    # Next.js App Router pages
     dashboard/
       user/page.tsx                     # User dashboard (stats, simulation history)
       manager/page.tsx                  # Manager dashboard (school analytics, user performance)
+      admin/page.tsx                    # Admin dashboard (platform stats, system overview)
+      admin/modules/page.tsx            # Admin: manage training modules
+      admin/templates/page.tsx          # Admin: manage email templates
+      admin/users/page.tsx              # Admin: manage users and roles
+      admin/scheduler/page.tsx          # Admin: scheduler status and controls
       settings/page.tsx                 # User settings
       onboarding/page.tsx               # User onboarding flow
     layout.tsx                          # Dashboard layout (Navbar + SessionProvider)
@@ -55,10 +61,29 @@ app/                                    # Next.js App Router pages
     manager/export/route.ts             # GET CSV export of school analytics (MANAGER only)
     admin/trigger-simulation/route.ts   # POST manually trigger simulation (ADMIN only)
     admin/scheduler-status/route.ts     # GET scheduler status (ADMIN only)
+    admin/scheduler/send/route.ts       # POST trigger scheduler send (ADMIN only)
+    admin/modules/route.ts              # GET/POST training modules (ADMIN only)
+    admin/templates/route.ts            # GET/POST email templates (ADMIN only)
+    admin/templates/[id]/route.ts       # GET/PUT/DELETE single template (ADMIN only)
+    admin/users/route.ts                # GET users list (ADMIN only)
+    admin/users/[id]/route.ts           # GET/PUT/DELETE single user (ADMIN only)
+    admin/platform-stats/route.ts       # GET platform-wide statistics (ADMIN only)
+    auth/register/route.ts              # POST email/password registration
+    auth/forgot-password/route.ts       # POST request password reset email
+    auth/reset-password/route.ts        # POST reset password with token
+    auth/magic-link/route.ts            # POST request magic link sign-in email
     scheduler/send-simulations/route.ts # POST cron job to send scheduled simulations
+    simulations/send/route.ts           # POST send single simulation email
+    simulations/send-batch/route.ts     # POST send batch simulation emails
+    track/phishing-click/route.ts       # POST phishing click tracking
+    track/route.ts                      # GET/POST general tracking
+    templates/[id]/route.ts             # GET single template
+    training/modules/route.ts           # GET training modules list
     demo/send-test-email/route.ts       # POST send demo email (rate limited, 10/day/user)
+    debug/email-config/route.ts         # GET email config status (dev only)
     users/profile/route.ts              # PATCH update user profile (name)
     users/password/route.ts             # PATCH change password (with bcryptjs validation)
+    schools/[id]/scheduler/route.ts     # GET/PUT school scheduler settings
   training/[moduleId]/page.tsx          # Training module viewer
   training/[moduleId]/caught/page.tsx   # "I caught this" submission page
   training/page.tsx                     # Training modules list
@@ -80,7 +105,7 @@ components/
 lib/
   auth.ts                               # NextAuth config, session callbacks
   db.ts                                 # Prisma singleton client (global pattern)
-  email.ts                              # Email abstraction (Resend → SendGrid → console)
+  email.ts                              # Email via Resend (verified domain: phishwise.org)
   utils.ts                              # cn() utility for classname merging
   fonts.ts                              # Font imports (Bebas, Playfair, Inter)
   config.ts                             # Environment config (isProduction, isStaging, etc)
@@ -88,7 +113,7 @@ lib/
   logger.ts                             # Structured JSON logging (info, warn, error, debug)
   rate-limit.ts                         # Rate limiting helper with Upstash Redis + dev fallback
 prisma/
-  schema.prisma                         # Database schema (11 models)
+  schema.prisma                         # Database schema (12 models)
   seed.ts                               # Seed script (8 modules, 20 templates, demo data)
 types/
   next-auth.d.ts                        # Session type augmentation (id, role, schoolId)
@@ -102,9 +127,17 @@ package.json                            # Dependencies, build scripts, auto-migr
 CLAUDE.md                               # This file
 OAUTH_SETUP.md                          # OAuth detailed setup guide
 QUICKSTART.md                           # OAuth quick start (5 min)
+tests/                                  # Vitest test suite (11 test files)
+  setup.ts                              # Test setup and mocks
+  api/auth/                             # Auth API tests (register, forgot/reset password, magic link)
+  api/schools.test.ts                   # Schools API tests
+  api/simulations.test.ts               # Simulations API tests
+  api/users.test.ts                     # Users API tests
+  components/Navbar.test.tsx            # Navbar component tests
+  lib/auth.test.ts                      # Auth library tests
+  lib/email.test.ts                     # Email library tests
 .claude/docs/
   architectural_patterns.md             # Documented patterns in codebase (updated with security patterns)
-```
 ```
 
 ## Commands (npm scripts in package.json)
@@ -145,14 +178,12 @@ Copy `.env.local.example` to `.env.local`. Required variables:
 - `NEXTAUTH_URL` — App URL (http://localhost:3000 for dev)
 - `NEXTAUTH_SECRET` — Generate with `openssl rand -base64 32`
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — From Google Cloud Console
-- `RESEND_API_KEY` or `SENDGRID_API_KEY` — At least one for email
+- `RESEND_API_KEY` — From https://resend.com/api-keys
+- `SCHEDULER_SECRET` — Secret for cron endpoint authorization
+- `ADMIN_EMAILS` — Comma-separated admin email addresses
+- `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` — Required for production rate limiting (optional in dev)
 
-## Database Models (11 models in prisma/schema.prisma)
-
-### NextAuth System Models (required by @auth/prisma-adapter)
-- **Account** — OAuth provider credentials (provider, providerAccountId, access_token)
-- **Session** — user session tokens (sessionToken, expires)
-- **VerificationToken** — password reset / email verification tokens
+## Database Models (12 models in prisma/schema.prisma)
 
 ### PhishWise Core Models
 - **User** — email, name, image, role (USER/MANAGER/ADMIN), schoolId
@@ -195,6 +226,10 @@ Copy `.env.local.example` to `.env.local`. Required variables:
   - Relations: user
   - Indexes: userId, actionType, createdAt
 
+- **AuthToken** — email, token (unique), type ("reset" | "magic"), expiresAt, usedAt
+  - Used for password reset and magic link sign-in flows
+  - Indexes: token, email
+
 ## Key Conventions (Current Implementation)
 
 ### Path & Imports
@@ -218,11 +253,10 @@ export async function GET(request: NextRequest) {
 ```
 - Reference: `app/api/simulations/route.ts:10-15`, `app/api/track/click/[token]/route.ts:9-20`
 
-### Input Validation (INCONSISTENT - NEEDS FIX)
-- **Status:** Not consistently applied across all API routes
-- **Current:** Some routes use Zod, some use manual validation, some accept body without checking
-- **TODO:** Create request/response Zod schemas for all API endpoints
-- **Example:** `POST /api/schools/join` should validate: `inviteCode: string; length > 0`
+### Input Validation
+- **Status:** Zod schemas applied across all API routes
+- **Pattern:** Parse request body with Zod schema, return 400 with validation errors on failure
+- **Reference:** All API routes in `app/api/` use Zod for request validation
 
 ### Session Augmentation
 - JWT callback fetches `role` and `schoolId` from database on signin
@@ -251,8 +285,9 @@ export async function GET(request: NextRequest) {
 - Reference: `app/api/simulations/route.ts:26-29`
 
 ### Email
-- **Abstraction:** `lib/email.ts` auto-selects Resend → SendGrid → console (dev fallback)
-- **Dynamic import:** Providers imported at runtime to avoid bundling unused SDKs
+- **Provider:** Resend only, verified domain `phishwise.org`
+- **Phishing simulations:** Uses `fromName` for display name spoofing + `replyTo` for realistic sender address
+- **Reference:** `lib/email.ts`
 
 ## Maintaining This Documentation
 
@@ -290,11 +325,11 @@ Update when introducing/modifying patterns used in 2+ files:
 
 ### ✅ WORKING FEATURES
 1. **Google OAuth 2.0** — Fully functional, auto-detects NEXTAUTH_URL per environment
-2. **Database Schema** — All 11 models created, indices in place, auto-migration on build
-3. **API Routes** — 20+ routes with auth guards, Zod validation, denormalized metrics, error codes
+2. **Database Schema** — All 12 models created (incl. AuthToken), indices in place, auto-migration on build
+3. **API Routes** — 40+ routes with auth guards, Zod validation, denormalized metrics, error codes
 4. **Dashboard Pages** — User/Manager dashboards with glassmorphism theme, role-based rendering
 5. **Component Library** — shadcn/ui implemented, dark mode complete, glassmorphism blue theme
-6. **Email** — Resend/SendGrid abstraction with fallback, manager invitations, test email sending
+6. **Email** — Resend with verified domain (phishwise.org), manager invitations, test email sending
 7. **User Settings** — Profile editing, password change with bcryptjs, school info display
 8. **Manager Features** — School invitations by email, CSV analytics export, invite code display
 9. **Onboarding** — School creation flow, invite code display on success, session checks
@@ -313,23 +348,20 @@ Update when introducing/modifying patterns used in 2+ files:
    - Frontend assumes response shape, could be more type-safe
    - Consider zod-to-ts or tRPC for automatic type generation
 
-2. **Testing Coverage** — Vitest installed (62 tests passing for email validation), but limited coverage
-   - No tests for new Phase 1-5 features (settings, invitations, CSV export, security)
-   - No integration tests for rate limiting or error codes
-   - CI/CD pipeline ready, just needs test expansion
+2. **Testing Coverage** — Vitest installed with 11 test files covering core flows
+   - Auth: register, forgot-password, reset-password, magic-link
+   - API: schools, simulations, users
+   - Components: Navbar
+   - Lib: auth, email
+   - **Gaps:** No tests for admin routes, manager features, rate limiting, or E2E flows
 
 ### ❌ MISSING / SECURITY ISSUES
 
-#### 1. **Testing (CRITICAL)**
-- No test framework installed (Jest/Vitest)
-- No unit tests, integration tests, or E2E tests
-- No test scripts in build pipeline
-- **Impact:** Difficult to verify changes don't break existing code
-- **Fix:** Add `jest` or `vitest`, write tests for:
-  - Auth callbacks and role-based redirects
-  - API route input validation
-  - Database operations (seed, upsert, cascade deletes)
-  - Component rendering with different user roles
+#### 1. **Testing (EXPANDING)**
+- Vitest installed with 11 test files covering auth, API routes, components, and email
+- Tests: `tests/api/auth/` (4 files), `tests/api/` (3 files), `tests/components/` (1 file), `tests/lib/` (2 files)
+- **Gaps:** No E2E tests, no integration tests for rate limiting or admin routes
+- **Next:** Expand coverage to admin APIs, manager features, and training flow
 
 #### 2. **Security Middleware (CRITICAL)** ✅ FIXED
 - ✅ CSRF protection — NextAuth default enabled + middleware applied
@@ -351,10 +383,10 @@ Update when introducing/modifying patterns used in 2+ files:
 - No transaction handling for multi-step operations (e.g., create School + User relationship)
 - **Fix:** Use `POSTGRES_PRISMA_URL` for pooled connections, avoid --force-reset in prod
 
-#### 5. **Error Messages (MEDIUM)**
-- Generic "error" messages don't help frontend debugging
-- Example: `/api/schools/join` returns "School not found" but doesn't indicate if invite code is invalid
-- **Fix:** Use error enums with standardized codes: `{ code: "ERR_INVALID_INVITE", message: "..." }`
+#### 5. **Error Messages (MEDIUM)** ✅ FIXED
+- ✅ 15 standardized error codes in `lib/errors.ts` (ERR_UNAUTHORIZED, ERR_INVALID_INVITE, etc)
+- ✅ All API routes return structured `{ code, message }` errors
+- **Status:** Complete
 
 #### 6. **Logging & Observability (MEDIUM)** ✅ FIXED
 - ✅ Structured JSON logging in production, pretty logs in dev
@@ -466,16 +498,16 @@ Staging/Preview:
 - ✅ Production-safe seed (conditional, idempotent)
 
 ### Build Status
-- **Clean build:** `npm run build` → 50 pages, 0 TypeScript errors, middleware compiled
-- **Tests passing:** 62/62 (email validation suite)
-- **Dependencies:** All added (bcryptjs, @upstash/ratelimit, @upstash/redis)
+- **Clean build:** `npm run build` → 51 pages, 0 TypeScript errors, middleware compiled
+- **Tests:** 11 test files (auth, API routes, components, email)
+- **Dependencies:** All added (bcryptjs, @upstash/ratelimit, @upstash/redis, vitest)
 
 ### Next Steps (Phase 6+)
-1. **Testing** — Expand Vitest to cover new features/security (currently 62 tests for email only)
+1. **Testing** — Expand Vitest coverage to admin routes, manager features, training flow, rate limiting
 2. **API Docs** — Generate OpenAPI from Zod schemas
 3. **Monitoring** — Wire up Sentry or use structured logs with log aggregation
 4. **Performance** — Add cache headers, database indexes, query optimization
-5. **Deployment** — Set environment variables, test staging DB/Redis, verify HTTPS
+5. **Deployment** — Configure separate staging DATABASE_URL in Vercel Dashboard for preview deployments
 
 ## Additional Documentation
 

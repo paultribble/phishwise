@@ -235,6 +235,12 @@ async function main() {
   console.log("📝 Creating UserTraining records for clicked simulations...");
   let trainingRecordCount = 0;
 
+  // Get valid module IDs from the database (only modules that actually exist)
+  const validModules = await prisma.trainingModule.findMany({
+    select: { id: true },
+  });
+  const validModuleIds = new Set(validModules.map((m) => m.id));
+
   for (const user of createdUsers) {
     // Get all clicked simulations for this user with their module IDs
     const clickedSims = await prisma.simulationEmail.findMany({
@@ -244,10 +250,17 @@ async function main() {
       },
     });
 
-    // Deduplicate by moduleId and create UserTraining record
+    // Deduplicate by moduleId and create UserTraining record ONLY FOR VALID MODULES
     const moduleIdSet = new Set<string>();
     for (const sim of clickedSims) {
       const moduleId = sim.template.moduleId;
+
+      // Skip if module doesn't exist in database
+      if (!validModuleIds.has(moduleId)) {
+        console.warn(`⚠️  Skipping UserTraining for non-existent module: ${moduleId}`);
+        continue;
+      }
+
       if (!moduleIdSet.has(moduleId)) {
         moduleIdSet.add(moduleId);
 

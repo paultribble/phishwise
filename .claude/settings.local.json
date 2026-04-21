@@ -47,7 +47,17 @@
       "Bash(pip install:*)",
       "Bash(npx prisma:*)",
       "Bash(ls:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(python3)",
+      "Bash(npx -y @playwright/test@latest install)",
+      "Bash(node -e ':*)",
+      "Bash(npm install:*)",
+      "Bash(node screenshot.js)",
+      "Bash(npm run:*)",
+      "Bash(node render-poster.js)",
+      "Bash(npx next:*)",
+      "Read(//d C:/Users/Ptribble/Desktop/Github Linked Projects/**)",
+      "Bash(npx tsc:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

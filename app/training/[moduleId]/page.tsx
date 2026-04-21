@@ -23,6 +23,8 @@ import {
   Zap,
   Award,
   Flame,
+  Mail,
+  Sparkles,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -136,6 +138,17 @@ export default function TrainingModulePage() {
   const progress = isQuizSection
     ? 100
     : Math.round(((currentSection + 1) / SECTIONS.length) * 85);
+
+  const [revealedFlags, setRevealedFlags] = useState<Set<number>>(new Set());
+  const toggleFlagReveal = (index: number) => {
+    const newRevealed = new Set(revealedFlags);
+    if (newRevealed.has(index)) {
+      newRevealed.delete(index);
+    } else {
+      newRevealed.add(index);
+    }
+    setRevealedFlags(newRevealed);
+  };
 
   if (loading) {
     return (
@@ -277,17 +290,17 @@ export default function TrainingModulePage() {
                     setQuizSubmitted(false);
                     setQuizAnswer(null);
                   }}
-                  className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+                  className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
                     isActive
-                      ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30"
+                      ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/40 ring-2 ring-blue-400/30"
                       : isCompleted
-                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30"
-                        : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700"
+                        ? "bg-gradient-to-r from-emerald-500/30 to-teal-500/20 text-emerald-300 border border-emerald-500/40 hover:from-emerald-500/40 hover:to-teal-500/30"
+                        : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700 hover:border-slate-600"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
                   {section.title}
-                  {isCompleted && <CheckCircle2 className="h-4 w-4 ml-1" />}
+                  {isCompleted && <CheckCircle2 className="h-4 w-4 ml-1 animate-pulse" />}
                 </button>
               );
             })}
@@ -327,14 +340,23 @@ export default function TrainingModulePage() {
                   {content.tactics.map((tactic, i) => (
                     <div
                       key={i}
-                      className="group rounded-lg border border-slate-700 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-5 hover:border-blue-500/50 hover:bg-slate-800/70 transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/10"
+                      className="group relative overflow-hidden rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 hover:border-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/20 cursor-pointer transform hover:scale-105"
                     >
-                      <h3 className="font-semibold text-slate-100 group-hover:text-blue-300 transition-colors">
-                        {tactic.name}
-                      </h3>
-                      <p className="mt-2 text-sm text-slate-400 group-hover:text-slate-300 transition-colors">
-                        {tactic.description}
-                      </p>
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.1), transparent)" }} />
+                      <div className="relative">
+                        <div className="flex items-start gap-3 mb-3">
+                          <div className="rounded-lg bg-blue-500/20 p-2 flex-shrink-0">
+                            <Target className="h-5 w-5 text-blue-400" />
+                          </div>
+                          <h3 className="font-semibold text-slate-100 group-hover:text-blue-300 transition-colors text-sm">
+                            {tactic.name}
+                          </h3>
+                        </div>
+                        <p className="mt-3 text-sm text-slate-400 group-hover:text-slate-300 transition-colors leading-relaxed">
+                          {tactic.description}
+                        </p>
+                      </div>
+                      <div className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(90deg, transparent, rgba(59,130,246,0.5), transparent)" }} />
                     </div>
                   ))}
                 </div>
@@ -342,10 +364,32 @@ export default function TrainingModulePage() {
 
               {currentSection === 2 && (
                 <div className="space-y-3">
+                  <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex gap-3">
+                    <Flame className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-200">Click on any red flag to learn more details about why it's suspicious.</p>
+                  </div>
                   {content.redFlags.map((flag, i) => (
-                    <div key={i} className="flex items-start gap-4 rounded-lg bg-slate-800/30 p-4 border border-slate-700/50 hover:border-red-500/30 hover:bg-slate-800/50 transition-all duration-200">
-                      <AlertOctagon className="h-5 w-5 flex-shrink-0 text-red-400 mt-0.5" />
-                      <span className="text-slate-300 pt-0.5">{flag}</span>
+                    <div
+                      key={i}
+                      onClick={() => toggleFlagReveal(i)}
+                      className="group relative flex items-start gap-4 rounded-xl bg-gradient-to-r from-red-500/10 to-red-600/5 p-5 border border-red-500/30 hover:border-red-400/50 hover:from-red-500/15 hover:to-red-600/10 transition-all duration-300 cursor-pointer transform hover:translate-x-1"
+                    >
+                      <div className="rounded-lg bg-red-500/20 p-2 flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                        <AlertOctagon className="h-5 w-5 text-red-400" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-slate-200 font-medium">{flag}</span>
+                        {revealedFlags.has(i) && (
+                          <div className="mt-3 pt-3 border-t border-red-500/20 text-sm text-red-200 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <p className="font-semibold text-red-300 mb-1">Why this is suspicious:</p>
+                            <p>Attackers use {flag.toLowerCase()} to deceive and manipulate recipients. This is a common red flag in phishing attacks.</p>
+                          </div>
+                        )}
+                        <p className="mt-1 text-xs text-slate-400">
+                          {revealedFlags.has(i) ? "Click to hide" : "Click to reveal why"}
+                        </p>
+                      </div>
+                      <ChevronRight className={`h-5 w-5 text-red-400 flex-shrink-0 transition-transform duration-300 ${revealedFlags.has(i) ? "rotate-90" : ""}`} />
                     </div>
                   ))}
                 </div>
@@ -368,24 +412,43 @@ export default function TrainingModulePage() {
               {currentSection === 4 && (
                 <div className="space-y-6">
                   {content.examples.map((example, i) => (
-                    <div key={i} className="space-y-4 rounded-lg border border-slate-700/50 bg-slate-800/30 p-6">
-                      <h3 className="font-semibold text-slate-100 text-lg">{example.title}</h3>
-                      <div className="rounded-lg border border-slate-600/50 bg-slate-900/80 p-5 font-mono text-sm text-slate-400 overflow-x-auto">
-                        <p className="whitespace-pre-wrap">{example.body}</p>
+                    <div key={i} className="space-y-4 rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/30 to-slate-900/30 p-6 overflow-hidden relative group hover:border-orange-500/30 transition-all duration-300">
+                      <div className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(90deg, transparent, rgba(251,146,60,0.5), transparent)" }} />
+
+                      <div className="flex items-start justify-between gap-4 mb-4">
+                        <h3 className="font-semibold text-slate-100 text-lg flex items-center gap-2">
+                          <div className="rounded-lg bg-orange-500/20 p-2">
+                            <AlertTriangle className="h-5 w-5 text-orange-400" />
+                          </div>
+                          {example.title}
+                        </h3>
+                        <Badge className="bg-orange-600/60 text-orange-50 border-0 text-xs">Example {i + 1}</Badge>
                       </div>
-                      <div className="space-y-3">
-                        <p className="text-sm font-semibold text-red-400 flex items-center gap-2">
+
+                      <div className="rounded-lg border border-slate-600/50 bg-slate-900/80 p-5 font-mono text-sm text-slate-300 overflow-x-auto hover:border-orange-500/30 transition-colors duration-300">
+                        <div className="mb-2 text-xs text-slate-500 flex items-center gap-2">
+                          <Mail className="h-3 w-3" />
+                          Email Example
+                        </div>
+                        <p className="whitespace-pre-wrap text-slate-400">{example.body}</p>
+                      </div>
+
+                      <div className="space-y-3 pt-4 border-t border-slate-700/50">
+                        <p className="text-sm font-semibold text-orange-400 flex items-center gap-2">
                           <AlertTriangle className="h-4 w-4" />
-                          Red Flags:
+                          Suspicious Elements Found:
                         </p>
-                        <ul className="space-y-2">
+                        <div className="grid gap-3">
                           {example.redFlags.map((flag, j) => (
-                            <li key={j} className="flex items-start gap-3 text-sm">
-                              <span className="text-red-400 font-bold mt-0.5">•</span>
-                              <span className="text-slate-300">{flag}</span>
-                            </li>
+                            <div
+                              key={j}
+                              className="group/flag flex items-start gap-3 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20 hover:border-orange-500/50 hover:bg-orange-500/15 transition-all duration-200"
+                            >
+                              <Flame className="h-4 w-4 text-orange-400 mt-0.5 flex-shrink-0 group-hover/flag:animate-pulse" />
+                              <span className="text-slate-300 text-sm">{flag}</span>
+                            </div>
                           ))}
-                        </ul>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -395,18 +458,27 @@ export default function TrainingModulePage() {
               {currentSection === 5 && (
                 <div className="space-y-4">
                   {content.preventionSteps.map((step, i) => (
-                    <div key={i} className="flex gap-5 items-start group">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-cyan-400 font-bold text-slate-900 group-hover:shadow-lg group-hover:shadow-emerald-500/30 transition-all duration-200">
+                    <div
+                      key={i}
+                      className="group relative flex gap-5 items-start p-5 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 hover:border-emerald-500/60 hover:from-emerald-500/15 hover:to-teal-500/15 transition-all duration-300 transform hover:translate-x-1"
+                    >
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 font-bold text-slate-900 group-hover:shadow-lg group-hover:shadow-emerald-500/30 transition-all duration-300 group-hover:scale-110">
                         {i + 1}
                       </div>
-                      <span className="text-slate-300 pt-1.5 leading-relaxed">{step}</span>
+                      <span className="text-slate-200 pt-2 leading-relaxed font-medium">{step}</span>
+                      <ChevronRight className="h-5 w-5 text-emerald-400 flex-shrink-0 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-auto" />
                     </div>
                   ))}
-                  <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-4 flex gap-3 mt-6">
-                    <ShieldCheck className="h-5 w-5 text-emerald-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-emerald-200">
-                      Following these prevention steps will significantly reduce your risk of falling victim to phishing attacks.
-                    </p>
+                  <div className="rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/40 p-6 flex gap-4 mt-8">
+                    <div className="rounded-lg bg-emerald-500/30 p-2 flex-shrink-0">
+                      <ShieldCheck className="h-6 w-6 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-emerald-200 mb-1">Master these prevention steps!</p>
+                      <p className="text-sm text-emerald-100/80">
+                        Following these prevention strategies will significantly reduce your risk of falling victim to phishing attacks. Remember these steps every time you receive an unexpected email.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -490,29 +562,35 @@ export default function TrainingModulePage() {
                       </div>
 
                       {quizAnswer === content.quiz.correctIndex ? (
-                        <div className="flex gap-4">
-                          <Button
-                            onClick={handleComplete}
-                            disabled={completing}
-                            className="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold py-3 rounded-lg transition-all duration-200"
-                          >
-                            <Award className="mr-2 h-5 w-5" />
-                            {completing
-                              ? "Completing..."
-                              : userStatus?.completed
-                                ? "Already Completed"
-                                : "Complete Module"}
-                          </Button>
-                          {!isRequired && !userStatus?.completed && (
-                            <Link href="/dashboard/user" className="flex-1">
-                              <Button
-                                variant="outline"
-                                className="w-full border-slate-600 text-slate-300 hover:bg-slate-800"
-                              >
-                                Skip
-                              </Button>
-                            </Link>
-                          )}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2 p-4 rounded-lg bg-emerald-500/20 border border-emerald-500/30 animate-pulse">
+                            <Sparkles className="h-5 w-5 text-emerald-400" />
+                            <p className="text-sm text-emerald-200 font-semibold">Excellent work! You're learning to spot phishing attacks!</p>
+                          </div>
+                          <div className="flex gap-4">
+                            <Button
+                              onClick={handleComplete}
+                              disabled={completing}
+                              className="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
+                            >
+                              <Award className="mr-2 h-5 w-5" />
+                              {completing
+                                ? "Completing..."
+                                : userStatus?.completed
+                                  ? "Already Completed"
+                                  : "Complete Module"}
+                            </Button>
+                            {!isRequired && !userStatus?.completed && (
+                              <Link href="/dashboard/user" className="flex-1">
+                                <Button
+                                  variant="outline"
+                                  className="w-full border-slate-600 text-slate-300 hover:bg-slate-800"
+                                >
+                                  Skip
+                                </Button>
+                              </Link>
+                            )}
+                          </div>
                         </div>
                       ) : (
                         <Button
@@ -539,7 +617,7 @@ export default function TrainingModulePage() {
                       setCurrentSection(Math.max(0, currentSection - 1))
                     }
                     disabled={currentSection === 0}
-                    className="border-slate-600 text-slate-300 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="border-slate-600 text-slate-300 hover:bg-slate-800/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105"
                   >
                     <ChevronLeft className="mr-2 h-4 w-4" />
                     Previous
@@ -547,17 +625,17 @@ export default function TrainingModulePage() {
                   {currentSection < SECTIONS.length - 2 ? (
                     <Button
                       onClick={() => setCurrentSection(currentSection + 1)}
-                      className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
+                      className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/30"
                     >
-                      Next
+                      Next Section
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   ) : (
                     <Button
                       onClick={() => setCurrentSection(currentSection + 1)}
-                      className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white"
+                      className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/30"
                     >
-                      Go to Quiz
+                      Take the Quiz
                       <Zap className="ml-2 h-4 w-4" />
                     </Button>
                   )}

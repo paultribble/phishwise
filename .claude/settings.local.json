@@ -57,7 +57,8 @@
       "Bash(node render-poster.js)",
       "Bash(npx next:*)",
       "Read(//d C:/Users/Ptribble/Desktop/Github Linked Projects/**)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "WebSearch"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -366,7 +366,7 @@ export default function TrainingModulePage() {
                 <div className="space-y-3">
                   <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex gap-3">
                     <Flame className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-200">Click on any red flag to learn more details about why it's suspicious.</p>
+                    <p className="text-sm text-red-200">Click on any red flag to learn more details about why it&apos;s suspicious.</p>
                   </div>
                   {content.redFlags.map((flag, i) => (
                     <div
@@ -565,7 +565,7 @@ export default function TrainingModulePage() {
                         <div className="space-y-4">
                           <div className="flex items-center gap-2 p-4 rounded-lg bg-emerald-500/20 border border-emerald-500/30 animate-pulse">
                             <Sparkles className="h-5 w-5 text-emerald-400" />
-                            <p className="text-sm text-emerald-200 font-semibold">Excellent work! You're learning to spot phishing attacks!</p>
+                            <p className="text-sm text-emerald-200 font-semibold">Excellent work! You&apos;re learning to spot phishing attacks!</p>
                           </div>
                           <div className="flex gap-4">
                             <Button

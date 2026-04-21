@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -15,9 +13,8 @@ import {
   AlertOctagon,
   Target,
   BookOpen,
-  ListChecks,
-  ShieldCheck,
   Users,
+  ShieldCheck,
   Lightbulb,
   HelpCircle,
   Zap,
@@ -25,6 +22,8 @@ import {
   Flame,
   Mail,
   Sparkles,
+  ArrowRight,
+  Lock,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -61,10 +60,18 @@ const SECTIONS = [
   { id: "tactics", title: "Tactics", icon: Users },
   { id: "redFlags", title: "Red Flags", icon: AlertOctagon },
   { id: "objective", title: "Objective", icon: Target },
-  { id: "examples", title: "Examples", icon: AlertTriangle },
+  { id: "examples", title: "Examples", icon: Mail },
   { id: "prevention", title: "Prevention", icon: ShieldCheck },
   { id: "quiz", title: "Quiz", icon: HelpCircle },
 ];
+
+const THREAT_COLORS: Record<string, { primary: string; dim: string }> = {
+  fear: { primary: "#ef4444", dim: "#450a0a" },
+  urgency: { primary: "#f59e0b", dim: "#451a03" },
+  authority: { primary: "#2563eb", dim: "#1e3a8a" },
+  loss: { primary: "#7c3aed", dim: "#4c1d95" },
+  convenience: { primary: "#0891b2", dim: "#164e63" },
+};
 
 export default function TrainingModulePage() {
   const params = useParams();
@@ -81,15 +88,13 @@ export default function TrainingModulePage() {
     description: string;
     content: TrainingModuleContent;
   } | null>(null);
-  const [userStatus, setUserStatus] = useState<{
-    completed: boolean;
-  } | null>(null);
+  const [userStatus, setUserStatus] = useState<{ completed: boolean } | null>(null);
   const [isRequired, setIsRequired] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
-
   const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [revealedFlags, setRevealedFlags] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     async function fetchModule() {
@@ -134,12 +139,6 @@ export default function TrainingModulePage() {
     }
   };
 
-  const isQuizSection = currentSection === 6;
-  const progress = isQuizSection
-    ? 100
-    : Math.round(((currentSection + 1) / SECTIONS.length) * 85);
-
-  const [revealedFlags, setRevealedFlags] = useState<Set<number>>(new Set());
   const toggleFlagReveal = (index: number) => {
     const newRevealed = new Set(revealedFlags);
     if (newRevealed.has(index)) {
@@ -150,65 +149,50 @@ export default function TrainingModulePage() {
     setRevealedFlags(newRevealed);
   };
 
+  const isQuizSection = currentSection === 6;
+  const progress = isQuizSection
+    ? 100
+    : Math.round(((currentSection + 1) / SECTIONS.length) * 85);
+
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <header className="border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
-          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-            <Link href="/" className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-blue-400" />
-              <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">PhishWise</span>
-            </Link>
-          </div>
-        </header>
-        <main className="flex-1 px-4 py-8">
-          <div className="mx-auto max-w-6xl space-y-6">
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-base)" }}>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="space-y-8 w-96">
             <div className="animate-pulse space-y-4">
-              <div className="h-8 bg-slate-700 rounded-lg w-3/4"></div>
-              <div className="h-4 bg-slate-700 rounded-lg w-1/2"></div>
-              <div className="h-64 bg-slate-700 rounded-lg"></div>
+              <div className="h-8 rounded-lg w-3/4" style={{ backgroundColor: "var(--bg-surface)" }}></div>
+              <div className="h-4 rounded-lg w-1/2" style={{ backgroundColor: "var(--bg-surface)" }}></div>
+              <div className="h-64 rounded-lg" style={{ backgroundColor: "var(--bg-elevated)" }}></div>
             </div>
           </div>
-        </main>
+        </div>
       </div>
     );
   }
 
   if (error || !module) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <header className="border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
-          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-            <Link href="/" className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-blue-400" />
-              <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">PhishWise</span>
+      <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-base)" }}>
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="max-w-md w-full rounded-xl border p-8 text-center" style={{ borderColor: "var(--threat-red)", backgroundColor: "rgba(239,68,68,0.06)" }}>
+            <div className="rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "rgba(239,68,68,0.1)" }}>
+              <AlertTriangle className="w-8 h-8" style={{ color: "var(--threat-red)" }} />
+            </div>
+            <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>
+              {error || "Module not found"}
+            </h2>
+            <p className="mb-6" style={{ color: "var(--text-secondary)" }}>
+              {error === "Module not found"
+                ? "The training module you&apos;re looking for doesn&apos;t exist or has been removed."
+                : "There was a problem loading the training module. Please try again."}
+            </p>
+            <Link href="/dashboard/user">
+              <Button className="w-full" style={{ background: "linear-gradient(135deg, #2563eb, #0e7490)" }}>
+                Return to Dashboard
+              </Button>
             </Link>
           </div>
-        </header>
-        <main className="flex-1 px-4 py-8">
-          <div className="mx-auto max-w-6xl">
-            <Card className="border-red-500/30 bg-gradient-to-br from-red-500/10 to-red-600/5">
-              <CardContent className="flex flex-col items-center gap-4 py-12">
-                <div className="rounded-full bg-red-500/20 p-4">
-                  <AlertTriangle className="h-10 w-10 text-red-400" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-100">
-                  {error || "Module not found"}
-                </h2>
-                <p className="text-gray-400 text-center max-w-md">
-                  {error === "Module not found"
-                    ? "The training module you're looking for doesn't exist or has been removed."
-                    : "There was a problem loading the training module. Please try again."}
-                </p>
-                <Link href="/dashboard/user">
-                  <Button className="mt-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600">
-                    Return to Dashboard
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
-        </main>
+        </div>
       </div>
     );
   }
@@ -217,66 +201,92 @@ export default function TrainingModulePage() {
   const currentSectionDef = SECTIONS[currentSection];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <header className="border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-blue-400" />
-            <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">PhishWise</span>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-base)" }}>
+      {/* Navbar */}
+      <header
+        className="sticky top-0 z-100 border-b"
+        style={{ backgroundColor: "rgba(12, 18, 32, 0.85)", borderColor: "var(--border-subtle)", backdropFilter: "blur(16px)" }}
+      >
+        <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="p-1.5 rounded-lg" style={{ backgroundColor: "rgba(34, 211, 238, 0.1)" }}>
+              <Shield className="h-5 w-5" style={{ color: "var(--accent-primary)" }} />
+            </div>
+            <span className="text-lg font-bold" style={{ background: "linear-gradient(135deg, #f1f5f9, #22d3ee)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              PhishWise
+            </span>
           </Link>
-          <Link
-            href="/dashboard/user"
-            className="text-sm text-slate-400 hover:text-slate-200 transition-colors"
-          >
-            ← Back to Dashboard
+          <Link href="/dashboard/user" className="text-sm flex items-center gap-2 group transition-colors hover:text-blue-300" style={{ color: "var(--text-secondary)" }}>
+            <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+            Back to Dashboard
           </Link>
         </div>
       </header>
 
+      {/* Phishing Click Alert */}
       {token && (
-        <div className="mx-auto max-w-6xl px-4 pt-6 w-full">
+        <div className="mx-auto max-w-6xl w-full px-6 pt-6">
           <div
-            className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-gradient-to-br from-red-500/15 to-red-600/5 p-4 backdrop-blur-sm"
-            role="alert"
+            className="flex items-start gap-3 rounded-xl border p-4"
+            style={{ backgroundColor: "rgba(239,68,68,0.06)", borderColor: "rgba(239,68,68,0.3)" }}
           >
-            <Flame className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400 animate-pulse" />
+            <Flame className="h-5 w-5 flex-shrink-0 mt-0.5 animate-pulse" style={{ color: "var(--threat-red)" }} />
             <div>
-              <h2 className="font-semibold text-red-300">
+              <h2 className="font-bold" style={{ color: "var(--threat-red)" }}>
                 You clicked a simulated phishing link
               </h2>
-              <p className="mt-1 text-sm text-red-200/70">
-                Don&apos;t worry — this was a training exercise. Complete this
-                module to learn how to spot similar attacks in the future.
+              <p className="text-sm mt-1" style={{ color: "rgba(239,68,68,0.8)" }}>
+                Don&apos;t worry — this was a training exercise. Complete this module to learn how to spot similar attacks in the future.
               </p>
             </div>
           </div>
         </div>
       )}
 
-      <main className="flex-1 px-4 py-8">
+      {/* Main Content */}
+      <main className="flex-1 px-6 py-8">
         <div className="mx-auto max-w-6xl space-y-8">
-          {/* Header */}
-          <div className="space-y-3">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
-                  {module.name}
-                </h1>
-                <p className="mt-2 text-slate-400">{module.description}</p>
-              </div>
+          {/* Page Header */}
+          <div className="space-y-4 animate-fade-in">
+            <h1
+              className="text-4xl font-bold"
+              style={{
+                background: "linear-gradient(135deg, #f1f5f9 0%, #22d3ee 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              {module.name}
+            </h1>
+            <div className="flex items-center gap-3" style={{ borderLeft: "3px solid var(--accent-primary)", paddingLeft: "12px" }}>
+              <p style={{ color: "var(--text-secondary)" }}>{module.description}</p>
             </div>
           </div>
 
-          {/* Progress */}
-          <div className="space-y-3 bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-slate-300">Progress</span>
-              <span className="text-sm font-bold text-blue-400">{progress}%</span>
+          {/* Progress Bar */}
+          <div
+            className="rounded-lg border p-5 flex items-center gap-4"
+            style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
+          >
+            <span style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)", fontSize: "0.75rem" }} className="uppercase tracking-wider whitespace-nowrap">
+              Progress
+            </span>
+            <div className="flex-1 relative h-2 rounded-full overflow-hidden" style={{ backgroundColor: "var(--bg-base)", border: "1px solid var(--border-subtle)" }}>
+              <div
+                className="h-full rounded-full transition-all duration-600"
+                style={{
+                  width: `${progress}%`,
+                  background: "linear-gradient(90deg, #2563eb, #22d3ee)",
+                  boxShadow: "0 0 12px rgba(34, 211, 238, 0.4)",
+                }}
+              ></div>
             </div>
-            <Progress value={progress} className="bg-slate-700 h-2.5" />
+            <span style={{ color: "var(--accent-primary)", fontFamily: "var(--font-mono)", fontSize: "0.875rem", fontWeight: "500", whiteSpace: "nowrap" }}>
+              {progress}%
+            </span>
           </div>
 
-          {/* Section Navigation */}
+          {/* Section Tabs */}
           <div className="flex flex-wrap gap-2">
             {SECTIONS.map((section, i) => {
               const Icon = section.icon;
@@ -290,45 +300,84 @@ export default function TrainingModulePage() {
                     setQuizSubmitted(false);
                     setQuizAnswer(null);
                   }}
-                  className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
-                    isActive
-                      ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/40 ring-2 ring-blue-400/30"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm whitespace-nowrap border transition-all duration-300 hover:scale-105"
+                  style={{
+                    ...(isActive
+                      ? {
+                          background: "linear-gradient(135deg, #1e40af, #0e7490)",
+                          color: "white",
+                          borderColor: "var(--accent-primary-dim)",
+                          boxShadow: "0 0 16px rgba(34, 211, 238, 0.2)",
+                        }
                       : isCompleted
-                        ? "bg-gradient-to-r from-emerald-500/30 to-teal-500/20 text-emerald-300 border border-emerald-500/40 hover:from-emerald-500/40 hover:to-teal-500/30"
-                        : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-slate-700 hover:border-slate-600"
-                  }`}
+                        ? {
+                            background: "linear-gradient(135deg, rgba(16,185,129,0.3), rgba(16,185,129,0.2))",
+                            color: "var(--text-secondary)",
+                            borderColor: "rgba(16,185,129,0.4)",
+                          }
+                        : {
+                            background: "var(--bg-surface)",
+                            color: "var(--text-muted)",
+                            borderColor: "var(--border-subtle)",
+                          }),
+                  }}
                 >
                   <Icon className="h-4 w-4" />
                   {section.title}
-                  {isCompleted && <CheckCircle2 className="h-4 w-4 ml-1 animate-pulse" />}
+                  {isCompleted && <CheckCircle2 className="h-4 w-4 ml-1 animate-pulse" style={{ color: "var(--success)" }} />}
                 </button>
               );
             })}
           </div>
 
           {/* Content Card */}
-          <Card className="border-slate-700/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-sm">
-            <CardHeader className="border-b border-slate-700/50 pb-6">
-              <CardTitle className="flex items-center gap-3 text-2xl">
-                {currentSectionDef.icon && (
-                  <div className="rounded-lg bg-blue-500/20 p-2.5">
-                    <currentSectionDef.icon className="h-5 w-5 text-blue-400" />
-                  </div>
-                )}
-                <span className="bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
+          <div
+            className="rounded-xl border overflow-hidden"
+            style={{
+              backgroundColor: "var(--bg-surface)",
+              borderColor: "var(--border-subtle)",
+              position: "relative",
+            }}
+          >
+            {/* Top accent line */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: "1px",
+                background: "linear-gradient(90deg, transparent, var(--accent-primary), transparent)",
+                opacity: 0.4,
+              }}
+            ></div>
+
+            <div className="p-8 space-y-6">
+              {/* Section Header */}
+              <div className="flex items-center gap-3 pb-6 border-b" style={{ borderColor: "var(--border-subtle)" }}>
+                <div
+                  className="w-10 h-10 rounded-md flex items-center justify-center"
+                  style={{ backgroundColor: "var(--accent-glow)", color: "var(--accent-primary)", border: "1px solid var(--accent-primary-dim)" }}
+                >
+                  <currentSectionDef.icon className="h-5 w-5" />
+                </div>
+                <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
                   {currentSectionDef.title}
-                </span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
+                </h2>
+              </div>
+
+              {/* Content Sections */}
               {currentSection === 0 && (
                 <div className="space-y-6">
-                  <p className="text-slate-300 leading-relaxed whitespace-pre-line text-base">
+                  <p style={{ color: "var(--text-secondary)", lineHeight: "1.6", whiteSpace: "pre-line" }}>
                     {content.overview}
                   </p>
-                  <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 p-4 flex gap-3">
-                    <Lightbulb className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-blue-200">
+                  <div
+                    className="flex gap-3 rounded-lg border p-4"
+                    style={{ backgroundColor: "rgba(34, 211, 238, 0.06)", borderColor: "rgba(34, 211, 238, 0.3)" }}
+                  >
+                    <Lightbulb className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: "var(--accent-primary)" }} />
+                    <p style={{ color: "rgba(34, 211, 238, 0.8)", fontSize: "0.875rem" }}>
                       Take your time going through each section to understand the concepts before taking the quiz.
                     </p>
                   </div>
@@ -340,23 +389,29 @@ export default function TrainingModulePage() {
                   {content.tactics.map((tactic, i) => (
                     <div
                       key={i}
-                      className="group relative overflow-hidden rounded-xl border border-slate-700 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 hover:border-blue-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/20 cursor-pointer transform hover:scale-105"
+                      className="group relative rounded-lg border p-6 cursor-pointer transition-all duration-300 hover:-translate-y-1"
+                      style={{
+                        backgroundColor: "var(--bg-elevated)",
+                        borderColor: "var(--border-subtle)",
+                        borderLeft: `3px solid ${Object.values(THREAT_COLORS)[i % 5].primary}`,
+                      }}
+                      onMouseEnter={(e) => {
+                        const el = e.currentTarget;
+                        el.style.borderColor = Object.values(THREAT_COLORS)[i % 5].primary;
+                        el.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px ${Object.values(THREAT_COLORS)[i % 5].dim}`;
+                      }}
+                      onMouseLeave={(e) => {
+                        const el = e.currentTarget;
+                        el.style.borderColor = "var(--border-subtle)";
+                        el.style.boxShadow = "none";
+                      }}
                     >
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.1), transparent)" }} />
-                      <div className="relative">
-                        <div className="flex items-start gap-3 mb-3">
-                          <div className="rounded-lg bg-blue-500/20 p-2 flex-shrink-0">
-                            <Target className="h-5 w-5 text-blue-400" />
-                          </div>
-                          <h3 className="font-semibold text-slate-100 group-hover:text-blue-300 transition-colors text-sm">
-                            {tactic.name}
-                          </h3>
-                        </div>
-                        <p className="mt-3 text-sm text-slate-400 group-hover:text-slate-300 transition-colors leading-relaxed">
-                          {tactic.description}
-                        </p>
-                      </div>
-                      <div className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(90deg, transparent, rgba(59,130,246,0.5), transparent)" }} />
+                      <h3 className="font-bold mb-2" style={{ color: "var(--text-primary)" }}>
+                        {tactic.name}
+                      </h3>
+                      <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: "1.5" }}>
+                        {tactic.description}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -364,32 +419,59 @@ export default function TrainingModulePage() {
 
               {currentSection === 2 && (
                 <div className="space-y-3">
-                  <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/30 flex gap-3">
-                    <Flame className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-200">Click on any red flag to learn more details about why it&apos;s suspicious.</p>
+                  <div
+                    className="flex items-start gap-3 p-4 rounded-lg border mb-6"
+                    style={{ backgroundColor: "rgba(245, 158, 11, 0.06)", borderColor: "rgba(245, 158, 11, 0.3)" }}
+                  >
+                    <Flame className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: "var(--threat-amber)" }} />
+                    <p style={{ color: "rgba(245, 158, 11, 0.8)", fontSize: "0.875rem" }}>
+                      Click on any red flag to learn more details about why it&apos;s suspicious.
+                    </p>
                   </div>
                   {content.redFlags.map((flag, i) => (
                     <div
                       key={i}
                       onClick={() => toggleFlagReveal(i)}
-                      className="group relative flex items-start gap-4 rounded-xl bg-gradient-to-r from-red-500/10 to-red-600/5 p-5 border border-red-500/30 hover:border-red-400/50 hover:from-red-500/15 hover:to-red-600/10 transition-all duration-300 cursor-pointer transform hover:translate-x-1"
+                      className="group cursor-pointer rounded-lg border overflow-hidden transition-all duration-300 hover:translate-x-1"
+                      style={{
+                        backgroundColor: "var(--bg-elevated)",
+                        borderColor: revealedFlags.has(i) ? "var(--threat-red)" : "var(--border-subtle)",
+                        boxShadow: revealedFlags.has(i) ? `0 0 0 1px rgba(239,68,68,0.2)` : "none",
+                      }}
                     >
-                      <div className="rounded-lg bg-red-500/20 p-2 flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                        <AlertOctagon className="h-5 w-5 text-red-400" />
+                      <div className="flex items-center gap-3 p-4">
+                        <div
+                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          style={{
+                            background: "var(--threat-red)",
+                            boxShadow: "0 0 6px var(--threat-red)",
+                            animation: "pulse-red 2s ease-in-out infinite",
+                          }}
+                        ></div>
+                        <div className="flex-1">
+                          <p style={{ color: "var(--text-primary)", fontWeight: "500" }}>{flag}</p>
+                          {revealedFlags.has(i) && (
+                            <div className="mt-3 pt-3 border-t" style={{ borderColor: "var(--border-subtle)" }}>
+                              <p style={{ color: "rgba(239,68,68,0.8)", fontSize: "0.875rem", fontWeight: "600", marginBottom: "6px" }}>
+                                Why this is suspicious:
+                              </p>
+                              <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: "1.6" }}>
+                                Attackers use {flag.toLowerCase()} to deceive and manipulate recipients. This is a common red flag in phishing attacks.
+                              </p>
+                            </div>
+                          )}
+                          <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "6px" }}>
+                            {revealedFlags.has(i) ? "Click to hide" : "Click to reveal why"}
+                          </p>
+                        </div>
+                        <ChevronRight
+                          className="h-4 w-4 transition-transform duration-300"
+                          style={{
+                            color: "var(--threat-red)",
+                            transform: revealedFlags.has(i) ? "rotate(90deg)" : "rotate(0deg)",
+                          }}
+                        />
                       </div>
-                      <div className="flex-1">
-                        <span className="text-slate-200 font-medium">{flag}</span>
-                        {revealedFlags.has(i) && (
-                          <div className="mt-3 pt-3 border-t border-red-500/20 text-sm text-red-200 animate-in fade-in slide-in-from-top-2 duration-300">
-                            <p className="font-semibold text-red-300 mb-1">Why this is suspicious:</p>
-                            <p>Attackers use {flag.toLowerCase()} to deceive and manipulate recipients. This is a common red flag in phishing attacks.</p>
-                          </div>
-                        )}
-                        <p className="mt-1 text-xs text-slate-400">
-                          {revealedFlags.has(i) ? "Click to hide" : "Click to reveal why"}
-                        </p>
-                      </div>
-                      <ChevronRight className={`h-5 w-5 text-red-400 flex-shrink-0 transition-transform duration-300 ${revealedFlags.has(i) ? "rotate-90" : ""}`} />
                     </div>
                   ))}
                 </div>
@@ -397,12 +479,15 @@ export default function TrainingModulePage() {
 
               {currentSection === 3 && (
                 <div className="space-y-4">
-                  <p className="text-slate-300 leading-relaxed whitespace-pre-line text-base">
+                  <p style={{ color: "var(--text-secondary)", lineHeight: "1.6", whiteSpace: "pre-line" }}>
                     {content.objective}
                   </p>
-                  <div className="rounded-lg bg-cyan-500/10 border border-cyan-500/30 p-4 flex gap-3">
-                    <Target className="h-5 w-5 text-cyan-400 flex-shrink-0 mt-0.5" />
-                    <p className="text-sm text-cyan-200">
+                  <div
+                    className="flex gap-3 rounded-lg border p-4"
+                    style={{ backgroundColor: "rgba(34, 211, 238, 0.06)", borderColor: "rgba(34, 211, 238, 0.3)" }}
+                  >
+                    <Target className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: "var(--accent-primary)" }} />
+                    <p style={{ color: "rgba(34, 211, 238, 0.8)", fontSize: "0.875rem" }}>
                       Understanding the attacker&apos;s objective helps you recognize phishing attempts.
                     </p>
                   </div>
@@ -412,29 +497,40 @@ export default function TrainingModulePage() {
               {currentSection === 4 && (
                 <div className="space-y-6">
                   {content.examples.map((example, i) => (
-                    <div key={i} className="space-y-4 rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/30 to-slate-900/30 p-6 overflow-hidden relative group hover:border-orange-500/30 transition-all duration-300">
-                      <div className="absolute top-0 left-0 right-0 h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(90deg, transparent, rgba(251,146,60,0.5), transparent)" }} />
-
-                      <div className="flex items-start justify-between gap-4 mb-4">
-                        <h3 className="font-semibold text-slate-100 text-lg flex items-center gap-2">
-                          <div className="rounded-lg bg-orange-500/20 p-2">
-                            <AlertTriangle className="h-5 w-5 text-orange-400" />
+                    <div
+                      key={i}
+                      className="space-y-4 rounded-xl border overflow-hidden"
+                      style={{
+                        backgroundColor: "var(--bg-elevated)",
+                        borderColor: "var(--border-subtle)",
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-4 p-6 border-b" style={{ borderColor: "var(--border-subtle)" }}>
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="w-10 h-10 rounded-lg flex items-center justify-center"
+                            style={{ backgroundColor: "rgba(245, 158, 11, 0.1)", color: "var(--threat-amber)" }}
+                          >
+                            <Mail className="h-5 w-5" />
                           </div>
-                          {example.title}
-                        </h3>
-                        <Badge className="bg-orange-600/60 text-orange-50 border-0 text-xs">Example {i + 1}</Badge>
-                      </div>
-
-                      <div className="rounded-lg border border-slate-600/50 bg-slate-900/80 p-5 font-mono text-sm text-slate-300 overflow-x-auto hover:border-orange-500/30 transition-colors duration-300">
-                        <div className="mb-2 text-xs text-slate-500 flex items-center gap-2">
-                          <Mail className="h-3 w-3" />
-                          Email Example
+                          <h3 className="font-bold" style={{ color: "var(--text-primary)" }}>
+                            {example.title}
+                          </h3>
                         </div>
-                        <p className="whitespace-pre-wrap text-slate-400">{example.body}</p>
+                        <Badge style={{ backgroundColor: "rgba(245, 158, 11, 0.2)", color: "var(--threat-amber)", border: "none", fontSize: "0.75rem" }}>
+                          Example {i + 1}
+                        </Badge>
                       </div>
 
-                      <div className="space-y-3 pt-4 border-t border-slate-700/50">
-                        <p className="text-sm font-semibold text-orange-400 flex items-center gap-2">
+                      <div
+                        className="p-6 font-mono text-sm overflow-x-auto"
+                        style={{ backgroundColor: "var(--bg-base)", color: "var(--text-secondary)" }}
+                      >
+                        <p style={{ whiteSpace: "pre-wrap" }}>{example.body}</p>
+                      </div>
+
+                      <div className="p-6 pt-0 space-y-4">
+                        <p style={{ color: "var(--threat-amber)", fontSize: "0.875rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}>
                           <AlertTriangle className="h-4 w-4" />
                           Suspicious Elements Found:
                         </p>
@@ -442,10 +538,14 @@ export default function TrainingModulePage() {
                           {example.redFlags.map((flag, j) => (
                             <div
                               key={j}
-                              className="group/flag flex items-start gap-3 p-3 rounded-lg bg-orange-500/10 border border-orange-500/20 hover:border-orange-500/50 hover:bg-orange-500/15 transition-all duration-200"
+                              className="flex items-start gap-3 p-3 rounded-lg"
+                              style={{
+                                backgroundColor: "rgba(245, 158, 11, 0.08)",
+                                border: "1px solid rgba(245, 158, 11, 0.3)",
+                              }}
                             >
-                              <Flame className="h-4 w-4 text-orange-400 mt-0.5 flex-shrink-0 group-hover/flag:animate-pulse" />
-                              <span className="text-slate-300 text-sm">{flag}</span>
+                              <Flame className="h-4 w-4 mt-0.5 flex-shrink-0 animate-pulse" style={{ color: "var(--threat-amber)" }} />
+                              <span style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>{flag}</span>
                             </div>
                           ))}
                         </div>
@@ -460,22 +560,58 @@ export default function TrainingModulePage() {
                   {content.preventionSteps.map((step, i) => (
                     <div
                       key={i}
-                      className="group relative flex gap-5 items-start p-5 rounded-xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/30 hover:border-emerald-500/60 hover:from-emerald-500/15 hover:to-teal-500/15 transition-all duration-300 transform hover:translate-x-1"
+                      className="group relative flex gap-5 items-start p-5 rounded-xl border transition-all duration-300 hover:translate-x-1"
+                      style={{
+                        backgroundColor: "var(--bg-elevated)",
+                        borderColor: "var(--border-subtle)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = "rgba(16, 185, 129, 0.5)";
+                        e.currentTarget.style.backgroundColor = "rgba(16, 185, 129, 0.05)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = "var(--border-subtle)";
+                        e.currentTarget.style.backgroundColor = "var(--bg-elevated)";
+                      }}
                     >
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 font-bold text-slate-900 group-hover:shadow-lg group-hover:shadow-emerald-500/30 transition-all duration-300 group-hover:scale-110">
+                      <div
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-bold text-sm transition-all duration-300 hover:scale-110 group-hover:shadow-lg"
+                        style={{
+                          background: "linear-gradient(135deg, #059669, #10b981)",
+                          color: "white",
+                          boxShadow: "0 0 12px rgba(16, 185, 129, 0.2)",
+                        }}
+                      >
                         {i + 1}
                       </div>
-                      <span className="text-slate-200 pt-2 leading-relaxed font-medium">{step}</span>
-                      <ChevronRight className="h-5 w-5 text-emerald-400 flex-shrink-0 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-auto" />
+                      <span style={{ color: "var(--text-secondary)", paddingTop: "8px", lineHeight: "1.6", fontWeight: "500" }}>
+                        {step}
+                      </span>
+                      <ChevronRight
+                        className="h-5 w-5 mt-2 ml-auto flex-shrink-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                        style={{ color: "var(--success)" }}
+                      />
                     </div>
                   ))}
-                  <div className="rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/40 p-6 flex gap-4 mt-8">
-                    <div className="rounded-lg bg-emerald-500/30 p-2 flex-shrink-0">
-                      <ShieldCheck className="h-6 w-6 text-emerald-400" />
+
+                  <div
+                    className="rounded-xl border p-6 flex gap-4 mt-8"
+                    style={{
+                      backgroundColor: "rgba(16, 185, 129, 0.08)",
+                      borderColor: "rgba(16, 185, 129, 0.4)",
+                    }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: "rgba(16, 185, 129, 0.3)", color: "var(--success)" }}
+                    >
+                      <ShieldCheck className="h-6 w-6" />
                     </div>
                     <div>
-                      <p className="font-semibold text-emerald-200 mb-1">Master these prevention steps!</p>
-                      <p className="text-sm text-emerald-100/80">
+                      <p style={{ color: "var(--success)", fontWeight: "600", marginBottom: "4px" }}>
+                        Master these prevention steps!
+                      </p>
+                      <p style={{ color: "rgba(16, 185, 129, 0.8)", fontSize: "0.875rem" }}>
                         Following these prevention strategies will significantly reduce your risk of falling victim to phishing attacks. Remember these steps every time you receive an unexpected email.
                       </p>
                     </div>
@@ -487,75 +623,158 @@ export default function TrainingModulePage() {
                 <div className="space-y-6">
                   {!quizSubmitted ? (
                     <>
-                      <div>
-                        <p className="text-xl font-semibold text-slate-100 mb-6">
+                      <div
+                        className="p-5 rounded-lg border"
+                        style={{
+                          backgroundColor: "var(--bg-elevated)",
+                          borderColor: "var(--border-subtle)",
+                          borderLeft: "3px solid var(--accent-primary)",
+                        }}
+                      >
+                        <p style={{ color: "var(--text-primary)", fontSize: "1.125rem", fontWeight: "600", lineHeight: "1.6" }}>
                           {content.quiz.question}
                         </p>
-                        <div className="space-y-3">
-                          {content.quiz.options.map((option, i) => (
-                            <button
-                              key={i}
-                              onClick={() => setQuizAnswer(i)}
-                              className={`w-full flex items-center gap-4 rounded-lg border-2 p-5 text-left transition-all duration-200 ${
-                                quizAnswer === i
-                                  ? "border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/20"
-                                  : "border-slate-700 bg-slate-800/50 hover:border-slate-600 hover:bg-slate-800/70"
-                              }`}
-                            >
-                              <span
-                                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-bold flex-shrink-0 transition-all duration-200 ${
-                                  quizAnswer === i
-                                    ? "border-blue-400 bg-blue-500 text-white"
-                                    : "border-slate-600 text-slate-400"
-                                }`}
-                              >
-                                {String.fromCharCode(65 + i)}
-                              </span>
-                              <span className="text-slate-200">{option}</span>
-                            </button>
-                          ))}
-                        </div>
                       </div>
+
+                      <div className="space-y-3">
+                        {content.quiz.options.map((option, i) => (
+                          <div
+                            key={i}
+                            onClick={() => setQuizAnswer(i)}
+                            className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer transition-all duration-200"
+                            style={{
+                              backgroundColor:
+                                quizAnswer === i ? "rgba(34, 211, 238, 0.06)" : "var(--bg-elevated)",
+                              borderColor:
+                                quizAnswer === i ? "var(--accent-primary)" : "var(--border-default)",
+                              boxShadow:
+                                quizAnswer === i ? "0 0 0 1px var(--accent-primary-dim)" : "none",
+                              transform: "translateX(0)",
+                            }}
+                            onMouseEnter={(e) => {
+                              if (quizAnswer !== i) {
+                                e.currentTarget.style.backgroundColor = "var(--bg-hover)";
+                                e.currentTarget.style.borderColor = "var(--accent-primary-dim)";
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (quizAnswer !== i) {
+                                e.currentTarget.style.backgroundColor = "var(--bg-elevated)";
+                                e.currentTarget.style.borderColor = "var(--border-default)";
+                              }
+                            }}
+                          >
+                            <div
+                              className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 transition-all duration-200"
+                              style={{
+                                backgroundColor:
+                                  quizAnswer === i ? "var(--accent-primary)" : "var(--bg-base)",
+                                borderColor:
+                                  quizAnswer === i ? "var(--accent-primary)" : "var(--border-default)",
+                                border: "1px solid",
+                                color:
+                                  quizAnswer === i
+                                    ? "#060a10"
+                                    : "var(--text-muted)",
+                              }}
+                            >
+                              {String.fromCharCode(65 + i)}
+                            </div>
+                            <span style={{ color: "var(--text-secondary)" }}>{option}</span>
+                          </div>
+                        ))}
+                      </div>
+
                       <Button
                         onClick={() => setQuizSubmitted(true)}
                         disabled={quizAnswer === null}
-                        className="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                        style={{
+                          width: "100%",
+                          background:
+                            quizAnswer === null
+                              ? "rgba(16, 185, 129, 0.5)"
+                              : "linear-gradient(135deg, #059669, #10b981)",
+                          color: "white",
+                          padding: "16px",
+                          fontSize: "1rem",
+                          fontWeight: "700",
+                          letterSpacing: "0.02em",
+                          cursor: quizAnswer === null ? "not-allowed" : "pointer",
+                          opacity: quizAnswer === null ? 0.4 : 1,
+                          boxShadow:
+                            quizAnswer === null
+                              ? "none"
+                              : "0 4px 14px rgba(16, 185, 129, 0.25)",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "8px",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (quizAnswer !== null) {
+                            (e.target as HTMLElement).style.transform = "translateY(-1px)";
+                            (e.target as HTMLElement).style.boxShadow =
+                              "0 6px 20px rgba(16, 185, 129, 0.35)";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.target as HTMLElement).style.transform = "translateY(0)";
+                          (e.target as HTMLElement).style.boxShadow =
+                            "0 4px 14px rgba(16, 185, 129, 0.25)";
+                        }}
                       >
-                        <CheckCircle2 className="mr-2 h-5 w-5" />
+                        <CheckCircle2 className="h-5 w-5" />
                         Submit Answer
                       </Button>
                     </>
                   ) : (
                     <div className="space-y-6">
                       <div
-                        className={`flex items-start gap-4 rounded-lg border-2 p-6 transition-all duration-200 ${
-                          quizAnswer === content.quiz.correctIndex
-                            ? "border-emerald-500/50 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10"
-                            : "border-red-500/50 bg-gradient-to-br from-red-500/20 to-red-600/10"
-                        }`}
+                        className="flex items-start gap-4 rounded-lg border p-6"
+                        style={{
+                          backgroundColor:
+                            quizAnswer === content.quiz.correctIndex
+                              ? "rgba(16, 185, 129, 0.08)"
+                              : "rgba(239, 68, 68, 0.06)",
+                          borderColor:
+                            quizAnswer === content.quiz.correctIndex
+                              ? "rgba(16, 185, 129, 0.5)"
+                              : "rgba(239, 68, 68, 0.3)",
+                        }}
                       >
-                        {quizAnswer === content.quiz.correctIndex ? (
-                          <div className="rounded-full bg-emerald-500/30 p-2">
-                            <CheckCircle2 className="h-6 w-6 flex-shrink-0 text-emerald-400" />
-                          </div>
-                        ) : (
-                          <div className="rounded-full bg-red-500/30 p-2">
-                            <AlertTriangle className="h-6 w-6 flex-shrink-0 text-red-400" />
-                          </div>
-                        )}
+                        <div
+                          className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{
+                            backgroundColor:
+                              quizAnswer === content.quiz.correctIndex
+                                ? "rgba(16, 185, 129, 0.2)"
+                                : "rgba(239, 68, 68, 0.2)",
+                          }}
+                        >
+                          {quizAnswer === content.quiz.correctIndex ? (
+                            <CheckCircle2 className="h-6 w-6" style={{ color: "var(--success)" }} />
+                          ) : (
+                            <AlertTriangle className="h-6 w-6" style={{ color: "var(--threat-red)" }} />
+                          )}
+                        </div>
                         <div>
                           <p
-                            className={`font-semibold text-lg ${
-                              quizAnswer === content.quiz.correctIndex
-                                ? "text-emerald-300"
-                                : "text-red-300"
-                            }`}
+                            style={{
+                              fontSize: "1.125rem",
+                              fontWeight: "700",
+                              marginBottom: "8px",
+                              color:
+                                quizAnswer === content.quiz.correctIndex
+                                  ? "var(--success)"
+                                  : "var(--threat-red)",
+                            }}
                           >
                             {quizAnswer === content.quiz.correctIndex
                               ? "🎉 Correct!"
                               : "Not quite right"}
                           </p>
-                          <p className="mt-2 text-slate-300">
+                          <p style={{ color: "var(--text-secondary)", marginTop: "8px", lineHeight: "1.6" }}>
                             {content.quiz.explanation}
                           </p>
                         </div>
@@ -563,17 +782,53 @@ export default function TrainingModulePage() {
 
                       {quizAnswer === content.quiz.correctIndex ? (
                         <div className="space-y-4">
-                          <div className="flex items-center gap-2 p-4 rounded-lg bg-emerald-500/20 border border-emerald-500/30 animate-pulse">
-                            <Sparkles className="h-5 w-5 text-emerald-400" />
-                            <p className="text-sm text-emerald-200 font-semibold">Excellent work! You&apos;re learning to spot phishing attacks!</p>
+                          <div
+                            className="flex items-center gap-2 p-4 rounded-lg border animate-pulse"
+                            style={{
+                              backgroundColor: "rgba(16, 185, 129, 0.1)",
+                              borderColor: "rgba(16, 185, 129, 0.3)",
+                            }}
+                          >
+                            <Sparkles className="h-5 w-5" style={{ color: "var(--success)" }} />
+                            <p style={{ color: "rgba(16, 185, 129, 0.8)", fontSize: "0.875rem", fontWeight: "600" }}>
+                              Excellent work! You&apos;re learning to spot phishing attacks!
+                            </p>
                           </div>
                           <div className="flex gap-4">
                             <Button
                               onClick={handleComplete}
                               disabled={completing}
-                              className="flex-1 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold py-3 rounded-lg transition-all duration-200 transform hover:scale-105"
+                              style={{
+                                flex: 1,
+                                background: "linear-gradient(135deg, #059669, #10b981)",
+                                color: "white",
+                                padding: "16px",
+                                fontSize: "1rem",
+                                fontWeight: "700",
+                                cursor: completing ? "not-allowed" : "pointer",
+                                opacity: completing ? 0.6 : 1,
+                                transition: "all 0.2s ease",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "8px",
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!completing) {
+                                  (e.target as HTMLElement).style.transform =
+                                    "translateY(-1px)";
+                                  (e.target as HTMLElement).style.boxShadow =
+                                    "0 6px 20px rgba(16, 185, 129, 0.35)";
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                (e.target as HTMLElement).style.transform =
+                                  "translateY(0)";
+                                (e.target as HTMLElement).style.boxShadow =
+                                  "0 4px 14px rgba(16, 185, 129, 0.25)";
+                              }}
                             >
-                              <Award className="mr-2 h-5 w-5" />
+                              <Award className="h-5 w-5" />
                               {completing
                                 ? "Completing..."
                                 : userStatus?.completed
@@ -584,7 +839,11 @@ export default function TrainingModulePage() {
                               <Link href="/dashboard/user" className="flex-1">
                                 <Button
                                   variant="outline"
-                                  className="w-full border-slate-600 text-slate-300 hover:bg-slate-800"
+                                  style={{
+                                    width: "100%",
+                                    borderColor: "var(--border-default)",
+                                    color: "var(--text-secondary)",
+                                  }}
                                 >
                                   Skip
                                 </Button>
@@ -598,9 +857,31 @@ export default function TrainingModulePage() {
                             setQuizAnswer(null);
                             setQuizSubmitted(false);
                           }}
-                          className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold py-3 rounded-lg transition-all duration-200"
+                          style={{
+                            width: "100%",
+                            background: "linear-gradient(135deg, #2563eb, #0e7490)",
+                            color: "white",
+                            padding: "16px",
+                            fontSize: "1rem",
+                            fontWeight: "700",
+                            transition: "all 0.2s ease",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "8px",
+                          }}
+                          onMouseEnter={(e) => {
+                            (e.target as HTMLElement).style.transform = "translateY(-1px)";
+                            (e.target as HTMLElement).style.boxShadow =
+                              "0 6px 20px rgba(34, 211, 238, 0.25)";
+                          }}
+                          onMouseLeave={(e) => {
+                            (e.target as HTMLElement).style.transform = "translateY(0)";
+                            (e.target as HTMLElement).style.boxShadow =
+                              "0 4px 14px rgba(34, 211, 238, 0.15)";
+                          }}
                         >
-                          <Zap className="mr-2 h-5 w-5" />
+                          <Zap className="h-5 w-5" />
                           Try Again
                         </Button>
                       )}
@@ -609,44 +890,86 @@ export default function TrainingModulePage() {
                 </div>
               )}
 
+              {/* Navigation */}
               {!isQuizSection && (
-                <div className="mt-8 flex justify-between gap-4 pt-6 border-t border-slate-700/50">
+                <div className="flex justify-between items-center gap-4 mt-8 pt-6 border-t" style={{ borderColor: "var(--border-subtle)" }}>
                   <Button
                     variant="outline"
                     onClick={() =>
                       setCurrentSection(Math.max(0, currentSection - 1))
                     }
                     disabled={currentSection === 0}
-                    className="border-slate-600 text-slate-300 hover:bg-slate-800/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105"
+                    style={{
+                      borderColor: currentSection === 0 ? "rgba(148, 163, 184, 0.2)" : "var(--border-default)",
+                      color: currentSection === 0 ? "rgba(148, 163, 184, 0.5)" : "var(--text-secondary)",
+                      opacity: currentSection === 0 ? 0.5 : 1,
+                      cursor: currentSection === 0 ? "not-allowed" : "pointer",
+                      transition: "all 0.2s ease",
+                    }}
                   >
-                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    <ChevronLeft className="h-4 w-4 mr-2" />
                     Previous
                   </Button>
+
                   {currentSection < SECTIONS.length - 2 ? (
                     <Button
                       onClick={() => setCurrentSection(currentSection + 1)}
-                      className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-blue-500/30"
+                      style={{
+                        background: "linear-gradient(135deg, #2563eb, #0e7490)",
+                        color: "white",
+                        fontWeight: "600",
+                        transition: "all 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.target as HTMLElement).style.transform = "translateY(-1px)";
+                        (e.target as HTMLElement).style.boxShadow =
+                          "0 6px 20px rgba(34, 211, 238, 0.25)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.target as HTMLElement).style.transform = "translateY(0)";
+                        (e.target as HTMLElement).style.boxShadow =
+                          "0 4px 14px rgba(34, 211, 238, 0.15)";
+                      }}
                     >
                       Next Section
-                      <ChevronRight className="ml-2 h-4 w-4" />
+                      <ChevronRight className="h-4 w-4 ml-2" />
                     </Button>
                   ) : (
                     <Button
                       onClick={() => setCurrentSection(currentSection + 1)}
-                      className="bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/30"
+                      style={{
+                        background: "linear-gradient(135deg, #059669, #10b981)",
+                        color: "white",
+                        fontWeight: "600",
+                        transition: "all 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        (e.target as HTMLElement).style.transform = "translateY(-1px)";
+                        (e.target as HTMLElement).style.boxShadow =
+                          "0 6px 20px rgba(16, 185, 129, 0.25)";
+                      }}
+                      onMouseLeave={(e) => {
+                        (e.target as HTMLElement).style.transform = "translateY(0)";
+                        (e.target as HTMLElement).style.boxShadow =
+                          "0 4px 14px rgba(16, 185, 129, 0.15)";
+                      }}
                     >
                       Take the Quiz
-                      <Zap className="ml-2 h-4 w-4" />
+                      <Zap className="h-4 w-4 ml-2" />
                     </Button>
                   )}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </main>
 
-      <footer className="border-t border-slate-700/50 py-6 text-center text-xs text-slate-500 mt-8 bg-slate-900/50">
+      {/* Footer */}
+      <footer
+        className="border-t text-center text-xs py-6 mt-8"
+        style={{ backgroundColor: "rgba(12, 18, 32, 0.5)", borderColor: "var(--border-subtle)", color: "var(--text-muted)" }}
+      >
         <p>University of Arkansas - CSCE Capstone 2025 | PhishWise Training Platform</p>
       </footer>
     </div>

@@ -13,8 +13,27 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Mail, MousePointerClick, BookCheck, TrendingDown, CheckCircle2 } from "lucide-react";
+import { Mail, MousePointerClick, BookCheck, TrendingDown, CheckCircle2, Trophy, Shield } from "lucide-react";
 import { AmbientBackground } from "@/components/landing/AmbientBackground";
+
+type Achievement = {
+  id: string;
+  label: string;
+  desc: string;
+  icon: string;
+  color: string;
+  earned: boolean;
+  earnedAt: string | null;
+};
+
+type LeaderboardEntry = {
+  rank: number;
+  userId: string;
+  name: string;
+  avatarInitials: string;
+  totalScore: number;
+  isCurrentUser: boolean;
+};
 
 type SimEntry = {
   id: string;
@@ -31,6 +50,9 @@ function UserDashboardContent() {
   const [stats, setStats] = useState({ totalSent: 0, totalClicked: 0, totalCompleted: 0 });
   const [history, setHistory] = useState<SimEntry[]>([]);
   const [pendingTraining, setPendingTraining] = useState<{ id: string; name: string }[]>([]);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [userRank, setUserRank] = useState<LeaderboardEntry | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [emailFeedback, setEmailFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -40,7 +62,9 @@ function UserDashboardContent() {
     Promise.all([
       fetch("/api/users").then((r) => r.json()),
       fetch("/api/simulations?limit=50").then((r) => r.json()),
-    ]).then(([userData, simData]) => {
+      fetch("/api/achievements").then((r) => r.json()),
+      fetch("/api/leaderboard").then((r) => r.json()),
+    ]).then(([userData, simData, achieveData, lbData]) => {
       if (userData.metrics) {
         setStats(userData.metrics);
       } else {
@@ -60,6 +84,13 @@ function UserDashboardContent() {
       }
       if (userData.pendingTraining) {
         setPendingTraining(userData.pendingTraining);
+      }
+      if (achieveData.achievements) {
+        setAchievements(achieveData.achievements);
+      }
+      if (lbData.leaderboard) {
+        setLeaderboard(lbData.leaderboard.slice(0, 5));
+        setUserRank(lbData.userRank);
       }
       setDataLoading(false);
     });
@@ -230,6 +261,92 @@ function UserDashboardContent() {
             </div>
           </div>
         </div>
+
+        {/* Achievements */}
+        {achievements.length > 0 && (
+          <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <Trophy className="h-5 w-5 text-amber-400" />
+              <h2 className="text-lg font-semibold text-white">Achievements</h2>
+              <span className="ml-auto text-xs text-slate-500">
+                {achievements.filter((a) => a.earned).length}/{achievements.length} earned
+              </span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+              {achievements.map((badge) => (
+                <div
+                  key={badge.id}
+                  title={badge.earned ? `${badge.label}: ${badge.desc}` : `Locked: ${badge.desc}`}
+                  className={`flex flex-col items-center gap-2 rounded-xl border p-4 transition-all ${
+                    badge.earned
+                      ? "border-white/10 bg-white/5 cursor-default"
+                      : "border-white/[0.03] bg-white/[0.02] opacity-40 grayscale"
+                  }`}
+                >
+                  <span className="text-2xl leading-none">{badge.icon}</span>
+                  <span className="text-xs font-medium text-center text-slate-300 leading-tight">
+                    {badge.label}
+                  </span>
+                  {badge.earned && badge.earnedAt && (
+                    <span className="text-[10px] text-slate-500">
+                      {new Date(badge.earnedAt).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Leaderboard */}
+        {leaderboard.length > 0 && (
+          <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <Shield className="h-5 w-5 text-blue-400" />
+              <h2 className="text-lg font-semibold text-white">School Leaderboard</h2>
+              {userRank && (
+                <span className="ml-auto text-xs text-slate-400">
+                  Your rank: <span className="text-blue-400 font-semibold">#{userRank.rank}</span>
+                </span>
+              )}
+            </div>
+            <div className="space-y-2">
+              {leaderboard.map((entry) => {
+                const medalColor =
+                  entry.rank === 1 ? "text-amber-400" : entry.rank === 2 ? "text-slate-300" : entry.rank === 3 ? "text-amber-600" : "text-slate-500";
+                return (
+                  <div
+                    key={entry.userId}
+                    className={`flex items-center gap-4 rounded-lg px-4 py-3 transition-colors ${
+                      entry.isCurrentUser
+                        ? "border border-blue-500/30 bg-blue-500/10"
+                        : "border border-white/[0.03] bg-white/[0.02]"
+                    }`}
+                  >
+                    <span className={`text-sm font-bold w-6 ${medalColor}`}>
+                      {entry.rank <= 3 ? ["🥇", "🥈", "🥉"][entry.rank - 1] : `#${entry.rank}`}
+                    </span>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/20 text-xs font-bold text-blue-300 shrink-0">
+                      {entry.avatarInitials}
+                    </div>
+                    <span className={`flex-1 text-sm font-medium ${entry.isCurrentUser ? "text-blue-200" : "text-slate-300"}`}>
+                      {entry.name} {entry.isCurrentUser && <span className="text-xs text-slate-500">(you)</span>}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-20 rounded-full bg-white/10 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400"
+                          style={{ width: `${entry.totalScore}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-300 w-8 text-right">{entry.totalScore}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Recent Activity Section */}
         <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-[#1a1a2e]/80 backdrop-blur-sm">

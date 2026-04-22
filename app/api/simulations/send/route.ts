@@ -13,6 +13,7 @@ const log = apiLogger("/api/simulations/send");
 const sendSimulationSchema = z.object({
   userId: z.string().min(1, "User ID is required"),
   templateId: z.string().min(1, "Template ID is required"),
+  abTestId: z.string().optional(),
 });
 
 /**
@@ -41,7 +42,17 @@ export async function POST(request: NextRequest) {
       const e = errors.invalidInput(parsed.error.errors[0]?.message);
       return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
-    const { userId, templateId } = parsed.data;
+    let { userId, templateId, abTestId } = parsed.data;
+    let abTestGroup: string | undefined;
+
+    // A/B test: randomly assign control or variant template
+    if (abTestId) {
+      const abTest = await prisma.aBTest.findUnique({ where: { id: abTestId } });
+      if (abTest && abTest.status === "active") {
+        abTestGroup = Math.random() < 0.5 ? "control" : "variant";
+        templateId = abTestGroup === "control" ? abTest.controlTemplateId : abTest.variantTemplateId;
+      }
+    }
 
     const targetUser = await prisma.user.findUnique({
       where: { id: userId },
@@ -81,6 +92,8 @@ export async function POST(request: NextRequest) {
         templateId,
         sentAt: new Date(),
         status: "sent",
+        abTestId: abTestId ?? null,
+        abTestGroup: abTestGroup ?? null,
       },
     });
 

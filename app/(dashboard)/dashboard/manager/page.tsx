@@ -48,7 +48,7 @@ type UserPerformance = {
   clickRate: number;
   lastSimulation: string | null;
   trainingsCompleted: number;
-  trend: number;
+  riskScore: number;
 };
 
 type AnalyticsData = {
@@ -605,15 +605,11 @@ export default function ManagerDashboard() {
                   </tr>
                 ) : (
                   analytics.userPerformance.map((user) => {
+                    const risk = user.riskScore ?? user.clickRate;
                     let riskColor = "text-emerald-400";
                     let riskLabel = "Low";
-                    if (user.clickRate > 50) {
-                      riskColor = "text-red-400";
-                      riskLabel = "High";
-                    } else if (user.clickRate > 30) {
-                      riskColor = "text-amber-400";
-                      riskLabel = "Medium";
-                    }
+                    if (risk >= 60) { riskColor = "text-red-400"; riskLabel = "High"; }
+                    else if (risk >= 30) { riskColor = "text-amber-400"; riskLabel = "Medium"; }
 
                     return (
                       <tr
@@ -630,22 +626,18 @@ export default function ManagerDashboard() {
                         <td className="px-6 py-3 text-slate-300">{user.totalClicked}</td>
                         <td className="px-6 py-3">
                           <div className="flex items-center gap-2">
-                            <Progress
-                              value={user.clickRate}
-                              className="h-2 w-16 bg-gray-700"
-                            />
-                            <span className={riskColor}>
-                              {user.clickRate}%
-                            </span>
+                            <Progress value={user.clickRate} className="h-2 w-16 bg-gray-700" />
+                            <span className={riskColor}>{user.clickRate}%</span>
                           </div>
                         </td>
-                        <td className="px-6 py-3 text-slate-300">
-                          {user.trainingsCompleted}
-                        </td>
+                        <td className="px-6 py-3 text-slate-300">{user.trainingsCompleted}</td>
                         <td className="px-6 py-3">
-                          <Badge variant={riskLabel === "Low" ? "success" : riskLabel === "Medium" ? "warning" : "danger"}>
-                            {riskLabel}
-                          </Badge>
+                          <div className="flex flex-col gap-1">
+                            <Badge variant={riskLabel === "Low" ? "success" : riskLabel === "Medium" ? "warning" : "danger"}>
+                              {riskLabel}
+                            </Badge>
+                            <span className="text-[10px] text-slate-500">Risk: {risk}/100</span>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -743,6 +735,86 @@ export default function ManagerDashboard() {
         </div>
         </div>
       </div>
+
+      {/* Re-training Queue */}
+      {analytics?.userPerformance && analytics.userPerformance.filter((u) => (u.riskScore ?? u.clickRate) >= 60).length > 0 && (
+        <div>
+          <h2 className="mb-4 text-xs uppercase tracking-[0.18em] font-semibold text-red-400">
+            Re-training Queue
+          </h2>
+          <div className={glassCard}>
+            <div className="p-6 border-b border-white/[0.06]">
+              <h3 className="text-lg font-semibold text-white">High-Risk Users</h3>
+              <p className="mt-1 text-sm text-slate-300">
+                Users with a risk score ≥ 60 who need targeted training
+              </p>
+            </div>
+            <div className="divide-y divide-white/[0.03]">
+              {analytics.userPerformance
+                .filter((u) => (u.riskScore ?? u.clickRate) >= 60)
+                .sort((a, b) => (b.riskScore ?? b.clickRate) - (a.riskScore ?? a.clickRate))
+                .map((user) => {
+                  const score = user.riskScore ?? user.clickRate;
+                  const scoreColor = score >= 80 ? "#ef4444" : "#f59e0b";
+                  return (
+                    <div key={user.userId} className="flex items-center gap-4 px-6 py-4">
+                      <div
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                        style={{ background: `conic-gradient(${scoreColor} ${score * 3.6}deg, #1e3058 0deg)` }}
+                      >
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0c1220]">
+                          <span className="text-xs" style={{ color: scoreColor }}>{score}</span>
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-white truncate">{user.name}</p>
+                        <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-xs text-slate-400">{user.totalClicked} clicks / {user.totalSent} sent</p>
+                        <p className="text-xs text-slate-500">{user.trainingsCompleted} training done</p>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Recent Activity Feed */}
+      {analytics?.recentActivity && analytics.recentActivity.length > 0 && (
+        <div>
+          <h2 className="mb-4 text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
+            Recent Activity
+          </h2>
+          <div className={glassCard}>
+            <div className="divide-y divide-white/[0.03]">
+              {analytics.recentActivity.slice(0, 10).map((event, i) => {
+                const isClick = event.type === "simulation_clicked" || event.type === "phishing_failed";
+                const isComplete = event.type === "training_completed";
+                return (
+                  <div key={i} className="flex items-start gap-3 px-6 py-3">
+                    <div
+                      className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${isClick ? "bg-red-400" : isComplete ? "bg-emerald-400" : "bg-blue-400"}`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-slate-300">
+                        <span className="font-medium text-white">{event.userName}</span>{" "}
+                        {isClick ? "clicked a phishing link" : isComplete ? "completed training" : event.type.replace(/_/g, " ")}
+                        {event.details && <span className="text-slate-500"> — {event.details}</span>}
+                      </p>
+                    </div>
+                    <span className="text-xs text-slate-500 shrink-0">
+                      {new Date(event.timestamp).toLocaleDateString()}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Advanced Trigger Simulation Modal */}
       {showTriggerModal && (

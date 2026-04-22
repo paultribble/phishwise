@@ -36,6 +36,7 @@ model User {
   trainingHistory UserTraining[]
   history         UserHistory[]
   metrics         UserMetrics?
+  achievements    UserAchievement[]
 
   @@index([email])
   @@index([schoolId])
@@ -119,10 +120,14 @@ model SimulationEmail {
   campaignId String?
   campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
 
+  abTestId    String?
+  abTestGroup String?
+
   @@index([userId])
   @@index([templateId])
   @@index([trackingToken])
   @@index([sentAt])
+  @@index([abTestId])
 }
 
 model UserTraining {
@@ -166,6 +171,9 @@ model UserMetrics {
   lastActivity   DateTime?
   updatedAt      DateTime  @updatedAt
 
+  riskScore      Float?
+  riskUpdatedAt  DateTime?
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -183,6 +191,31 @@ model UserHistory {
   @@index([userId])
   @@index([actionType])
   @@index([createdAt])
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+model ABTest {
+  id                String    @id @default(cuid())
+  name              String
+  description       String?
+  controlTemplateId String
+  variantTemplateId String
+  status            String    @default("active")
+  startedAt         DateTime  @default(now())
+  endedAt           DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
 
 // One-time tokens for password reset ("reset") and magic link sign-in ("magic")

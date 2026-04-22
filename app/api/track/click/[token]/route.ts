@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { apiLogger } from "@/lib/logger";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { sendUserPhishClickAlert, sendManagerPhishAlert } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -34,8 +35,8 @@ export async function GET(
     const simEmail = await prisma.simulationEmail.findUnique({
       where: { trackingToken: token },
       include: {
-        template: { select: { moduleId: true } },
-        user: { select: { id: true, name: true } },
+        template: { select: { moduleId: true, name: true, module: { select: { name: true } } } },
+        user: { select: { id: true, name: true, email: true, schoolId: true } },
       },
     });
 
@@ -81,25 +82,62 @@ export async function GET(
         },
       });
 
-      // Create/update UserTraining record
-      const existingTraining = await prisma.userTraining.findUnique({
+      // Assign training for this module (upsert to avoid duplicate)
+      await prisma.userTraining.upsert({
         where: {
           userId_moduleId: {
             userId: simEmail.userId,
             moduleId: simEmail.template.moduleId,
           },
         },
+        update: { assignedAt: new Date() },
+        create: {
+          userId: simEmail.userId,
+          moduleId: simEmail.template.moduleId,
+          assignedAt: new Date(),
+        },
       });
 
-      if (!existingTraining) {
-        await prisma.userTraining.create({
-          data: {
-            userId: simEmail.userId,
-            moduleId: simEmail.template.moduleId,
-            assignedAt: new Date(),
-          },
-        });
-      }
+      // Fire-and-forget: send alert emails and notify manager
+      const baseUrl =
+        process.env.NEXTAUTH_URL ||
+        (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+      const trainingUrl = `${baseUrl}/training/${simEmail.template.moduleId}`;
+      const dashboardUrl = `${baseUrl}/dashboard/manager`;
+
+      Promise.all([
+        // Notify user
+        simEmail.user.email
+          ? sendUserPhishClickAlert(
+              simEmail.user.email,
+              simEmail.user.name || "there",
+              simEmail.template.module.name,
+              trainingUrl
+            ).catch(() => {})
+          : Promise.resolve(),
+
+        // Notify manager if user is in a school
+        simEmail.user.schoolId
+          ? prisma.user
+              .findFirst({
+                where: { schoolId: simEmail.user.schoolId, role: "MANAGER" },
+                select: { email: true, name: true },
+              })
+              .then((manager) => {
+                if (manager?.email) {
+                  return sendManagerPhishAlert(
+                    manager.email,
+                    manager.name || "Manager",
+                    simEmail.user.name || simEmail.user.email || "A user",
+                    simEmail.template.name,
+                    simEmail.user.schoolId!,
+                    dashboardUrl
+                  );
+                }
+              })
+              .catch(() => {})
+          : Promise.resolve(),
+      ]).catch(() => {});
     }
 
     // Redirect to "you got phished" warning page, then to training

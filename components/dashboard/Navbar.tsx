@@ -26,6 +26,7 @@ import {
   Shield,
   FileText,
   Clock,
+  FlaskConical,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -44,6 +45,7 @@ const adminNav = [
   { label: "Users", href: "/dashboard/admin/users", icon: Users },
   { label: "Templates", href: "/dashboard/admin/templates", icon: FileText },
   { label: "Modules", href: "/dashboard/admin/modules", icon: BookOpen },
+  { label: "A/B Tests", href: "/dashboard/admin/abtests", icon: FlaskConical },
   { label: "Scheduler", href: "/dashboard/admin/scheduler", icon: Clock },
 ];
 

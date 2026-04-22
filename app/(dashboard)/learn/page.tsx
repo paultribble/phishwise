@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, ExternalLink } from "lucide-react";
 import {
   Mail,
   Key,
@@ -53,6 +53,7 @@ type NewsItem = {
   url: string;
   source: string;
   publishedAt: string;
+  imageUrl?: string;
 };
 
 const iconMap = {
@@ -322,7 +323,7 @@ export default function LearnPage() {
 
           {/* Security News Tab */}
           {tab === "news" && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {news.length === 0 ? (
                 <div className="rounded-lg border border-slate-700 bg-slate-900/50 p-8 text-center">
                   <p className="text-slate-400">
@@ -330,37 +331,79 @@ export default function LearnPage() {
                   </p>
                 </div>
               ) : (
-                news.map((item) => (
-                  <a
-                    key={item.id}
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group block rounded-lg border border-slate-700 bg-slate-900/50 p-4 hover:border-slate-600 hover:bg-slate-900/70 transition-all"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xs font-semibold uppercase tracking-widest text-cyan-400">
-                            {item.source}
-                          </span>
-                          <span className="text-xs text-slate-500">
-                            {new Date(item.publishedAt).toLocaleDateString()}
-                          </span>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {news.map((item) => {
+                    const sourceColors: Record<string, { bg: string; accent: string }> = {
+                      "CISA": { bg: "from-blue-600 to-blue-800", accent: "blue" },
+                      "Krebs on Security": { bg: "from-red-600 to-red-800", accent: "red" },
+                      "Hacker News": { bg: "from-orange-600 to-orange-800", accent: "orange" },
+                      "SANS ISC": { bg: "from-purple-600 to-purple-800", accent: "purple" },
+                    };
+                    const colors = sourceColors[item.source] || { bg: "from-cyan-600 to-cyan-800", accent: "cyan" };
+                    const publishDate = new Date(item.publishedAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    });
+
+                    return (
+                      <a
+                        key={item.id}
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative overflow-hidden rounded-lg border border-slate-700 bg-slate-950 transition-all duration-300 hover:border-cyan-500 hover:shadow-lg hover:shadow-cyan-500/20"
+                      >
+                        {/* Preview Header with Image or Gradient */}
+                        <div
+                          className={`relative h-32 overflow-hidden bg-gradient-to-br ${colors.bg}`}
+                        >
+                          {item.imageUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = "none";
+                              }}
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Globe className="h-12 w-12 text-white/40" />
+                            </div>
+                          )}
+
+                          {/* Source Badge */}
+                          <div className="absolute top-2 right-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-sm border border-white/20">
+                            <span className={`text-xs font-bold uppercase tracking-wider text-${colors.accent}-300`}>
+                              {item.source}
+                            </span>
+                          </div>
                         </div>
-                        <h3 className="font-semibold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 mb-2">
-                          {item.title}
-                        </h3>
-                        <p className="text-sm text-slate-400 line-clamp-2">
-                          {item.summary}
-                        </p>
-                      </div>
-                      <span className="text-cyan-400 group-hover:translate-x-1 transition-transform flex-shrink-0">
-                        →
-                      </span>
-                    </div>
-                  </a>
-                ))
+
+                        {/* Content Section */}
+                        <div className="p-4 space-y-3">
+                          {/* Title */}
+                          <h3 className="font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2 text-sm leading-tight">
+                            {item.title}
+                          </h3>
+
+                          {/* Summary */}
+                          <p className="text-xs text-slate-400 line-clamp-2">
+                            {item.summary}
+                          </p>
+
+                          {/* Footer with Date and Link Arrow */}
+                          <div className="flex items-center justify-between pt-2 border-t border-slate-700">
+                            <span className="text-xs text-slate-500">{publishDate}</span>
+                            <ExternalLink className="h-4 w-4 text-cyan-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                          </div>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
               )}
             </div>
           )}

@@ -33,6 +33,7 @@ async function parseRSSFeed(url: string, source: string) {
       summary: string;
       url: string;
       publishedAt: Date;
+      imageUrl?: string;
     }> = [];
 
     const urlMatch = text.match(/<link>([^<]+)<\/link>/g) || [];
@@ -40,11 +41,22 @@ async function parseRSSFeed(url: string, source: string) {
     const descMatch = text.match(/<description>([^<]+)<\/description>/g) || [];
     const pubMatch = text.match(/<pubDate>([^<]+)<\/pubDate>/g) || [];
 
+    // Extract media URLs (RSS image elements)
+    const mediaMatch = text.match(/<media:content[^>]*url="([^"]+)"/gi) || [];
+    const imageMatch = text.match(/<image><url>([^<]+)<\/url>/gi) || [];
+
     for (let i = 1; i < Math.min(titleMatch.length, 5); i++) {
       const title = titleMatch[i]?.replace(/<\/?title>/g, "") || "Untitled";
       const summary = (descMatch[i]?.replace(/<\/?description>/g, "") || "No summary").substring(0, 300);
       const itemUrl = urlMatch[i]?.replace(/<\/?link>/g, "") || "";
       const pubDate = pubMatch[i]?.replace(/<\/?pubDate>/g, "") || new Date().toISOString();
+
+      // Try to extract image from media elements or use a placeholder
+      let imageUrl: string | undefined;
+      if (i <= mediaMatch.length) {
+        const match = mediaMatch[i - 1]?.match(/url="([^"]+)"/);
+        if (match) imageUrl = match[1];
+      }
 
       if (itemUrl) {
         items.push({
@@ -52,6 +64,7 @@ async function parseRSSFeed(url: string, source: string) {
           summary,
           url: itemUrl,
           publishedAt: new Date(pubDate),
+          imageUrl,
         });
       }
     }
@@ -81,6 +94,7 @@ export async function POST(request: NextRequest) {
       url: string;
       source: string;
       publishedAt: Date;
+      imageUrl?: string;
     }> = [];
 
     for (const feed of RSS_FEEDS) {
@@ -105,6 +119,7 @@ export async function POST(request: NextRequest) {
             url: item.url,
             source: item.source,
             publishedAt: item.publishedAt,
+            imageUrl: item.imageUrl,
             fetchedAt: new Date(),
           },
         });

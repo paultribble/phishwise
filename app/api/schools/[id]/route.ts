@@ -22,7 +22,7 @@ export async function PATCH(
   }
 
   try {
-    const { name, autoAssignTraining } = await req.json();
+    const { name, autoAssignTraining, leaderboardEnabled } = await req.json();
 
     // Verify user belongs to this school
     const userSchool = await prisma.user.findUnique({
@@ -40,6 +40,7 @@ export async function PATCH(
     const updateData: Record<string, unknown> = {};
     if (name) updateData.name = name;
     if (typeof autoAssignTraining === "boolean") updateData.autoAssignTraining = autoAssignTraining;
+    if (typeof leaderboardEnabled === "boolean") updateData.leaderboardEnabled = leaderboardEnabled;
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(

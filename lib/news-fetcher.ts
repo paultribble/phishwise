@@ -118,18 +118,47 @@ export interface NewsFetchResult {
 
 // Cybersecurity keywords to filter articles
 const SECURITY_KEYWORDS = [
+  // Core security terms
   "security", "phishing", "cyber", "malware", "virus", "hack", "attack",
   "breach", "vulnerability", "exploit", "password", "encryption", "threat",
-  "cve", "ransomware", "botnet", "ddos", "trojan", "worm", "spyware",
+
+  // Specific threat types
+  "cve", "ransomware", "botnet", "ddos", "trojan", "worm", "spyware", "trojan",
   "credential", "authentication", "ssl", "tls", "firewall", "intrusion",
   "incident", "forensics", "penetration", "audit", "compliance", "pci", "hipaa",
-  "gdpr", "ransomware", "zero-day", "patch", "update", "security patch",
-  "data breach", "phishing", "spear", "social engineering", "two-factor",
-  "mfa", "access control", "privilege", "endpoint", "network security",
+  "gdpr", "zero-day", "patch", "update", "security patch", "hotfix",
+  "data breach", "spear phishing", "social engineering", "two-factor",
+  "mfa", "access control", "privilege escalation", "endpoint", "network security",
   "cloud security", "application security", "api security", "code injection",
   "xss", "sql injection", "buffer overflow", "privilege escalation",
   "lateral movement", "command injection", "cross-site", "csrf", "cors",
   "security advisory", "alert", "warning", "threat intelligence",
+
+  // Vulnerabilities and fixes
+  "bug", "bugs", "fix", "fixed", "fixes", "patch management",
+  "vulnerability disclosure", "responsible disclosure",
+
+  // Cybercriminals and law enforcement
+  "cybercriminal", "hacker arrested", "indicted", "plea", "guilty",
+  "threat actor", "apt", "actor", "criminal", "arrested", "arrest",
+  "gang", "member", "botmaster", "stolen", "leak", "leaked",
+
+  // Fraud and scams
+  "fraud", "fraudster", "scam", "scamming", "phishing attack",
+
+  // Platforms and browsers
+  "ios", "android", "windows", "firefox", "chrome", "safari", "edge",
+  "browser", "mobile security", "email security",
+
+  // Organizations and compliance
+  "nist", "owasp", "sans", "cisa", "fbi", "secret service",
+  "data protection", "privacy", "identity", "identity theft",
+
+  // Additional threat-related terms
+  "malicious", "compromise", "compromised", "trojanized", "weaponized",
+  "backdoor", "rootkit", "webshell", "c2", "command and control",
+  "botnet", "botnet takedown", "infrastructure",
+  "spoofing", "impersonation", "deepfake",
 ];
 
 function decodeHtmlEntities(text: string): string {

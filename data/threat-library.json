@@ -6,7 +6,12 @@
     "summary": "Fraudulent emails designed to trick users into revealing sensitive information or downloading malware. Attackers impersonate legitimate companies to harvest credentials.",
     "indicators": ["Suspicious sender address", "Urgent calls to action", "Requests for passwords", "Misspelled company names", "Generic greetings"],
     "color": "from-red-600 to-red-400",
-    "icon": "Mail"
+    "icon": "Mail",
+    "articles": [
+      { "title": "Recognize and Report Phishing", "url": "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing", "source": "CISA" },
+      { "title": "How To Recognize and Avoid Phishing Scams", "url": "https://consumer.ftc.gov/articles/how-recognize-avoid-phishing-scams", "source": "FTC" },
+      { "title": "Phishing Guidance: Stopping the Attack Cycle at Phase One", "url": "https://www.cisa.gov/resources-tools/resources/phishing-guidance-stopping-attack-cycle-phase-one", "source": "CISA" }
+    ]
   },
   {
     "id": "credential-stuffing",
@@ -15,7 +20,12 @@
     "summary": "Attackers use leaked username/password pairs from data breaches to gain unauthorized access to other accounts. Users who reuse passwords are especially vulnerable.",
     "indicators": ["Unexpected login attempts", "Account lockouts", "Unauthorized profile changes", "New device logins"],
     "color": "from-orange-600 to-orange-400",
-    "icon": "Key"
+    "icon": "Key",
+    "articles": [
+      { "title": "Cyber Actors Conduct Credential Stuffing Attacks Against US Financial Sector", "url": "https://www.ic3.gov/CSA/2020/200929-1.pdf", "source": "FBI IC3" },
+      { "title": "NIST SP 800-63B: Digital Identity Guidelines", "url": "https://pages.nist.gov/800-63-4/sp800-63b.html", "source": "NIST" },
+      { "title": "Using Rigorous Credential Control to Mitigate Trusted Network Exploitation", "url": "https://us-cert.cisa.gov/ncas/alerts/TA18-276A", "source": "CISA" }
+    ]
   },
   {
     "id": "spear-phishing",
@@ -24,7 +34,12 @@
     "summary": "Targeted phishing attacks that use personalized information about the victim. Attackers research their targets on social media and public records.",
     "indicators": ["Personalized greetings with correct names", "References to recent projects", "Knowledge of company structure", "Urgent action needed from management"],
     "color": "from-red-600 to-pink-400",
-    "icon": "Target"
+    "icon": "Target",
+    "articles": [
+      { "title": "Sophisticated Spearphishing Campaign Targets Government Organizations", "url": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-148a", "source": "CISA" },
+      { "title": "CISA, NSA, FBI & MS-ISAC Guide on Preventing Phishing Intrusions", "url": "https://www.cisa.gov/news-events/news/cisa-nsa-fbi-ms-isac-publish-guide-preventing-phishing-intrusions", "source": "CISA" },
+      { "title": "Avoiding Social Engineering and Phishing Attacks", "url": "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", "source": "CISA" }
+    ]
   },
   {
     "id": "business-email-compromise",
@@ -33,7 +48,12 @@
     "summary": "Attackers compromise or impersonate business email accounts to fraudulently request wire transfers or sensitive data. Often targets financial departments.",
     "indicators": ["Requests to change wire transfer details", "Unusual payment requests from executives", "Slightly altered email addresses", "Pressure to act quickly"],
     "color": "from-red-700 to-red-500",
-    "icon": "AlertTriangle"
+    "icon": "AlertTriangle",
+    "articles": [
+      { "title": "Business Email Compromise: The $55 Billion Scam", "url": "https://www.ic3.gov/PSA/2024/PSA240911", "source": "FBI IC3" },
+      { "title": "Business Email Compromise", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams/business-email-compromise", "source": "FBI" },
+      { "title": "BEC Crime Information", "url": "https://www.ic3.gov/CrimeInfo/BEC", "source": "FBI IC3" }
+    ]
   },
   {
     "id": "malware-distribution",
@@ -42,7 +62,12 @@
     "summary": "Email attachments or links that distribute ransomware, trojans, or spyware. Often disguised as legitimate documents or software updates.",
     "indicators": ["Unexpected attachments", "Suspicious file extensions (.exe, .zip with .exe)", "Requests to enable macros", "Unknown sender with urgent message"],
     "color": "from-purple-600 to-purple-400",
-    "icon": "Bug"
+    "icon": "Bug",
+    "articles": [
+      { "title": "Ransomware — What It Is and What To Do About It", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams/ransomware", "source": "FBI" },
+      { "title": "#StopRansomware Resource Hub", "url": "https://www.cisa.gov/stopransomware", "source": "CISA" },
+      { "title": "Phishing Guidance: Stopping the Attack Cycle at Phase One", "url": "https://www.cisa.gov/resources-tools/resources/phishing-guidance-stopping-attack-cycle-phase-one", "source": "CISA" }
+    ]
   },
   {
     "id": "smishing",
@@ -51,7 +76,12 @@
     "summary": "Phishing attacks delivered via text messages. Often include links to fake login pages or malware. Increasingly targets mobile users.",
     "indicators": ["Urgent action needed immediately", "Click link to verify account", "Suspicious shortened URLs", "Threats of account suspension"],
     "color": "from-blue-600 to-blue-400",
-    "icon": "MessageSquare"
+    "icon": "MessageSquare",
+    "articles": [
+      { "title": "How to Recognize and Report Spam Text Messages", "url": "https://consumer.ftc.gov/articles/how-recognize-report-spam-text-messages", "source": "FTC" },
+      { "title": "Lookout SMS Phishing Assessment", "url": "https://www.cisa.gov/resources-tools/services/lookout-sms-phishing-assessment", "source": "CISA" },
+      { "title": "How To Recognize and Avoid Phishing Scams", "url": "https://consumer.ftc.gov/articles/how-recognize-avoid-phishing-scams", "source": "FTC" }
+    ]
   },
   {
     "id": "vishing",
@@ -60,7 +90,12 @@
     "summary": "Phone-based social engineering attacks where attackers impersonate trusted entities to extract sensitive information or credentials.",
     "indicators": ["Caller requests verification information", "Pressure to act immediately", "Threats of account closure or penalties", "Requests to bypass normal procedures"],
     "color": "from-green-600 to-green-400",
-    "icon": "Phone"
+    "icon": "Phone",
+    "articles": [
+      { "title": "Spoofing and Phishing", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams/spoofing-and-phishing", "source": "FBI" },
+      { "title": "Phone Scams", "url": "https://consumer.ftc.gov/phone-scams", "source": "FTC" },
+      { "title": "Fighting Back Against Harmful Voice Cloning", "url": "https://consumer.ftc.gov/consumer-alerts/2024/04/fighting-back-against-harmful-voice-cloning", "source": "FTC" }
+    ]
   },
   {
     "id": "watering-hole",
@@ -69,7 +104,12 @@
     "summary": "Attackers compromise websites frequently visited by a target group, infecting visitors with malware. Often targets industry-specific sites.",
     "indicators": ["Unusual pop-ups on trusted sites", "Browser warnings about security", "Unexpected redirects", "Site appears visually altered"],
     "color": "from-indigo-600 to-indigo-400",
-    "icon": "Droplet"
+    "icon": "Droplet",
+    "articles": [
+      { "title": "DNS Infrastructure Hijacking Campaign", "url": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa19-024a", "source": "CISA" },
+      { "title": "Avoiding Social Engineering and Phishing Attacks", "url": "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", "source": "CISA" },
+      { "title": "Sophisticated Spearphishing Campaign Targets Government Organizations", "url": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-148a", "source": "CISA" }
+    ]
   },
   {
     "id": "whaling",
@@ -78,7 +118,12 @@
     "summary": "Targeted phishing attacks against high-profile executives like CEOs and CFOs. Uses executive-specific language and requests.",
     "indicators": ["References to board meetings or mergers", "Requests from 'board members'", "Requests for large wire transfers", "Executive-level urgency"],
     "color": "from-red-700 to-orange-400",
-    "icon": "Crown"
+    "icon": "Crown",
+    "articles": [
+      { "title": "Business Email Compromise — The Executive Fraud Threat", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams/business-email-compromise", "source": "FBI" },
+      { "title": "Phishing Guidance: Stopping the Attack Cycle at Phase One", "url": "https://www.cisa.gov/resources-tools/resources/phishing-guidance-stopping-attack-cycle-phase-one", "source": "CISA" },
+      { "title": "Sophisticated Spearphishing Campaign Targets Government Organizations", "url": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-148a", "source": "CISA" }
+    ]
   },
   {
     "id": "fake-antivirus",
@@ -87,7 +132,12 @@
     "summary": "Malicious applications that pose as legitimate security software. Trick users into installing them by displaying fake security alerts.",
     "indicators": ["Unsolicited security pop-ups", "Requests to enter credit card info", "System claiming to be infected", "Cannot close the pop-up"],
     "color": "from-yellow-600 to-yellow-400",
-    "icon": "Shield"
+    "icon": "Shield",
+    "articles": [
+      { "title": "How To Spot, Avoid, and Report Tech Support Scams", "url": "https://consumer.ftc.gov/articles/how-spot-avoid-and-report-tech-support-scams", "source": "FTC" },
+      { "title": "Tech Support Scams", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams/tech-support-scams", "source": "FBI" },
+      { "title": "Avoiding Social Engineering and Phishing Attacks", "url": "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", "source": "CISA" }
+    ]
   },
   {
     "id": "data-harvesting",
@@ -96,7 +146,12 @@
     "summary": "Fake login pages and survey sites designed to collect personal information. Often target social media, banking, and email accounts.",
     "indicators": ["URL slightly different from legitimate site", "Login page looks slightly off", "Unsecured connection (HTTP not HTTPS)", "Unusual grammar or formatting"],
     "color": "from-red-600 to-rose-400",
-    "icon": "Copy"
+    "icon": "Copy",
+    "articles": [
+      { "title": "Recognize and Report Phishing", "url": "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing", "source": "CISA" },
+      { "title": "How To Recognize and Avoid Phishing Scams", "url": "https://consumer.ftc.gov/articles/how-recognize-avoid-phishing-scams", "source": "FTC" },
+      { "title": "DNS Infrastructure Hijacking Campaign", "url": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa19-024a", "source": "CISA" }
+    ]
   },
   {
     "id": "typosquatting",
@@ -105,7 +160,12 @@
     "summary": "Attackers register domain names similar to legitimate companies (one letter off). Users who mistype URLs are directed to fake sites.",
     "indicators": ["Domain name is almost correct", "Website looks similar to real company", "Suspicious redirects", "Mismatched branding"],
     "color": "from-blue-600 to-cyan-400",
-    "icon": "FileQuestion"
+    "icon": "FileQuestion",
+    "articles": [
+      { "title": "DNS Infrastructure Hijacking Campaign", "url": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa19-024a", "source": "CISA" },
+      { "title": "How To Recognize and Avoid Phishing Scams", "url": "https://consumer.ftc.gov/articles/how-recognize-avoid-phishing-scams", "source": "FTC" },
+      { "title": "Avoiding Social Engineering and Phishing Attacks", "url": "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", "source": "CISA" }
+    ]
   },
   {
     "id": "baiting",
@@ -114,7 +174,12 @@
     "summary": "Attackers offer something enticing (free software, gift cards) to trick users into downloading malware or revealing information.",
     "indicators": ["Too good to be true offers", "Unexpected rewards or prizes", "USB drives left in public", "Free software downloads from unknown sources"],
     "color": "from-pink-600 to-pink-400",
-    "icon": "Gift"
+    "icon": "Gift",
+    "articles": [
+      { "title": "Avoiding Social Engineering and Phishing Attacks", "url": "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", "source": "CISA" },
+      { "title": "How To Avoid Imposter Scams", "url": "https://consumer.ftc.gov/features/how-avoid-imposter-scams", "source": "FTC" },
+      { "title": "Common Frauds and Scams", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams", "source": "FBI" }
+    ]
   },
   {
     "id": "pretexting",
@@ -123,7 +188,12 @@
     "summary": "Social engineering technique where attackers create a fabricated scenario to extract information. Often impersonates IT support or authority figures.",
     "indicators": ["Requests for password verification", "Claims to be from IT/Security team", "Legitimate sounding reasons for requests", "Requests to bypass normal procedures"],
     "color": "from-cyan-600 to-blue-400",
-    "icon": "Users"
+    "icon": "Users",
+    "articles": [
+      { "title": "Avoiding Social Engineering and Phishing Attacks", "url": "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", "source": "CISA" },
+      { "title": "Impersonator Scams", "url": "https://consumer.ftc.gov/features/pass-it-on/impersonator-scams", "source": "FTC" },
+      { "title": "How To Avoid Imposter Scams", "url": "https://consumer.ftc.gov/features/how-avoid-imposter-scams", "source": "FTC" }
+    ]
   },
   {
     "id": "password-reset-scam",
@@ -132,7 +202,12 @@
     "summary": "Attackers trick users into using fake password reset links or provide incorrect password reset steps. Results in account compromise.",
     "indicators": ["Links in unexpected password reset emails", "Unusual email addresses requesting verification", "Requests to confirm unusual login attempts", "Multiple reset requests"],
     "color": "from-red-600 to-orange-500",
-    "icon": "LockOpen"
+    "icon": "LockOpen",
+    "articles": [
+      { "title": "Recognize and Report Phishing", "url": "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing", "source": "CISA" },
+      { "title": "How To Recognize and Avoid Phishing Scams", "url": "https://consumer.ftc.gov/articles/how-recognize-avoid-phishing-scams", "source": "FTC" },
+      { "title": "NIST SP 800-63B: Digital Identity Guidelines", "url": "https://pages.nist.gov/800-63-4/sp800-63b.html", "source": "NIST" }
+    ]
   },
   {
     "id": "dumpster-diving",
@@ -141,7 +216,12 @@
     "summary": "Attackers search trash for sensitive documents, passwords, or information that can be used to compromise accounts or physical security.",
     "indicators": ["Missing documents from desk", "Unshredded sensitive papers", "Discarded sticky notes with passwords", "Deleted files recoverable from recycling"],
     "color": "from-gray-600 to-gray-400",
-    "icon": "Trash2"
+    "icon": "Trash2",
+    "articles": [
+      { "title": "Protecting Your Personal Information: Practice Safe Data", "url": "https://consumer.ftc.gov/articles/protecting-your-personal-information-practice-safe-data", "source": "FTC" },
+      { "title": "Identity Theft", "url": "https://consumer.ftc.gov/identity-theft", "source": "FTC" },
+      { "title": "Avoiding Social Engineering and Phishing Attacks", "url": "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", "source": "CISA" }
+    ]
   },
   {
     "id": "shoulder-surfing",
@@ -150,7 +230,12 @@
     "summary": "Attackers watch over someone's shoulder to capture passwords, PINs, or sensitive information as they type or view screens.",
     "indicators": ["Suspicious people standing nearby", "Clear view of your screen from others", "Unusual interest in your work", "Uncomfortable feeling of being watched"],
     "color": "from-yellow-600 to-orange-400",
-    "icon": "Eye"
+    "icon": "Eye",
+    "articles": [
+      { "title": "Protecting Your Personal Information: Practice Safe Data", "url": "https://consumer.ftc.gov/articles/protecting-your-personal-information-practice-safe-data", "source": "FTC" },
+      { "title": "Identity Theft", "url": "https://consumer.ftc.gov/identity-theft", "source": "FTC" },
+      { "title": "Avoiding Social Engineering and Phishing Attacks", "url": "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", "source": "CISA" }
+    ]
   },
   {
     "id": "qr-code-phishing",
@@ -159,7 +244,12 @@
     "summary": "Fraudulent QR codes that direct users to phishing sites or malware. Often placed on posters, emails, or physical locations.",
     "indicators": ["QR codes in unexpected places", "Links to unfamiliar domains", "Poor print quality of QR code", "Requests for immediate action"],
     "color": "from-violet-600 to-violet-400",
-    "icon": "QrCode"
+    "icon": "QrCode",
+    "articles": [
+      { "title": "Cybercriminals Tampering with QR Codes to Steal Victim Funds", "url": "https://www.ic3.gov/PSA/2022/PSA220118", "source": "FBI IC3" },
+      { "title": "FBI Tech Tuesday: Building a Digital Defense Against QR Code Scams", "url": "https://www.fbi.gov/contact-us/field-offices/elpaso/news/fbi-tech-tuesday-building-a-digital-defense-against-qr-code-scams", "source": "FBI" },
+      { "title": "Phishing Guidance: Stopping the Attack Cycle at Phase One", "url": "https://www.cisa.gov/resources-tools/resources/phishing-guidance-stopping-attack-cycle-phase-one", "source": "CISA" }
+    ]
   },
   {
     "id": "payment-redirect-scam",
@@ -168,7 +258,12 @@
     "summary": "Attackers intercept invoices and redirect payments to fraudulent accounts. Often sent via email after compromising accounts.",
     "indicators": ["Invoice email from slightly wrong address", "New payment instructions in old accounts", "Unusual payment methods requested", "Requests to update payment information"],
     "color": "from-green-600 to-emerald-400",
-    "icon": "CreditCard"
+    "icon": "CreditCard",
+    "articles": [
+      { "title": "Business Email Compromise", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams/business-email-compromise", "source": "FBI" },
+      { "title": "Wire Transfer Scams", "url": "https://consumer.ftc.gov/all-scams/wire-transfer-scams", "source": "FTC" },
+      { "title": "What To Know Before You Wire Money", "url": "https://consumer.ftc.gov/articles/what-know-you-wire-money", "source": "FTC" }
+    ]
   },
   {
     "id": "clone-website",
@@ -177,7 +272,12 @@
     "summary": "Attackers create exact copies of legitimate websites to harvest credentials and sensitive information from unsuspecting users.",
     "indicators": ["URLs slightly different from legitimate", "Poor HTTPS certificate", "Recent domain registration", "Outdated content or information"],
     "color": "from-blue-700 to-blue-400",
-    "icon": "Copy"
+    "icon": "Copy",
+    "articles": [
+      { "title": "DNS Infrastructure Hijacking Campaign", "url": "https://www.cisa.gov/news-events/cybersecurity-advisories/aa19-024a", "source": "CISA" },
+      { "title": "Recognize and Report Phishing", "url": "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing", "source": "CISA" },
+      { "title": "How To Recognize and Avoid Phishing Scams", "url": "https://consumer.ftc.gov/articles/how-recognize-avoid-phishing-scams", "source": "FTC" }
+    ]
   },
   {
     "id": "invoice-fraud",
@@ -186,7 +286,12 @@
     "summary": "Scammers send fake invoices to companies, requesting payment for services or products never provided. Exploits trust in vendor relationships.",
     "indicators": ["Unusual company names or variations", "Different payment details than usual", "Urgent payment requests", "Missing official letterhead or details"],
     "color": "from-orange-600 to-red-400",
-    "icon": "FileText"
+    "icon": "FileText",
+    "articles": [
+      { "title": "Business Email Compromise: The $55 Billion Scam", "url": "https://www.ic3.gov/PSA/2024/PSA240911", "source": "FBI IC3" },
+      { "title": "Wire Transfer Scams", "url": "https://consumer.ftc.gov/all-scams/wire-transfer-scams", "source": "FTC" },
+      { "title": "Business Email Compromise", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams/business-email-compromise", "source": "FBI" }
+    ]
   },
   {
     "id": "tech-support-scam",
@@ -195,7 +300,12 @@
     "summary": "Scammers pose as tech support to convince users to grant remote access or pay for fake software. Often targets inexperienced users.",
     "indicators": ["Pop-up warnings about malware", "Unsolicited support calls", "Requests for remote access", "Requests for credit card information"],
     "color": "from-red-600 to-rose-400",
-    "icon": "HelpCircle"
+    "icon": "HelpCircle",
+    "articles": [
+      { "title": "How To Spot, Avoid, and Report Tech Support Scams", "url": "https://consumer.ftc.gov/articles/how-spot-avoid-and-report-tech-support-scams", "source": "FTC" },
+      { "title": "Tech Support Scams", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams/tech-support-scams", "source": "FBI" },
+      { "title": "FBI Warns: Tech Support Scammers Targeting Financial Accounts", "url": "https://www.fbi.gov/contact-us/field-offices/boston/news/press-releases/fbi-warns-public-to-beware-of-tech-support-scammers-targeting-financial-accounts-using-remote-desktop-software", "source": "FBI" }
+    ]
   },
   {
     "id": "account-enumeration",
@@ -204,7 +314,12 @@
     "summary": "Attackers test if usernames or emails exist in a system. Used to identify valid accounts before launching further attacks.",
     "indicators": ["Multiple login attempts with different passwords", "Password reset requests for many emails", "Account discovery via public listings", "Verification request emails"],
     "color": "from-indigo-600 to-purple-400",
-    "icon": "Search"
+    "icon": "Search",
+    "articles": [
+      { "title": "NIST SP 800-63B: Digital Identity Guidelines", "url": "https://pages.nist.gov/800-63-4/sp800-63b.html", "source": "NIST" },
+      { "title": "Phishing Guidance: Stopping the Attack Cycle at Phase One", "url": "https://www.cisa.gov/resources-tools/resources/phishing-guidance-stopping-attack-cycle-phase-one", "source": "CISA" },
+      { "title": "Avoiding Social Engineering and Phishing Attacks", "url": "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", "source": "CISA" }
+    ]
   },
   {
     "id": "social-media-impersonation",
@@ -213,7 +328,12 @@
     "summary": "Attackers create fake profiles impersonating individuals or companies to gain trust and trick victims into sharing information.",
     "indicators": ["Profile created very recently", "Few followers or friends", "Suspicious profile picture source", "Requests for personal information"],
     "color": "from-pink-600 to-rose-400",
-    "icon": "UserCheck"
+    "icon": "UserCheck",
+    "articles": [
+      { "title": "Impersonator Scams", "url": "https://consumer.ftc.gov/features/pass-it-on/impersonator-scams", "source": "FTC" },
+      { "title": "How To Avoid Imposter Scams", "url": "https://consumer.ftc.gov/features/how-avoid-imposter-scams", "source": "FTC" },
+      { "title": "Business Impersonator Scams", "url": "https://consumer.ftc.gov/features/pass-it-on/impersonator-scams/business-impersonator-scams", "source": "FTC" }
+    ]
   },
   {
     "id": "romance-scam",
@@ -222,7 +342,12 @@
     "summary": "Scammers create fake romantic relationships to build trust and eventually request money or sensitive information from victims.",
     "indicators": ["Quick professions of love", "Reluctance to video chat", "Stories about financial hardships", "Requests for money or gift cards"],
     "color": "from-rose-600 to-pink-400",
-    "icon": "Heart"
+    "icon": "Heart",
+    "articles": [
+      { "title": "What To Know About Romance Scams", "url": "https://consumer.ftc.gov/articles/what-know-about-romance-scams", "source": "FTC" },
+      { "title": "Romance Scams", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams/romance-scams", "source": "FBI" },
+      { "title": "Romance Scams — FTC Consumer Hub", "url": "https://consumer.ftc.gov/romance-scams", "source": "FTC" }
+    ]
   },
   {
     "id": "lottery-prize-scam",
@@ -231,7 +356,12 @@
     "summary": "Scammers notify victims that they've won a prize or lottery they didn't enter. Request payment for taxes or fees to claim the prize.",
     "indicators": ["Unexpected lottery notifications", "Requests for upfront payment", "Claims of big prize amounts", "Urgency to claim before deadline"],
     "color": "from-yellow-600 to-yellow-400",
-    "icon": "Trophy"
+    "icon": "Trophy",
+    "articles": [
+      { "title": "Fake Prize, Sweepstakes, and Lottery Scams", "url": "https://consumer.ftc.gov/articles/fake-prize-sweepstakes-and-lottery-scams", "source": "FTC" },
+      { "title": "Prize and Grant Scams", "url": "https://consumer.ftc.gov/all-scams/prize-grant-scams", "source": "FTC" },
+      { "title": "Common Frauds and Scams", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams", "source": "FBI" }
+    ]
   },
   {
     "id": "advance-fee-scam",
@@ -240,7 +370,12 @@
     "summary": "Scammers promise money, loans, or prizes but require upfront payment for processing fees, taxes, or verification. Disappear after receiving payment.",
     "indicators": ["Claims of easy money", "Requests for upfront fees", "Wealthy benefactors from unknown sources", "Grammar and spelling errors"],
     "color": "from-green-700 to-green-400",
-    "icon": "Zap"
+    "icon": "Zap",
+    "articles": [
+      { "title": "What To Do if You Were Scammed", "url": "https://consumer.ftc.gov/articles/what-do-if-you-were-scammed", "source": "FTC" },
+      { "title": "How To Avoid Imposter Scams", "url": "https://consumer.ftc.gov/features/how-avoid-imposter-scams", "source": "FTC" },
+      { "title": "Common Frauds and Scams", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams", "source": "FBI" }
+    ]
   },
   {
     "id": "nigerian-prince-scam",
@@ -249,7 +384,12 @@
     "summary": "Classic advance fee scam where scammers claim to have large sums of money requiring assistance to transfer. Victim pays upfront costs.",
     "indicators": ["Claims from foreign countries", "Vague business proposals", "Requests for banking details", "Poor grammar and awkward phrasing"],
     "color": "from-orange-700 to-orange-400",
-    "icon": "Globe"
+    "icon": "Globe",
+    "articles": [
+      { "title": "Common Frauds and Scams", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams", "source": "FBI" },
+      { "title": "Wire Transfer Scams", "url": "https://consumer.ftc.gov/all-scams/wire-transfer-scams", "source": "FTC" },
+      { "title": "What To Know Before You Wire Money", "url": "https://consumer.ftc.gov/articles/what-know-you-wire-money", "source": "FTC" }
+    ]
   },
   {
     "id": "irs-tax-scam",
@@ -258,7 +398,12 @@
     "summary": "Scammers impersonate tax authorities, threatening legal action or arrest. Demand immediate payment via gift cards or wire transfer.",
     "indicators": ["Threats of arrest or legal action", "Demands for immediate payment", "Requests for unconventional payment methods", "Unsolicited phone calls or emails"],
     "color": "from-blue-600 to-indigo-400",
-    "icon": "AlertCircle"
+    "icon": "AlertCircle",
+    "articles": [
+      { "title": "Recognize Tax Scams and Fraud", "url": "https://www.irs.gov/help/tax-scams/recognize-tax-scams-and-fraud", "source": "IRS" },
+      { "title": "IRS Impersonators", "url": "https://consumer.ftc.gov/irs-impersonators", "source": "FTC" },
+      { "title": "How To Avoid a Government Impersonation Scam", "url": "https://consumer.ftc.gov/articles/how-avoid-government-impersonation-scam", "source": "FTC" }
+    ]
   },
   {
     "id": "travel-booking-scam",
@@ -267,6 +412,11 @@
     "summary": "Fake travel websites offer deals that are too good to be true. Collect payment but never deliver the promised travel services.",
     "indicators": ["Prices significantly lower than competitors", "Non-standard booking process", "Unusual payment methods", "No contact information available"],
     "color": "from-cyan-600 to-blue-400",
-    "icon": "MapPin"
+    "icon": "MapPin",
+    "articles": [
+      { "title": "What To Do if You Were Scammed", "url": "https://consumer.ftc.gov/articles/what-do-if-you-were-scammed", "source": "FTC" },
+      { "title": "How To Avoid Imposter Scams", "url": "https://consumer.ftc.gov/features/how-avoid-imposter-scams", "source": "FTC" },
+      { "title": "Common Frauds and Scams", "url": "https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams", "source": "FBI" }
+    ]
   }
 ]

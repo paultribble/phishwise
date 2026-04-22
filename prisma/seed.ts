@@ -56,7 +56,7 @@ async function main() {
   }
 
   // Demo password (same for all demo accounts)
-  const demoPassword = "PhishWise2025!";
+  const demoPassword = "phishwise";
   const hashedPassword = await bcryptjs.hash(demoPassword, 12);
 
   // Create training modules from module configs
@@ -183,6 +183,11 @@ async function main() {
     { email: "henry.taylor@example.com", name: "Henry Taylor", clickRate: 0.48, simCount: 90 },
     { email: "isabella.anderson@example.com", name: "Isabella Anderson", clickRate: 0.35, simCount: 105 },
     { email: "james.thomas@example.com", name: "James Thomas", clickRate: 0.70, simCount: 70 },
+    { email: "milo.pumford@example.com", name: "Milo Pumford", clickRate: 0.32, simCount: 92 },
+    { email: "sarah.smith@example.com", name: "Sarah Smith", clickRate: 0.18, simCount: 115 },
+    { email: "shane.norden@example.com", name: "Shane Norden", clickRate: 0.51, simCount: 88 },
+    { email: "victor.berrios@example.com", name: "Victor Berrios", clickRate: 0.28, simCount: 102 },
+    { email: "warren.olvey@example.com", name: "Warren Olvey", clickRate: 0.58, simCount: 78 },
   ];
 
   const createdUsers = [];
@@ -305,7 +310,52 @@ async function main() {
     }
   }
 
-  console.log(`✅ Created ${trainingRecordCount} UserTraining records`);
+  console.log(`✅ Created ${trainingRecordCount} UserTraining records for clicked simulations`);
+
+  // Assign comprehensive training modules to all users (both completed and pending)
+  console.log("📚 Assigning comprehensive training modules to all users...");
+  let additionalTrainingCount = 0;
+
+  for (const user of createdUsers) {
+    // Get all modules already assigned to this user
+    const assignedModules = await prisma.userTraining.findMany({
+      where: { userId: user.id },
+      select: { moduleId: true },
+    });
+    const assignedModuleIds = new Set(assignedModules.map((m) => m.moduleId));
+
+    // Assign remaining modules to this user
+    for (const module of validModules) {
+      if (assignedModuleIds.has(module.id)) {
+        continue; // Already assigned
+      }
+
+      // Users with lower click rates (safer) should have higher training completion
+      // Users with higher click rates (less safe) should have lower completion
+      const completionLikelihood = 1 - user.clickRate; // Inverse of click rate
+      const isCompleted = Math.random() < completionLikelihood;
+
+      // Assign the module
+      const assignedDate = new Date(Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000); // Random date in last 60 days
+      const completedDate = isCompleted
+        ? new Date(assignedDate.getTime() + Math.random() * 14 * 24 * 60 * 60 * 1000) // Completed within 14 days of assignment
+        : null;
+
+      await prisma.userTraining.create({
+        data: {
+          userId: user.id,
+          moduleId: module.id,
+          assignedAt: assignedDate,
+          completedAt: completedDate,
+          score: isCompleted ? Math.floor(Math.random() * 30) + 70 : null, // 70-100 if completed
+        },
+      });
+
+      additionalTrainingCount++;
+    }
+  }
+
+  console.log(`✅ Assigned ${additionalTrainingCount} additional training modules (mix of completed and pending)`);
 
   // Initialize user metrics for all demo users
   console.log("📈 Initializing user metrics...");

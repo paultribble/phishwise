@@ -27,6 +27,7 @@ type School = {
   frequency: string;
   autoAssignTraining: boolean;
   enableScheduler: boolean;
+  leaderboardEnabled: boolean;
 };
 
 export default function ManagerSettings() {
@@ -38,6 +39,7 @@ export default function ManagerSettings() {
   const [frequency, setFrequency] = useState("weekly");
   const [autoAssignTraining, setAutoAssignTraining] = useState(false);
   const [enableScheduler, setEnableScheduler] = useState(true);
+  const [leaderboardEnabled, setLeaderboardEnabled] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -64,6 +66,7 @@ export default function ManagerSettings() {
           setFrequency(data.user.school.frequency || "weekly");
           setAutoAssignTraining(data.user.school.autoAssignTraining || false);
           setEnableScheduler(data.user.school.enableScheduler !== false);
+          setLeaderboardEnabled(data.user.school.leaderboardEnabled !== false);
         }
         setLoading(false);
       });
@@ -135,6 +138,16 @@ export default function ManagerSettings() {
       );
     }
 
+    if (leaderboardEnabled !== school.leaderboardEnabled) {
+      updatePromises.push(
+        fetch(`/api/schools/${school.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ leaderboardEnabled }),
+        })
+      );
+    }
+
     try {
       const results = await Promise.all(updatePromises);
       const failed = results.filter((r) => !r.ok);
@@ -145,7 +158,7 @@ export default function ManagerSettings() {
         setSaveSuccess(true);
         setSchool((prev) =>
           prev
-            ? { ...prev, name: schoolName, frequency, autoAssignTraining, enableScheduler }
+            ? { ...prev, name: schoolName, frequency, autoAssignTraining, enableScheduler, leaderboardEnabled }
             : null
         );
         setTimeout(() => setSaveSuccess(false), 3000);
@@ -385,6 +398,20 @@ export default function ManagerSettings() {
             />
             <label htmlFor="enable-scheduler" className="text-sm font-medium text-slate-300">
               Enable automated phishing simulations
+            </label>
+          </div>
+
+          {/* Enable Leaderboard */}
+          <div className="flex items-center gap-3">
+            <input
+              id="enable-leaderboard"
+              type="checkbox"
+              checked={leaderboardEnabled}
+              onChange={(e) => setLeaderboardEnabled(e.target.checked)}
+              className="h-4 w-4 cursor-pointer rounded border-white/10 bg-[#252540] text-blue-600"
+            />
+            <label htmlFor="enable-leaderboard" className="text-sm font-medium text-slate-300">
+              Enable school leaderboard (shows user rankings and scores)
             </label>
           </div>
 

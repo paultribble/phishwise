@@ -58,7 +58,10 @@
       "Bash(npx next:*)",
       "Read(//d C:/Users/Ptribble/Desktop/Github Linked Projects/**)",
       "Bash(npx tsc:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(cat)",
+      "Bash(bash /tmp/interactive-test.sh)",
+      "Bash(npm test *)"
     ]
   },
   "enableAllProjectMcpServers": true,

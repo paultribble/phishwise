@@ -53,10 +53,11 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
     [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live",
-      "style-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' data: https://fonts.gstatic.com",
       "img-src 'self' https: data:",
-      "font-src 'self' data:",
       "connect-src 'self' https:",
+      "frame-src 'self' https://vercel.live",
       "frame-ancestors 'none'",
     ].join('; ')
   )

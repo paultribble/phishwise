@@ -63,7 +63,13 @@ function UserDashboardContent() {
       fetch("/api/users").then((r) => r.json()),
       fetch("/api/simulations?limit=50").then((r) => r.json()),
       fetch("/api/achievements").then((r) => r.json()),
-      fetch("/api/leaderboard").then((r) => r.json()),
+      fetch("/api/leaderboard").then((r) => {
+        if (!r.ok && r.status === 403) {
+          // Leaderboard disabled by school manager
+          return { leaderboard: null, userRank: null };
+        }
+        return r.json();
+      }),
     ]).then(([userData, simData, achieveData, lbData]) => {
       if (userData.metrics) {
         setStats(userData.metrics);

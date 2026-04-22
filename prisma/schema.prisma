@@ -56,9 +56,10 @@ model School {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  frequency       String   @default("weekly")
-  enableScheduler Boolean  @default(true)
-  cronExpression  String?
+  frequency            String  @default("weekly")
+  enableScheduler      Boolean @default(true)
+  cronExpression       String?
+  leaderboardEnabled   Boolean @default(true)
 
   users     User[]
   campaigns Campaign[]

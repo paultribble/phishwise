@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { apiLogger } from "@/lib/logger";
+import { detectPhishing } from "@/lib/phishing-detector";
 import Anthropic from "@anthropic-ai/sdk";
 
 const log = apiLogger("/api/scan/analyze");
@@ -33,9 +34,20 @@ export async function POST(request: NextRequest) {
       "Analyzing screenshot for phishing"
     );
 
-    const client = new Anthropic();
+    if (!process.env.ANTHROPIC_API_KEY) {
+      log.error({}, "ANTHROPIC_API_KEY environment variable not set");
+      return NextResponse.json(
+        { error: "API configuration error" },
+        { status: 500 }
+      );
+    }
 
-    const message = await client.messages.create({
+    const client = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+
+    // Step 1: Extract text from image using Claude vision
+    const extractMessage = await client.messages.create({
       model: "claude-3-5-sonnet-20241022",
       max_tokens: 1024,
       messages: [
@@ -52,45 +64,25 @@ export async function POST(request: NextRequest) {
             },
             {
               type: "text",
-              text: `Analyze this email or text message screenshot for phishing/scam indicators.
-
-Provide your analysis in this exact JSON format:
-{
-  "riskLevel": "LOW" | "MEDIUM" | "HIGH",
-  "confidence": 0.0 to 1.0,
-  "verdict": "LEGITIMATE" | "LIKELY PHISHING" | "CONFIRMED PHISHING",
-  "redFlags": ["flag1", "flag2", ...],
-  "explanation": "Brief explanation of findings"
-}
-
-Look for:
-- Urgency language ("ACT NOW", "24 hours", "URGENT")
-- Requests for credentials or personal info
-- Suspicious sender addresses or domain names
-- Misspellings or poor grammar
-- Links that don't match claimed sender
-- Too good to be true offers (prizes, money)
-- Requests to click links or download attachments
-- Threats of account closure or consequences
-
-Be thorough but concise. Always return valid JSON.`,
+              text: "Extract all text content from this email or text message screenshot. Return only the text content, nothing else.",
             },
           ],
         },
       ],
     });
 
-    // Extract the text response
-    const responseText =
-      message.content[0].type === "text" ? message.content[0].text : "";
+    // Extract the text content
+    const extractedText =
+      extractMessage.content[0].type === "text"
+        ? extractMessage.content[0].text
+        : "";
 
-    // Parse JSON from response
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("Could not parse analysis response");
+    if (!extractedText) {
+      throw new Error("Could not extract text from image");
     }
 
-    const analysis = JSON.parse(jsonMatch[0]);
+    // Step 2: Analyze the extracted text using rule-based detector
+    const analysis = detectPhishing(extractedText);
 
     log.info(
       {

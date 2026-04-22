@@ -15,6 +15,19 @@ export async function GET() {
     return NextResponse.json({ leaderboard: [], userRank: null });
   }
 
+  // Check if leaderboard is enabled for this school
+  const school = await prisma.school.findUnique({
+    where: { id: session.user.schoolId },
+    select: { leaderboardEnabled: true },
+  });
+
+  if (!school?.leaderboardEnabled) {
+    return NextResponse.json(
+      { error: "Leaderboard is disabled for this school" },
+      { status: 403 }
+    );
+  }
+
   const schoolUsers = await prisma.user.findMany({
     where: { schoolId: session.user.schoolId, role: "USER" },
     include: { metrics: true },

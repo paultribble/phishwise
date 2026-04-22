@@ -23,6 +23,9 @@ import {
   Settings,
   Send,
   Download,
+  Users,
+  Target,
+  BookOpen,
 } from "lucide-react";
 import { bebas, playfair } from "@/lib/fonts";
 import { AmbientBackground } from "@/components/landing/AmbientBackground";
@@ -417,17 +420,14 @@ export default function ManagerDashboard() {
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-white">
-                Welcome back,{" "}
-                <span className={`${bebas.className} tracking-widest text-4xl`}>
-                  {session?.user?.name ?? "Manager"}
-                </span>
+              <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-2">
+                School Management
+              </p>
+              <h1 className={`text-4xl font-bold text-white ${playfair.className}`}>
+                {analytics?.school.name}
               </h1>
-              <p className="mt-1 text-slate-300">
-                <span className={`${playfair.className} text-white`}>
-                  {analytics?.school.name}
-                </span>
-                {" "}&mdash; phishing awareness overview
+              <p className="mt-2 text-slate-300">
+                Oversee phishing awareness training for {analytics?.school.totalUsers ?? 0} members
               </p>
             </div>
             <div className="flex gap-2 shrink-0 flex-wrap">
@@ -496,10 +496,10 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      {/* Quick Stats */}
+      {/* School Health Metrics */}
       <div>
         <h2 className="mb-4 text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
-          School Performance
+          School Health Metrics
         </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <div className={`${glassCard} p-5 relative overflow-hidden`}>
@@ -517,7 +517,7 @@ export default function ManagerDashboard() {
         <div className={`${glassCard} p-5 relative overflow-hidden`}>
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Simulations Clicked</span>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Clicked</span>
               <MousePointerClick className="h-4 w-4 text-red-400" />
             </div>
             <div className="text-2xl font-bold text-red-400">
@@ -529,7 +529,7 @@ export default function ManagerDashboard() {
         <div className={`${glassCard} p-5 relative overflow-hidden`}>
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Avg Click Rate</span>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">School Click Rate</span>
               <TrendingDown className="h-4 w-4 text-amber-400" />
             </div>
             <div className="text-2xl font-bold text-amber-400">
@@ -541,7 +541,7 @@ export default function ManagerDashboard() {
         <div className={`${glassCard} p-5 relative overflow-hidden`}>
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Users at Risk</span>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">High Risk Members</span>
               <ShieldAlert className="h-4 w-4 text-red-400" />
             </div>
             <div className="text-2xl font-bold text-red-400">
@@ -555,9 +555,14 @@ export default function ManagerDashboard() {
       {/* Team Performance Section */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
-            Team Performance
-          </h2>
+          <div>
+            <h2 className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-1">
+              School Members
+            </h2>
+            <p className="text-sm text-slate-400">
+              Performance metrics for all school members
+            </p>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={() => {
@@ -577,9 +582,9 @@ export default function ManagerDashboard() {
           <div className="p-6 border-b border-white/[0.06]">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-white">User Performance</h3>
+                <h3 className="text-lg font-semibold text-white">Performance by Member</h3>
                 <p className="mt-1 text-sm text-slate-300">
-                  Click rates and training completion for all users
+                  Awareness score and training progress across all members
                 </p>
               </div>
             </div>
@@ -604,44 +609,72 @@ export default function ManagerDashboard() {
                     </td>
                   </tr>
                 ) : (
-                  analytics.userPerformance.map((user) => {
-                    const risk = user.riskScore ?? user.clickRate;
-                    let riskColor = "text-emerald-400";
-                    let riskLabel = "Low";
-                    if (risk >= 60) { riskColor = "text-red-400"; riskLabel = "High"; }
-                    else if (risk >= 30) { riskColor = "text-amber-400"; riskLabel = "Medium"; }
+                  analytics.userPerformance
+                    .filter((user) => {
+                      const isManager = user.email === session?.user?.email;
+                      const hasParticipated = user.totalSent > 0;
+                      return !isManager || hasParticipated;
+                    })
+                    .length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-slate-500">
+                        No participant data yet. Invite and send simulations to users to see performance metrics.
+                      </td>
+                    </tr>
+                  ) : (
+                    analytics.userPerformance
+                      .filter((user) => {
+                        const isManager = user.email === session?.user?.email;
+                        const hasParticipated = user.totalSent > 0;
+                        return !isManager || hasParticipated;
+                      })
+                      .map((user) => {
+                        const risk = user.riskScore ?? user.clickRate;
+                        let riskColor = "text-emerald-400";
+                        let riskLabel = "Low";
+                        if (risk >= 60) { riskColor = "text-red-400"; riskLabel = "High"; }
+                        else if (risk >= 30) { riskColor = "text-amber-400"; riskLabel = "Medium"; }
+                        const isManager = user.email === session?.user?.email;
 
-                    return (
-                      <tr
-                        key={user.userId}
-                        className="border-b border-white/[0.03] last:border-0 hover:bg-white/[0.02] transition-colors"
-                      >
-                        <td className="px-6 py-3">
-                          <div>
-                            <div className="font-medium text-white">{user.name}</div>
-                            <div className="text-xs text-slate-400">{user.email}</div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-3 text-slate-300">{user.totalSent}</td>
-                        <td className="px-6 py-3 text-slate-300">{user.totalClicked}</td>
-                        <td className="px-6 py-3">
-                          <div className="flex items-center gap-2">
-                            <Progress value={user.clickRate} className="h-2 w-16 bg-gray-700" />
-                            <span className={riskColor}>{user.clickRate}%</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-3 text-slate-300">{user.trainingsCompleted}</td>
-                        <td className="px-6 py-3">
-                          <div className="flex flex-col gap-1">
-                            <Badge variant={riskLabel === "Low" ? "success" : riskLabel === "Medium" ? "warning" : "danger"}>
-                              {riskLabel}
-                            </Badge>
-                            <span className="text-[10px] text-slate-500">Risk: {risk}/100</span>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
+                        return (
+                          <tr
+                            key={user.userId}
+                            className={`border-b border-white/[0.03] last:border-0 hover:bg-white/[0.02] transition-colors ${isManager ? "bg-blue-500/10" : ""}`}
+                          >
+                            <td className="px-6 py-3">
+                              <div className="flex items-center gap-2">
+                                <div>
+                                  <div className="font-medium text-white">{user.name}</div>
+                                  <div className="text-xs text-slate-400">{user.email}</div>
+                                </div>
+                                {isManager && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    Manager
+                                  </Badge>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-3 text-slate-300">{user.totalSent}</td>
+                            <td className="px-6 py-3 text-slate-300">{user.totalClicked}</td>
+                            <td className="px-6 py-3">
+                              <div className="flex items-center gap-2">
+                                <Progress value={user.clickRate} className="h-2 w-16 bg-gray-700" />
+                                <span className={riskColor}>{user.clickRate}%</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-3 text-slate-300">{user.trainingsCompleted}</td>
+                            <td className="px-6 py-3">
+                              <div className="flex flex-col gap-1">
+                                <Badge variant={riskLabel === "Low" ? "success" : riskLabel === "Medium" ? "warning" : "danger"}>
+                                  {riskLabel}
+                                </Badge>
+                                <span className="text-[10px] text-slate-500">Risk: {risk}/100</span>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                  )
                 )}
               </tbody>
             </table>

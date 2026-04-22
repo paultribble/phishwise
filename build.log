@@ -1,0 +1,9 @@
+
+> phishwise@0.1.0 build
+> prisma db push --skip-generate || true && next build
+
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "postgres", schema "public" at "db.prisma.io:5432"
+
+The database is already in sync with the Prisma schema.
+

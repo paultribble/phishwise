@@ -202,27 +202,6 @@ export default function TrainingModulePage() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--bg-base)" }}>
-      {/* Navbar */}
-      <header
-        className="sticky top-0 z-100 border-b"
-        style={{ backgroundColor: "rgba(12, 18, 32, 0.85)", borderColor: "var(--border-subtle)", backdropFilter: "blur(16px)" }}
-      >
-        <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="p-1.5 rounded-lg" style={{ backgroundColor: "rgba(34, 211, 238, 0.1)" }}>
-              <Shield className="h-5 w-5" style={{ color: "var(--accent-primary)" }} />
-            </div>
-            <span className="text-lg font-bold" style={{ background: "linear-gradient(135deg, #f1f5f9, #22d3ee)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              PhishWise
-            </span>
-          </Link>
-          <Link href="/dashboard/user" className="text-sm flex items-center gap-2 group transition-colors hover:text-blue-300" style={{ color: "var(--text-secondary)" }}>
-            <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-            Back to Dashboard
-          </Link>
-        </div>
-      </header>
-
       {/* Phishing Click Alert */}
       {token && (
         <div className="mx-auto max-w-6xl w-full px-6 pt-6">

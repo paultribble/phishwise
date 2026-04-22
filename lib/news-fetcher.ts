@@ -116,6 +116,63 @@ export interface NewsFetchResult {
   timestamp: Date;
 }
 
+// Cybersecurity keywords to filter articles
+const SECURITY_KEYWORDS = [
+  "security", "phishing", "cyber", "malware", "virus", "hack", "attack",
+  "breach", "vulnerability", "exploit", "password", "encryption", "threat",
+  "cve", "ransomware", "botnet", "ddos", "trojan", "worm", "spyware",
+  "credential", "authentication", "ssl", "tls", "firewall", "intrusion",
+  "incident", "forensics", "penetration", "audit", "compliance", "pci", "hipaa",
+  "gdpr", "ransomware", "zero-day", "patch", "update", "security patch",
+  "data breach", "phishing", "spear", "social engineering", "two-factor",
+  "mfa", "access control", "privilege", "endpoint", "network security",
+  "cloud security", "application security", "api security", "code injection",
+  "xss", "sql injection", "buffer overflow", "privilege escalation",
+  "lateral movement", "command injection", "cross-site", "csrf", "cors",
+  "security advisory", "alert", "warning", "threat intelligence",
+];
+
+function decodeHtmlEntities(text: string): string {
+  const entities: Record<string, string> = {
+    "&amp;": "&",
+    "&lt;": "<",
+    "&gt;": ">",
+    "&quot;": '"',
+    "&#39;": "'",
+    "&apos;": "'",
+    "&#8216;": "'",
+    "&#8217;": "'",
+    "&#8220;": '"',
+    "&#8221;": '"',
+    "&#8212;": "—",
+    "&#8211;": "–",
+  };
+
+  let decoded = text;
+  for (const [entity, char] of Object.entries(entities)) {
+    decoded = decoded.replace(new RegExp(entity, "g"), char);
+  }
+
+  // Also handle numeric entities like &#123;
+  decoded = decoded.replace(/&#(\d+);/g, (match, dec) => {
+    return String.fromCharCode(parseInt(dec, 10));
+  });
+
+  // Handle hex entities like &#x1F;
+  decoded = decoded.replace(/&#x([0-9a-f]+);/gi, (match, hex) => {
+    return String.fromCharCode(parseInt(hex, 16));
+  });
+
+  return decoded;
+}
+
+function isSecurityRelated(title: string, summary: string): boolean {
+  const decodedTitle = decodeHtmlEntities(title);
+  const decodedSummary = decodeHtmlEntities(summary);
+  const text = (decodedTitle + " " + decodedSummary).toLowerCase();
+  return SECURITY_KEYWORDS.some(keyword => text.includes(keyword));
+}
+
 export async function fetchAndStoreNews(): Promise<NewsFetchResult> {
   const feedResults: NewsFetchResult["feedResults"] = [];
   let totalFetched = 0;
@@ -133,6 +190,12 @@ export async function fetchAndStoreNews(): Promise<NewsFetchResult> {
 
       for (const item of items) {
         try {
+          // Filter for security-related content only
+          if (!isSecurityRelated(item.title, item.summary)) {
+            console.log(`⊘ Skipping non-security article: ${item.title}`);
+            continue;
+          }
+
           const result = await prisma.newsItem.upsert({
             where: { url: item.url },
             update: {

@@ -38,6 +38,23 @@ async function main() {
     console.log("ℹ️  No existing data to clean (first run)");
   }
 
+  // Clean up old news articles from deprecated sources (e.g., Hacker News)
+  console.log("🗑️  Cleaning up non-security news articles...");
+  try {
+    const deletedNews = await prisma.newsItem.deleteMany({
+      where: {
+        source: {
+          in: ["Hacker News"], // Remove articles from non-security sources
+        },
+      },
+    });
+    if (deletedNews.count > 0) {
+      console.log(`✅ Removed ${deletedNews.count} non-security articles`);
+    }
+  } catch (error) {
+    console.log("ℹ️  No old articles to clean");
+  }
+
   // Demo password (same for all demo accounts)
   const demoPassword = "PhishWise2025!";
   const hashedPassword = await bcryptjs.hash(demoPassword, 12);

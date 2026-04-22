@@ -1,6 +1,7 @@
 import { PrismaClient, Role } from "@prisma/client";
 import * as bcryptjs from "bcryptjs";
 import { ALL_MODULES } from "@/lib/modules";
+import { fetchAndStoreNews } from "@/lib/news-fetcher";
 
 const prisma = new PrismaClient();
 
@@ -325,6 +326,20 @@ async function main() {
   }
 
   console.log(`✅ Initialized metrics for ${createdUsers.length} users`);
+
+  // Fetch and store security news
+  console.log("🔄 Fetching security news from RSS feeds...");
+  try {
+    const newsResult = await fetchAndStoreNews();
+    console.log(
+      `✅ Security news fetched: ${newsResult.totalFetched} items, ${newsResult.totalStored} stored`
+    );
+  } catch (error) {
+    console.warn(
+      "⚠️  Could not fetch security news (RSS feeds may be unavailable):",
+      error instanceof Error ? error.message : String(error)
+    );
+  }
 
   // Print demo credentials
   console.log("\n" + "=".repeat(70));

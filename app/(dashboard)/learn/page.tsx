@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { Search, Filter, ExternalLink } from "lucide-react";
+import { Search, Filter, ExternalLink, RefreshCw } from "lucide-react";
 import {
   Mail,
   Key,
@@ -97,6 +97,8 @@ export default function LearnPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [newsLoading, setNewsLoading] = useState(false);
+  const [lastFetchedAt, setLastFetchedAt] = useState<Date | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -122,11 +124,15 @@ export default function LearnPage() {
 
   async function fetchNews() {
     try {
+      setNewsLoading(true);
       const res = await fetch("/api/news?limit=20");
       const data = await res.json();
       setNews(data.news);
+      setLastFetchedAt(new Date());
     } catch (error) {
       console.error("Failed to fetch news:", error);
+    } finally {
+      setNewsLoading(false);
     }
   }
 
@@ -171,27 +177,46 @@ export default function LearnPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-2 border-b border-slate-700 pb-4">
-            <button
-              onClick={() => setTab("library")}
-              className={`px-6 py-2 font-medium transition-colors ${
-                tab === "library"
-                  ? "border-b-2 border-cyan-400 text-cyan-300"
-                  : "text-slate-400 hover:text-slate-300"
-              }`}
-            >
-              Threat Library
-            </button>
-            <button
-              onClick={() => setTab("news")}
-              className={`px-6 py-2 font-medium transition-colors ${
-                tab === "news"
-                  ? "border-b-2 border-cyan-400 text-cyan-300"
-                  : "text-slate-400 hover:text-slate-300"
-              }`}
-            >
-              Security News
-            </button>
+          <div className="flex gap-2 border-b border-slate-700 pb-4 items-center justify-between">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setTab("library")}
+                className={`px-6 py-2 font-medium transition-colors ${
+                  tab === "library"
+                    ? "border-b-2 border-cyan-400 text-cyan-300"
+                    : "text-slate-400 hover:text-slate-300"
+                }`}
+              >
+                Threat Library
+              </button>
+              <button
+                onClick={() => setTab("news")}
+                className={`px-6 py-2 font-medium transition-colors ${
+                  tab === "news"
+                    ? "border-b-2 border-cyan-400 text-cyan-300"
+                    : "text-slate-400 hover:text-slate-300"
+                }`}
+              >
+                Security News
+              </button>
+            </div>
+            {tab === "news" && (
+              <div className="flex items-center gap-3">
+                {lastFetchedAt && (
+                  <span className="text-xs text-slate-500">
+                    Updated {lastFetchedAt.toLocaleTimeString()}
+                  </span>
+                )}
+                <button
+                  onClick={() => fetchNews()}
+                  disabled={newsLoading}
+                  className="p-2 rounded-lg bg-slate-900/50 border border-slate-700 text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Refresh news"
+                >
+                  <RefreshCw className={`h-4 w-4 ${newsLoading ? "animate-spin" : ""}`} />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Threat Library Tab */}

@@ -167,28 +167,6 @@ function UserDashboardContent() {
           </div>
         )}
 
-        {/* Pending Training Alert */}
-        {pendingTraining.length > 0 && (
-          <div className="relative overflow-hidden rounded-xl border border-amber-500/20 bg-amber-500/10 backdrop-blur-sm p-6">
-            <h2 className="text-lg font-semibold text-amber-300">Pending Training</h2>
-            <p className="mt-1 text-sm text-amber-200/70">
-              Complete these modules to improve your awareness score
-            </p>
-            <div className="mt-4 space-y-3">
-              {pendingTraining.map((mod) => (
-                <div key={mod.id} className="flex items-center justify-between rounded-lg border border-amber-500/20 bg-black/20 px-4 py-3">
-                  <span className="text-slate-200">{mod.name}</span>
-                  <Link
-                    href={`/training/${mod.id}`}
-                    className="text-sm font-medium text-amber-400 hover:text-amber-300 cursor-pointer"
-                  >
-                    Complete Training →
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Join School CTA */}
         {!session.user.schoolId && (

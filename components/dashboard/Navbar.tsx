@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,6 +69,17 @@ export function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [pendingTrainingCount, setPendingTrainingCount] = useState(0);
+
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    fetch("/api/users")
+      .then((r) => r.json())
+      .then((data) => {
+        setPendingTrainingCount(data.pendingTraining?.length || 0);
+      })
+      .catch(() => setPendingTrainingCount(0));
+  }, [session?.user?.id]);
 
   const role = session?.user?.role;
   const navItems =
@@ -102,12 +114,15 @@ export function Navbar() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
+            const isTrainingLink = item.label === "Training";
+            const showBadge = isTrainingLink && pendingTrainingCount > 0;
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors relative",
                   isActive
                     ? "bg-primary-500/10 text-primary-400"
                     : "text-gray-400 hover:bg-gray-800 hover:text-gray-200"
@@ -115,6 +130,11 @@ export function Navbar() {
               >
                 <Icon className="h-4 w-4" />
                 {item.label}
+                {showBadge && (
+                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                    {pendingTrainingCount}
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -189,13 +209,16 @@ export function Navbar() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
+            const isTrainingLink = item.label === "Training";
+            const showBadge = isTrainingLink && pendingTrainingCount > 0;
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors relative",
                   isActive
                     ? "bg-primary-500/10 text-primary-400"
                     : "text-gray-400 hover:bg-gray-800 hover:text-gray-200"
@@ -203,6 +226,11 @@ export function Navbar() {
               >
                 <Icon className="h-4 w-4" />
                 {item.label}
+                {showBadge && (
+                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                    {pendingTrainingCount}
+                  </span>
+                )}
               </Link>
             );
           })}

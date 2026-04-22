@@ -23,6 +23,7 @@
     "library:enrich": "tsx scripts/fetch-threat-data.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.3.0",
     "@radix-ui/react-avatar": "^1.1.2",

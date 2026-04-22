@@ -29,12 +29,14 @@ import {
   Clock,
   FlaskConical,
   Library,
+  Zap,
 } from "lucide-react";
 
 const userNav = [
   { label: "Dashboard", href: "/dashboard/user", icon: LayoutDashboard },
   { label: "Training", href: "/training", icon: BookOpen },
   { label: "Learn", href: "/learn", icon: Library },
+  { label: "Scanner", href: "/dashboard/user/scan", icon: Zap },
 ];
 
 const managerNav = [

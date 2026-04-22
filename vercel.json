@@ -3,5 +3,9 @@
   "installCommand": "npm install",
   "env": {
     "ENVIRONMENT": "production"
-  }
+  },
+  "crons": [{
+    "path": "/api/scheduler/fetch-news",
+    "schedule": "0 6 * * *"
+  }]
 }

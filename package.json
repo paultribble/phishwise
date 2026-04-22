@@ -19,7 +19,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "validate:email": "node scripts/validate-email.js"
+    "validate:email": "node scripts/validate-email.js",
+    "library:enrich": "tsx scripts/fetch-threat-data.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

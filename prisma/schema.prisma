@@ -231,3 +231,17 @@ model AuthToken {
   @@index([token])
   @@index([email])
 }
+
+model NewsItem {
+  id          String   @id @default(cuid())
+  title       String
+  summary     String   @db.Text
+  url         String   @unique
+  source      String
+  publishedAt DateTime
+  fetchedAt   DateTime @default(now())
+  imageUrl    String?
+
+  @@index([publishedAt])
+  @@index([source])
+}

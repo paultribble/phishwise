@@ -27,17 +27,20 @@ import {
   FileText,
   Clock,
   FlaskConical,
+  Library,
 } from "lucide-react";
 import { useState } from "react";
 
 const userNav = [
   { label: "Dashboard", href: "/dashboard/user", icon: LayoutDashboard },
   { label: "Training", href: "/training", icon: BookOpen },
+  { label: "Learn", href: "/learn", icon: Library },
 ];
 
 const managerNav = [
   { label: "Overview", href: "/dashboard/manager", icon: LayoutDashboard },
   { label: "Training", href: "/dashboard/manager/modules", icon: BookOpen },
+  { label: "Learn", href: "/learn", icon: Library },
 ];
 
 const adminNav = [
@@ -47,6 +50,7 @@ const adminNav = [
   { label: "Modules", href: "/dashboard/admin/modules", icon: BookOpen },
   { label: "A/B Tests", href: "/dashboard/admin/abtests", icon: FlaskConical },
   { label: "Scheduler", href: "/dashboard/admin/scheduler", icon: Clock },
+  { label: "Learn", href: "/learn", icon: Library },
 ];
 
 function getLogoHref(role?: string): string {

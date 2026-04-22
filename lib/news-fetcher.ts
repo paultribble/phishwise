@@ -16,19 +16,23 @@ interface FeedConfig {
 const RSS_FEEDS: FeedConfig[] = [
   {
     url: "https://www.cisa.gov/feeds/alerts.xml",
-    source: "CISA",
+    source: "CISA Alerts",
   },
   {
     url: "https://krebsonsecurity.com/feed/",
     source: "Krebs on Security",
   },
   {
-    url: "https://news.ycombinator.com/rss",
-    source: "Hacker News",
-  },
-  {
     url: "https://isc.sans.edu/feeds/daily-stormcast.xml",
     source: "SANS ISC",
+  },
+  {
+    url: "https://www.bleepingcomputer.com/feed/",
+    source: "Bleeping Computer",
+  },
+  {
+    url: "https://www.securityweek.com/feed/",
+    source: "SecurityWeek",
   },
 ];
 

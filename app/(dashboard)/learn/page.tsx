@@ -36,6 +36,12 @@ import {
   MapPin,
 } from "lucide-react";
 
+type ThreatArticle = {
+  title: string;
+  url: string;
+  source: string;
+};
+
 type ThreatItem = {
   id: string;
   category: string;
@@ -44,6 +50,7 @@ type ThreatItem = {
   indicators: string[];
   color: string;
   icon: keyof typeof iconMap;
+  articles?: ThreatArticle[];
 };
 
 type NewsItem = {
@@ -315,21 +322,51 @@ export default function LearnPage() {
                         </button>
 
                         {isExpanded && (
-                          <div className="pt-3 border-t border-slate-700 space-y-2">
-                            <p className="text-xs font-semibold text-slate-300 uppercase">
-                              Red Flags
-                            </p>
-                            <ul className="space-y-1">
-                              {threat.indicators.slice(0, 4).map((ind, i) => (
-                                <li
-                                  key={i}
-                                  className="text-xs text-slate-400 flex gap-2"
-                                >
-                                  <span className="text-red-400 mt-0.5">•</span>
-                                  {ind}
-                                </li>
-                              ))}
-                            </ul>
+                          <div className="pt-3 border-t border-slate-700 space-y-4">
+                            <div className="space-y-2">
+                              <p className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                Red Flags
+                              </p>
+                              <ul className="space-y-1">
+                                {threat.indicators.slice(0, 4).map((ind, i) => (
+                                  <li
+                                    key={i}
+                                    className="text-xs text-slate-400 flex gap-2"
+                                  >
+                                    <span className="text-red-400 mt-0.5">•</span>
+                                    {ind}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+
+                            {threat.articles && threat.articles.length > 0 && (
+                              <div className="space-y-2">
+                                <p className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                  Further Reading
+                                </p>
+                                <ul className="space-y-1.5">
+                                  {threat.articles.map((article, i) => (
+                                    <li key={i}>
+                                      <a
+                                        href={article.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-start gap-2 group"
+                                      >
+                                        <ExternalLink className="h-3 w-3 mt-0.5 flex-shrink-0 text-cyan-500 group-hover:text-cyan-300 transition-colors" />
+                                        <span className="text-xs text-cyan-400 group-hover:text-cyan-300 transition-colors leading-snug">
+                                          {article.title}
+                                          <span className="ml-1 text-slate-500 group-hover:text-slate-400">
+                                            — {article.source}
+                                          </span>
+                                        </span>
+                                      </a>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -359,10 +396,11 @@ export default function LearnPage() {
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {news.map((item) => {
                     const sourceColors: Record<string, { bg: string; accent: string }> = {
-                      "CISA": { bg: "from-blue-600 to-blue-800", accent: "blue" },
+                      "CISA Alerts": { bg: "from-blue-600 to-blue-800", accent: "blue" },
                       "Krebs on Security": { bg: "from-red-600 to-red-800", accent: "red" },
-                      "Hacker News": { bg: "from-orange-600 to-orange-800", accent: "orange" },
                       "SANS ISC": { bg: "from-purple-600 to-purple-800", accent: "purple" },
+                      "Bleeping Computer": { bg: "from-teal-600 to-teal-800", accent: "teal" },
+                      "SecurityWeek": { bg: "from-amber-600 to-amber-800", accent: "amber" },
                     };
                     const colors = sourceColors[item.source] || { bg: "from-cyan-600 to-cyan-800", accent: "cyan" };
                     const publishDate = new Date(item.publishedAt).toLocaleDateString("en-US", {

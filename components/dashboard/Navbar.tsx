@@ -30,7 +30,6 @@ import {
   FlaskConical,
   Library,
 } from "lucide-react";
-import { useState } from "react";
 
 const userNav = [
   { label: "Dashboard", href: "/dashboard/user", icon: LayoutDashboard },

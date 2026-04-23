@@ -129,7 +129,6 @@ export default function ManagerDashboard() {
     moduleName: string;
   } | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
-  const [debugOutput, setDebugOutput] = useState<string[]>([]);
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -197,9 +196,8 @@ export default function ManagerDashboard() {
         }))
       );
       setTemplates(templateList);
-      addDebugLog(`Loaded ${templateList.length} templates from ${data.modules.length} modules`);
     } catch (error) {
-      addDebugLog(`Failed to load templates: ${error}`);
+      console.error("Failed to load templates:", error);
     }
   }
 
@@ -226,10 +224,6 @@ export default function ManagerDashboard() {
     }
   }
 
-  function addDebugLog(msg: string) {
-    const timestamp = new Date().toLocaleTimeString();
-    setDebugOutput((prev) => [...prev, `[${timestamp}] ${msg}`]);
-  }
 
   function getFilteredUsers() {
     if (!analytics?.userPerformance) return [];
@@ -245,54 +239,36 @@ export default function ManagerDashboard() {
 
   async function handleTriggerSimulation() {
     setTriggeringSimulation(true);
-    setDebugOutput([]);
-    addDebugLog("Preparing to send simulations...");
 
     if (!selectedTemplateId) {
-      addDebugLog("ERROR: No template selected");
       setTriggeringSimulation(false);
       return;
     }
 
     const usersToSend = Array.from(selectedUsers);
     if (usersToSend.length === 0) {
-      addDebugLog("ERROR: No users selected");
       setTriggeringSimulation(false);
       return;
     }
 
-    addDebugLog(`Selected ${usersToSend.length} user(s) to receive simulation`);
-    addDebugLog(`Template ID: ${selectedTemplateId}`);
-
     try {
-      addDebugLog("Sending simulations to API...");
       const res = await fetch("/api/simulations/send-batch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userIds: usersToSend,
           templateId: selectedTemplateId,
-          debug: true,
         }),
       });
 
-      const data = await res.json();
-      addDebugLog(`API Response Status: ${res.status}`);
-
-      if (data.debug?.logs) {
-        data.debug.logs.forEach((log: string) => addDebugLog(log));
-      }
-
       if (res.ok) {
-        addDebugLog(`✅ Successfully sent to ${data.sent} user(s)`);
-        if (data.failed > 0) {
-          addDebugLog(`⚠️ Failed to send to ${data.failed} user(s)`);
-        }
-      } else {
-        addDebugLog(`ERROR: ${data.error || "Failed to send simulations"}`);
+        setShowTriggerModal(false);
+        setSelectedUsers(new Set());
+        setSelectAll(false);
+        setSelectedTemplateId("");
       }
     } catch (error) {
-      addDebugLog(`ERROR: ${error instanceof Error ? error.message : String(error)}`);
+      console.error("Failed to send simulations:", error);
     } finally {
       setTriggeringSimulation(false);
     }
@@ -442,7 +418,6 @@ export default function ManagerDashboard() {
                 onClick={() => {
                   setShowTriggerModal(true);
                   loadTemplates();
-                  setDebugOutput([]);
                 }}
                 className="rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white shadow-[0_0_15px_rgba(29,78,216,0.3)] transition-colors hover:bg-blue-600"
               >
@@ -568,7 +543,6 @@ export default function ManagerDashboard() {
               onClick={() => {
                 setShowTriggerModal(true);
                 loadTemplates();
-                setDebugOutput([]);
               }}
               className="text-sm px-3 py-1.5 rounded border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors cursor-pointer"
             >
@@ -1059,33 +1033,6 @@ export default function ManagerDashboard() {
               </div>
             </div>
 
-            {/* Debug Output */}
-            {debugOutput.length > 0 && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Debug Output
-                </label>
-                <div className="max-h-48 overflow-y-auto rounded-md border border-white/[0.06] bg-[#0f0f1a] p-3 font-mono text-xs space-y-1">
-                  {debugOutput.map((log, i) => (
-                    <div
-                      key={i}
-                      className={
-                        log.includes("ERROR") || log.includes("❌")
-                          ? "text-red-400"
-                          : log.includes("✅")
-                          ? "text-emerald-400"
-                          : log.includes("⚠️")
-                          ? "text-amber-400"
-                          : "text-slate-300"
-                      }
-                    >
-                      {log}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Buttons */}
             <div className="flex gap-2">
               <button
@@ -1105,7 +1052,6 @@ export default function ManagerDashboard() {
                   setShowTriggerModal(false);
                   setSelectedUsers(new Set());
                   setSelectAll(false);
-                  setDebugOutput([]);
                   setSelectedTemplateId("");
                 }}
                 disabled={triggeringSimulation}

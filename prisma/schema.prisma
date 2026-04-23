@@ -74,6 +74,7 @@ model TrainingModule {
   content     String   @db.Text
   orderIndex  Int      @default(0)
   isActive    Boolean  @default(true)
+  videoUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

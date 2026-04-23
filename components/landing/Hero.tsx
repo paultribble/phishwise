@@ -200,11 +200,11 @@ export function Hero() {
 
 function FloatingParticles() {
   const particles = [
-    { top: "20%", left: "10%", delay: "0s", anim: "anim-float-a", size: 2, opacity: 0.4 },
-    { top: "45%", left: "88%", delay: "1.5s", anim: "anim-float-b", size: 3, opacity: 0.3 },
-    { top: "70%", left: "15%", delay: "3s", anim: "anim-float-c", size: 2, opacity: 0.35 },
+    { top: "20%", left: "10%", delay: "0s", anim: "anim-float-a", size: 3, opacity: 0.35 },
+    { top: "45%", left: "88%", delay: "1.5s", anim: "anim-float-b", size: 2, opacity: 0.3 },
+    { top: "70%", left: "15%", delay: "3s", anim: "anim-float-c", size: 2, opacity: 0.28 },
     { top: "30%", left: "75%", delay: "0.8s", anim: "anim-float-a", size: 2, opacity: 0.25 },
-    { top: "60%", left: "55%", delay: "2.2s", anim: "anim-float-b", size: 3, opacity: 0.2 },
+    { top: "60%", left: "55%", delay: "2.2s", anim: "anim-float-b", size: 3, opacity: 0.22 },
     { top: "15%", left: "50%", delay: "4s", anim: "anim-float-c", size: 2, opacity: 0.3 },
     { top: "80%", left: "70%", delay: "1s", anim: "anim-float-a", size: 2, opacity: 0.25 },
   ];
@@ -223,6 +223,8 @@ function FloatingParticles() {
             opacity: p.opacity,
             animationDelay: p.delay,
             filter: "blur(1px)",
+            willChange: "transform",
+            backfaceVisibility: "hidden",
           }}
         />
       ))}

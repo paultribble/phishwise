@@ -71,8 +71,8 @@ function UserDashboardContent() {
         return r.json();
       }),
     ]).then(([userData, simData, achieveData, lbData]) => {
-      if (userData.metrics) {
-        setStats(userData.metrics);
+      if (userData.user?.metrics) {
+        setStats(userData.user.metrics);
       } else {
         // If no metrics yet, ensure we have zeros instead of undefined
         setStats({ totalSent: 0, totalClicked: 0, totalCompleted: 0 });

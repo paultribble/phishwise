@@ -86,10 +86,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
 
+    const trackingToken = `tk_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
+
     const simulation = await prisma.simulationEmail.create({
       data: {
         userId,
         templateId,
+        trackingToken,
         sentAt: new Date(),
         status: "sent",
         abTestId: abTestId ?? null,

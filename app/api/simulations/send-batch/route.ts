@@ -175,10 +175,12 @@ export async function POST(request: NextRequest) {
 
         // Create simulation record
         addLog(`  → Creating simulation record in database`);
+        const trackingToken = `tk_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
         const simulation = await prisma.simulationEmail.create({
           data: {
             userId: user.id,
             templateId: template.id,
+            trackingToken,
             sentAt: new Date(),
             status: "sent",
           },

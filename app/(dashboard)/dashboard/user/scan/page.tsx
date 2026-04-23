@@ -85,9 +85,9 @@ export default function ScanPage() {
     setError("");
     setResult(null);
 
-    try {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
         const base64 = (e.target?.result as string).split(",")[1];
 
         const response = await fetch("/api/scan/analyze", {
@@ -106,14 +106,19 @@ export default function ScanPage() {
         }
 
         setResult(data.analysis);
-      };
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Analysis failed");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      reader.readAsDataURL(image);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Analysis failed");
-    } finally {
+    reader.onerror = () => {
+      setError("Failed to read file");
       setLoading(false);
-    }
+    };
+
+    reader.readAsDataURL(image);
   };
 
   const getRiskColor = (level: string) => {

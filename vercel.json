@@ -1,4 +1,11 @@
 {
   "buildCommand": "npm run build",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "env": {
+    "ENVIRONMENT": "production"
+  },
+  "crons": [{
+    "path": "/api/scheduler/fetch-news",
+    "schedule": "0 6 * * *"
+  }]
 }

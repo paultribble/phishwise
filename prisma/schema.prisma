@@ -27,6 +27,8 @@ model User {
   role           Role      @default(USER)
   schoolId       String?
   lastSimulation DateTime?
+  unsubscribedAt            DateTime?
+  simulationFrequencyOverride String?
 
   // Relations
   school          School?           @relation(fields: [schoolId], references: [id], onDelete: SetNull)
@@ -34,6 +36,7 @@ model User {
   trainingHistory UserTraining[]
   history         UserHistory[]
   metrics         UserMetrics?
+  achievements    UserAchievement[]
 
   @@index([email])
   @@index([schoolId])
@@ -53,8 +56,10 @@ model School {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  frequency       String   @default("weekly")
-  enableScheduler Boolean  @default(true)
+  frequency            String  @default("weekly")
+  enableScheduler      Boolean @default(true)
+  cronExpression       String?
+  leaderboardEnabled   Boolean @default(true)
 
   users     User[]
   campaigns Campaign[]
@@ -69,6 +74,7 @@ model TrainingModule {
   content     String   @db.Text
   orderIndex  Int      @default(0)
   isActive    Boolean  @default(true)
+  videoUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -116,10 +122,14 @@ model SimulationEmail {
   campaignId String?
   campaign   Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
 
+  abTestId    String?
+  abTestGroup String?
+
   @@index([userId])
   @@index([templateId])
   @@index([trackingToken])
   @@index([sentAt])
+  @@index([abTestId])
 }
 
 model UserTraining {
@@ -163,6 +173,9 @@ model UserMetrics {
   lastActivity   DateTime?
   updatedAt      DateTime  @updatedAt
 
+  riskScore      Float?
+  riskUpdatedAt  DateTime?
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -182,6 +195,31 @@ model UserHistory {
   @@index([createdAt])
 }
 
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+}
+
+model ABTest {
+  id                String    @id @default(cuid())
+  name              String
+  description       String?
+  controlTemplateId String
+  variantTemplateId String
+  status            String    @default("active")
+  startedAt         DateTime  @default(now())
+  endedAt           DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
 // One-time tokens for password reset ("reset") and magic link sign-in ("magic")
 model AuthToken {
   id        String    @id @default(cuid())
@@ -194,4 +232,18 @@ model AuthToken {
 
   @@index([token])
   @@index([email])
+}
+
+model NewsItem {
+  id          String   @id @default(cuid())
+  title       String
+  summary     String   @db.Text
+  url         String   @unique
+  source      String
+  publishedAt DateTime
+  fetchedAt   DateTime @default(now())
+  imageUrl    String?
+
+  @@index([publishedAt])
+  @@index([source])
 }

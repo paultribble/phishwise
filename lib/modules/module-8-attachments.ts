@@ -1,106 +1,97 @@
 import { TrainingModuleConfig } from "./types";
+import { TrainingModuleContent } from "@/types/training";
 import {
   ATTACHMENTS_SHARED_DOCUMENT,
   ATTACHMENTS_FORM_SUBMISSION,
 } from "@/lib/email-templates-generic";
 
+const moduleContent: TrainingModuleContent = {
+  overview: `Some phishing emails try to get you to open a file or click a document link. These messages may look like a receipt, a scanned document, a shared file, or a "secure message." They often say you need to view something important right away.`,
+  tactics: [
+    {
+      name: "Curiosity",
+      description: "See the attached invoice",
+    },
+    {
+      name: "Urgency",
+      description: "Document expires today",
+    },
+    {
+      name: "Trust",
+      description: "Shared with you via Google Docs / OneDrive",
+    },
+    {
+      name: "Authority",
+      description: "HR policy update or secure message",
+    },
+    {
+      name: "Confusion",
+      description: "They use vague titles so you open it to find out",
+    },
+  ],
+  redFlags: [
+    "You were not expecting a document or attachment",
+    "The email is vague: 'Please review' with no context",
+    "The file name is generic or weird",
+    "The link says you must sign in again to view a document",
+    "The sender is unfamiliar or slightly off",
+    "The message pressures you to open it quickly",
+    "The email asks you to enable something like 'macros' or 'editing'",
+  ],
+  objective: `These scams usually aim for one of two outcomes:
+1. Credential theft - A fake document link leads to a fake login page that steals your username, password, or code
+2. Malware - The attachment or download tries to install harmful software on your device
+
+If attackers get into your email, they can reset passwords for many other accounts.`,
+  examples: [
+    {
+      title: "Shared Document",
+      body: "A document has been shared with you securely. Please review and sign today to avoid delay.\n\n[View Secure Document]",
+      redFlags: [
+        "You did not expect a shared document",
+        "Vague request with no details",
+        "Urgent deadline",
+        "Link to view the document",
+      ],
+    },
+    {
+      title: "Invoice Attached",
+      body: "Your invoice is attached. Your payment is past due. Open the attachment to review charges and avoid late fees.\n\nAttachment: Invoice_10492.pdf",
+      redFlags: [
+        "Unexpected invoice",
+        "Pressure to avoid fees",
+        "Generic greeting",
+        "Attachment you did not request",
+      ],
+    },
+  ],
+  preventionSteps: [
+    "Do not open unexpected attachments",
+    "Do not click document links you were not expecting",
+    "Verify the sender using a trusted method",
+    "If it's from a company, go to the official website directly instead of using the email link",
+    "If it's from a person you know, confirm through a separate message thread",
+    "Never sign in through a document link in an email unless you expected it",
+    "If it looks suspicious, report it as phishing (or mark as spam), then delete it",
+  ],
+  quiz: {
+    question: "You receive an email saying 'Invoice attached' from a sender you do not recognize. What should you do?",
+    options: [
+      "Open the attachment to see what it is",
+      "Click reply and ask them to explain",
+      "Delete the email or verify through a trusted method before opening anything",
+      "Forward it to your contacts to warn them",
+    ],
+    correctIndex: 2,
+    explanation: "Never open unexpected attachments or document links. Delete suspicious emails or verify through a trusted method before opening anything.",
+  },
+};
+
 export const attachmentsModule: TrainingModuleConfig = {
-  name: "Attachments & Document Links",
-  description: "Learn to safely handle attachments and document-sharing links without exposing your account.",
+  name: "Attachments & Document Links: Safe File Handling",
+  description: "Learn how to safely handle unexpected attachments and document links",
   orderIndex: 8,
-  content: `# Attachments & Document Links
-
-## Overview
-
-Phishing emails often use attachments or document-sharing links to deliver malware or steal credentials. These emails might claim to have an invoice, receipt, contract, or important document.
-
-When you open the attachment or click the link, you might be:
-- Infected with malware that silently steals your data
-- Sent to a fake login page that captures your credentials
-- Directed to download malicious software disguised as a document
-
-This type of attack is dangerous because the malware can sit silently on your computer, giving attackers ongoing access to your files, passwords, and email.
-
-## Social Engineering Tactics
-
-Attachment and document attacks work by making you want to see the content. Here's how they manipulate you:
-
-- **Curiosity:** "See the attached receipt" or "Review this important document"
-- **Authority:** Making the email look like it comes from a trusted source
-- **Legitimacy:** Using file names and document types that seem official
-- **Convenience:** "Click to view" instead of making you download
-- **Urgency:** "Please review immediately" or "Time-sensitive document"
-
-They want you clicking or opening before you think carefully about the risk.
-
-## Red Flags
-
-Watch for these warning signs:
-
-- Unexpected attachments, especially from unknown senders
-- File names that seem odd or generic ("document.exe" or "invoice.zip")
-- Attachments with unusual file types (.exe, .zip, .scr, .bat)
-- The email pressures you to open or view the attachment
-- The sender's address looks unfamiliar or slightly off
-- Document-sharing links from addresses you don't recognize
-- Links that ask you to log in to view a document
-- The email content doesn't match what you were expecting
-
-## Attacker's Objective
-
-In attachment and link attacks, attackers usually want:
-
-1. **Malware installation:** Ransomware, spyware, or data-stealing programs
-2. **Credentials:** Getting you to log in to a fake page
-3. **Persistent access:** Remote access to your computer
-4. **Data theft:** Stealing files, passwords, financial information
-5. **Lateral movement:** Using your account to attack others in your organization
-
-Attachment attacks are particularly dangerous because malware can run silently in the background, giving attackers months or years of access.
-
-## Common Attachment/Link Attack Scenarios
-
-**Fake Invoice:**
-- "Please review attached invoice for payment"
-- File named something realistic: "Invoice_2024.pdf" but actually "Invoice_2024.exe"
-
-**Document Sharing:**
-- "I've shared a document with you. Click to view"
-- Link goes to fake Google Docs or Box login page
-
-**Resume or Job Application:**
-- "My resume is attached. I'm interested in [position]"
-- Actually contains malware, not a resume
-
-**Delivery/Shipping Document:**
-- "Your tracking document is attached"
-- File contains malware or leads to phishing page
-
-**Meeting Notes or Report:**
-- "Here are the meeting notes from yesterday"
-- Actually a macro-enabled Word doc with hidden malware
-
-## Prevention Steps
-
-1. **Don't open unexpected attachments.** Even if the sender looks familiar, verify they actually sent it
-2. **Never enable macros.** If Word asks to enable macros from a document you didn't expect, click "Disable"
-3. **Check file extensions carefully.** Executables (.exe, .zip, .scr) are almost never legitimate in email
-4. **Verify document links.** If you get a "view document" link, log in directly instead of using the link
-5. **Hover over links first.** Check where a link actually goes before clicking
-6. **Download to virus scan.** If you must download something, run it through a virus scanner first
-7. **Ask before opening.** If unsure, contact the sender directly through a known method
-
-## Safe Alternatives
-
-- **For documents:** Ask the sender to paste content in the email instead of attaching
-- **For file sharing:** Use your company's approved file-sharing system if available
-- **For login required:** Go directly to the website instead of using the email link
-- **For verification:** Call or message the sender using a known contact method
-
-## Key Takeaway
-
-Be extremely cautious with attachments and document links. Malware can be silently installed from a single click. When in doubt, verify with the sender through a trusted method before opening anything.
-`,
+  content: JSON.stringify(moduleContent),
   templates: [
     ATTACHMENTS_SHARED_DOCUMENT,
     ATTACHMENTS_FORM_SUBMISSION,

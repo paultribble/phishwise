@@ -19,9 +19,11 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "validate:email": "node scripts/validate-email.js"
+    "validate:email": "node scripts/validate-email.js",
+    "library:enrich": "tsx scripts/fetch-threat-data.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.3.0",
     "@radix-ui/react-avatar": "^1.1.2",
@@ -44,6 +46,8 @@
     "next": "14.2.22",
     "next-auth": "^4.24.11",
     "pino": "^10.3.1",
+    "playwright": "^1.59.1",
+    "puppeteer": "^24.41.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
@@ -51,6 +55,7 @@
     "resend": "^4.0.1",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
+    "tesseract.js": "^7.0.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 import { PrismaClient, Role } from "@prisma/client";
 import * as bcryptjs from "bcryptjs";
 import { ALL_MODULES } from "@/lib/modules";
+import { fetchAndStoreNews } from "@/lib/news-fetcher";
 
 const prisma = new PrismaClient();
 
@@ -37,8 +38,25 @@ async function main() {
     console.log("ℹ️  No existing data to clean (first run)");
   }
 
+  // Clean up old news articles from deprecated sources (e.g., Hacker News)
+  console.log("🗑️  Cleaning up non-security news articles...");
+  try {
+    const deletedNews = await prisma.newsItem.deleteMany({
+      where: {
+        source: {
+          in: ["Hacker News"], // Remove articles from non-security sources
+        },
+      },
+    });
+    if (deletedNews.count > 0) {
+      console.log(`✅ Removed ${deletedNews.count} non-security articles`);
+    }
+  } catch (error) {
+    console.log("ℹ️  No old articles to clean");
+  }
+
   // Demo password (same for all demo accounts)
-  const demoPassword = "PhishWise2025!";
+  const demoPassword = "phishwise";
   const hashedPassword = await bcryptjs.hash(demoPassword, 12);
 
   // Create training modules from module configs
@@ -165,6 +183,11 @@ async function main() {
     { email: "henry.taylor@example.com", name: "Henry Taylor", clickRate: 0.48, simCount: 90 },
     { email: "isabella.anderson@example.com", name: "Isabella Anderson", clickRate: 0.35, simCount: 105 },
     { email: "james.thomas@example.com", name: "James Thomas", clickRate: 0.70, simCount: 70 },
+    { email: "milo.pumford@example.com", name: "Milo Pumford", clickRate: 0.32, simCount: 92 },
+    { email: "sarah.smith@example.com", name: "Sarah Smith", clickRate: 0.18, simCount: 115 },
+    { email: "shane.norden@example.com", name: "Shane Norden", clickRate: 0.51, simCount: 88 },
+    { email: "victor.berrios@example.com", name: "Victor Berrios", clickRate: 0.28, simCount: 102 },
+    { email: "warren.olvey@example.com", name: "Warren Olvey", clickRate: 0.58, simCount: 78 },
   ];
 
   const createdUsers = [];
@@ -235,6 +258,12 @@ async function main() {
   console.log("📝 Creating UserTraining records for clicked simulations...");
   let trainingRecordCount = 0;
 
+  // Get valid module IDs from the database (only modules that actually exist)
+  const validModules = await prisma.trainingModule.findMany({
+    select: { id: true },
+  });
+  const validModuleIds = new Set(validModules.map((m) => m.id));
+
   for (const user of createdUsers) {
     // Get all clicked simulations for this user with their module IDs
     const clickedSims = await prisma.simulationEmail.findMany({
@@ -244,10 +273,17 @@ async function main() {
       },
     });
 
-    // Deduplicate by moduleId and create UserTraining record
+    // Deduplicate by moduleId and create UserTraining record ONLY FOR VALID MODULES
     const moduleIdSet = new Set<string>();
     for (const sim of clickedSims) {
       const moduleId = sim.template.moduleId;
+
+      // Skip if module doesn't exist in database
+      if (!validModuleIds.has(moduleId)) {
+        console.warn(`⚠️  Skipping UserTraining for non-existent module: ${moduleId}`);
+        continue;
+      }
+
       if (!moduleIdSet.has(moduleId)) {
         moduleIdSet.add(moduleId);
 
@@ -274,7 +310,52 @@ async function main() {
     }
   }
 
-  console.log(`✅ Created ${trainingRecordCount} UserTraining records`);
+  console.log(`✅ Created ${trainingRecordCount} UserTraining records for clicked simulations`);
+
+  // Assign comprehensive training modules to all users (both completed and pending)
+  console.log("📚 Assigning comprehensive training modules to all users...");
+  let additionalTrainingCount = 0;
+
+  for (const user of createdUsers) {
+    // Get all modules already assigned to this user
+    const assignedModules = await prisma.userTraining.findMany({
+      where: { userId: user.id },
+      select: { moduleId: true },
+    });
+    const assignedModuleIds = new Set(assignedModules.map((m) => m.moduleId));
+
+    // Assign remaining modules to this user
+    for (const module of validModules) {
+      if (assignedModuleIds.has(module.id)) {
+        continue; // Already assigned
+      }
+
+      // Users with lower click rates (safer) should have higher training completion
+      // Users with higher click rates (less safe) should have lower completion
+      const completionLikelihood = 1 - user.clickRate; // Inverse of click rate
+      const isCompleted = Math.random() < completionLikelihood;
+
+      // Assign the module
+      const assignedDate = new Date(Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000); // Random date in last 60 days
+      const completedDate = isCompleted
+        ? new Date(assignedDate.getTime() + Math.random() * 14 * 24 * 60 * 60 * 1000) // Completed within 14 days of assignment
+        : null;
+
+      await prisma.userTraining.create({
+        data: {
+          userId: user.id,
+          moduleId: module.id,
+          assignedAt: assignedDate,
+          completedAt: completedDate,
+          score: isCompleted ? Math.floor(Math.random() * 30) + 70 : null, // 70-100 if completed
+        },
+      });
+
+      additionalTrainingCount++;
+    }
+  }
+
+  console.log(`✅ Assigned ${additionalTrainingCount} additional training modules (mix of completed and pending)`);
 
   // Initialize user metrics for all demo users
   console.log("📈 Initializing user metrics...");
@@ -312,6 +393,20 @@ async function main() {
   }
 
   console.log(`✅ Initialized metrics for ${createdUsers.length} users`);
+
+  // Fetch and store security news
+  console.log("🔄 Fetching security news from RSS feeds...");
+  try {
+    const newsResult = await fetchAndStoreNews();
+    console.log(
+      `✅ Security news fetched: ${newsResult.totalFetched} items, ${newsResult.totalStored} stored`
+    );
+  } catch (error) {
+    console.warn(
+      "⚠️  Could not fetch security news (RSS feeds may be unavailable):",
+      error instanceof Error ? error.message : String(error)
+    );
+  }
 
   // Print demo credentials
   console.log("\n" + "=".repeat(70));

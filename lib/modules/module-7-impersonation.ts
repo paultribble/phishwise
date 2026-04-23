@@ -1,96 +1,98 @@
 import { TrainingModuleConfig } from "./types";
+import { TrainingModuleContent } from "@/types/training";
 import {
   IMPERSONATION_URGENT_REQUEST,
   IMPERSONATION_BUDGET_APPROVAL,
 } from "@/lib/email-templates-generic";
 
+const moduleContent: TrainingModuleContent = {
+  overview: `Impersonation scams are phishing emails that pretend to be someone you trust. It might look like a family member, a coworker, a boss, a bank, a school, or a company you use. The email usually asks for something simple at first: a quick favor, a payment, personal information, or a code.`,
+  tactics: [
+    {
+      name: "Trust",
+      description: "It's me. I need help.",
+    },
+    {
+      name: "Urgency",
+      description: "I need this right now",
+    },
+    {
+      name: "Authority",
+      description: "I'm with your bank / support team / manager",
+    },
+    {
+      name: "Guilt",
+      description: "Please don't tell anyone. I'm in a situation.",
+    },
+    {
+      name: "Confusion",
+      description: "They keep it vague so you fill in the gaps",
+    },
+  ],
+  redFlags: [
+    "The request is unusual for that person or organization",
+    "They ask for money, gift cards, or a quick payment",
+    "They ask for personal information or login codes",
+    "They pressure you to act immediately",
+    "They ask you to keep it secret",
+    "The email address is slightly different than normal",
+    "The message avoids details and pushes you to reply quickly",
+  ],
+  objective: `In impersonation scams, attackers often want:
+1. A money transfer (gift cards, wire transfer, payment app)
+2. Personal information (address, phone number, account details)
+3. Verification codes (used to break into accounts)
+
+Sometimes they are trying to take over your email or a family member's account.`,
+  examples: [
+    {
+      title: "Quick Favor Needed",
+      body: "Hey, are you free right now? I need you to pick something up for me. I'm in a meeting and can't talk. Can you grab two gift cards and send me the codes? I'll pay you back later.",
+      redFlags: [
+        "Gift card request",
+        "'Can't talk' to avoid verification",
+        "Urgency and pressure",
+        "Unusual request",
+      ],
+    },
+    {
+      title: "Account Verification Needed",
+      body: "Hello, this is the Security Department. We noticed unusual activity on your account. Reply with your full name, date of birth, and the code you just received to confirm your identity.",
+      redFlags: [
+        "Asks for sensitive personal details",
+        "Requests a verification code",
+        "Authority language without proof",
+        "Pushes reply instead of safe verification steps",
+      ],
+    },
+  ],
+  preventionSteps: [
+    "Pause before responding to unexpected requests",
+    "Verify using a trusted method - Call the person using a saved number",
+    "Text them using your normal conversation thread",
+    "If it claims to be a company, go to the official website directly",
+    "Never send gift card codes, login codes, or personal information by email",
+    "If the message feels urgent or secret, treat that as a warning sign",
+    "If you are unsure, ask a second person for a quick reality check",
+  ],
+  quiz: {
+    question: "You receive an email from someone you know asking you to buy gift cards and send the codes immediately. What should you do?",
+    options: [
+      "Buy the gift cards to help them quickly",
+      "Reply asking what brand of gift cards they want",
+      "Verify the request by calling or texting them using a known number or existing thread",
+      "Send them your bank login so they can pay you back",
+    ],
+    correctIndex: 2,
+    explanation: "Always verify unusual requests before acting, especially requests for money or gift cards. Use a trusted communication method like a phone call or existing text thread, not the email.",
+  },
+};
+
 export const impersonationModule: TrainingModuleConfig = {
-  name: "Impersonation: Trusted Person or Organization",
-  description: "Learn to recognize when attackers pretend to be someone you know or trust.",
+  name: "Impersonation Scams: Verifying Who's Really Asking",
+  description: "Learn how to spot scams that pretend to be people you trust",
   orderIndex: 7,
-  content: `# Impersonation: Trusted Person or Organization
-
-## Overview
-
-Impersonation attacks succeed because they exploit trust. These phishing emails pretend to come from someone you know — a coworker, manager, family member, or trusted company.
-
-The attacker uses this false identity to make you lower your guard. They might ask for sensitive information, money, credentials, or to complete an urgent task. Because the email appears to come from someone trustworthy, you're more likely to act without careful verification.
-
-These attacks are increasingly sophisticated, using details stolen from social media, company directories, or previous data breaches to make the impersonation more convincing.
-
-## Social Engineering Tactics
-
-Impersonation attacks exploit established relationships. Here's how they manipulate you:
-
-- **False Authority:** Pretending to be a manager, executive, or IT staff
-- **Urgency:** Creating time pressure that prevents verification
-- **Trust:** Using names and details that make the message seem legitimate
-- **Secrecy:** Asking you not to tell others or go through normal channels
-- **Personal Detail:** Including information that seems to prove they know you
-
-They count on your natural tendency to trust people you recognize.
-
-## Red Flags
-
-Watch for these warning signs:
-
-- The request is unusual or outside normal business processes
-- The sender asks you to bypass normal approval procedures
-- The message creates urgency that prevents verification
-- You're asked to keep the request confidential
-- The email address looks slightly different from the real person's address
-- The tone or writing style seems different than usual
-- Requests for passwords, financial information, or sensitive data
-- Links to unfamiliar websites or login pages
-
-## Attacker's Objective
-
-In impersonation attacks, attackers typically want:
-
-1. **Direct access:** Money transfers, wire payments, gift cards
-2. **Credentials:** Passwords, authentication codes, login information
-3. **Sensitive data:** Customer lists, financial records, project details
-4. **Account takeover:** Using stolen credentials to access company systems
-5. **Validation:** Getting you to confirm information they can use later
-
-Impersonation is particularly dangerous because it bypasses technical security — it relies on human trust instead.
-
-## Common Impersonation Scenarios
-
-**CEO/Executive Fraud:**
-- "Quick favor: wire $50k to vendor account [details]"
-- Asks you not to notify finance or go through normal approval
-
-**IT Department:**
-- "We're updating security. Please confirm your password and two-factor code"
-- "Your account needs immediate password reset. Click here"
-
-**HR/Payroll:**
-- "Urgent: Update your direct deposit information immediately"
-- "Confidential: Verify your SSN and banking details for tax purposes"
-
-**Trusted Vendor:**
-- "Your invoice is overdue. Payment required by end of day"
-- Uses company letterhead and realistic invoice numbers
-
-**Coworker/Team Member:**
-- "Hey, can you do me a favor? Need a quick approval on this"
-- Uses informal tone and internal knowledge to seem legitimate
-
-## Prevention Steps
-
-1. **Verify through a known channel.** Don't reply to the email — call or message the person directly using a number/address you know is legitimate
-2. **Check the email address carefully.** Look at the full address, not just the display name
-3. **Never act on urgent requests.** Legitimate urgent needs can be verified before acting
-4. **Question unusual requests.** Even if it seems to come from your boss, if the request is unusual, verify it
-5. **Follow normal processes.** If it asks you to bypass approval chains or normal procedures, it's suspicious
-6. **Be skeptical of secrecy.** Legitimate companies don't ask you to keep requests confidential
-7. **Use multi-factor authentication.** This protects accounts even if passwords are compromised
-
-## Key Takeaway
-
-Always verify the identity of someone making an unusual request, especially for sensitive information or urgent action. Use trusted contact methods to confirm before acting.
-`,
+  content: JSON.stringify(moduleContent),
   templates: [
     IMPERSONATION_URGENT_REQUEST,
     IMPERSONATION_BUDGET_APPROVAL,

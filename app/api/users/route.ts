@@ -25,13 +25,28 @@ export async function GET() {
       where: { id: session.user.id },
       include: {
         metrics: true,
-        school: { select: { id: true, name: true, inviteCode: true } },
+        school: { select: { id: true, name: true, inviteCode: true, frequency: true } },
       },
     });
 
     if (!user) {
       const e = errors.notFound("User");
       return NextResponse.json(e.toJSON(), { status: e.statusCode });
+    }
+
+    // Ensure metrics exist for the user (create with defaults if missing)
+    if (!user.metrics) {
+      const metrics = await prisma.userMetrics.upsert({
+        where: { userId: session.user.id },
+        update: {},
+        create: {
+          userId: session.user.id,
+          totalSent: 0,
+          totalClicked: 0,
+          totalCompleted: 0,
+        },
+      });
+      user.metrics = metrics;
     }
 
     const pendingTraining = await prisma.userTraining.findMany({

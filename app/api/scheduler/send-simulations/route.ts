@@ -121,6 +121,7 @@ export async function POST(req: NextRequest) {
           trackingToken: token,
           fromAddress: template.fromAddress || undefined,
           fromName: friendlyName,
+          userId: user.id,
         });
 
         if (!sendResult.success) {

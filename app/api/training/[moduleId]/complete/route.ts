@@ -5,12 +5,14 @@ import { prisma } from "@/lib/db";
 import { z } from "zod";
 import { errors } from "@/lib/errors";
 import { apiLogger } from "@/lib/logger";
+import { checkAndAwardAchievements } from "@/lib/achievements";
 
 const log = apiLogger("/api/training/[moduleId]/complete");
 
 const schema = z.object({
   passed: z.boolean(),
   score: z.number().int().min(0).max(100).optional(),
+  firstAttempt: z.boolean().optional(),
 });
 
 export async function POST(
@@ -34,7 +36,7 @@ export async function POST(
       const e = errors.invalidInput(parsed.error.errors[0]?.message);
       return NextResponse.json(e.toJSON(), { status: e.statusCode });
     }
-    const { passed, score } = parsed.data;
+    const { passed, score, firstAttempt } = parsed.data;
 
     const trainingModule = await prisma.trainingModule.findUnique({
       where: { id: moduleId },
@@ -54,7 +56,7 @@ export async function POST(
       if (existingTraining) {
         await prisma.userTraining.update({
           where: { id: existingTraining.id },
-          data: { completedAt: new Date() },
+          data: { completedAt: new Date(), score: score ?? null },
         });
       } else {
         await prisma.userTraining.create({
@@ -62,6 +64,7 @@ export async function POST(
             userId: session.user.id,
             moduleId,
             completedAt: new Date(),
+            score: score ?? null,
           },
         });
       }
@@ -89,6 +92,9 @@ export async function POST(
         },
       });
     }
+
+    // Check and award achievements after any completion attempt
+    checkAndAwardAchievements(session.user.id, { firstAttempt: firstAttempt ?? false }).catch(() => {});
 
     return NextResponse.json({ success: true });
   } catch (error) {

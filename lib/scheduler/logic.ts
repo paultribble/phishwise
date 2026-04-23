@@ -37,15 +37,30 @@ export async function selectEligibleUsers() {
       where: {
         schoolId: school.id,
         role: "USER",
+        unsubscribedAt: null, // Only subscribed users
       },
       select: {
         id: true,
         email: true,
         name: true,
+        simulationFrequencyOverride: true,
       },
     });
 
     for (const user of users) {
+      // Skip users who have opted out of simulations
+      if (user.simulationFrequencyOverride === "off") {
+        continue;
+      }
+
+      // Determine effective frequency: user override > school default
+      const effectiveFrequency = user.simulationFrequencyOverride || school.frequency;
+      const effectiveFrequencyMs =
+        FREQUENCY_MS[effectiveFrequency as keyof typeof FREQUENCY_MS] || FREQUENCY_MS.weekly;
+      const userRandomWindow = effectiveFrequencyMs * 0.2;
+      const userMinTime = now.getTime() - effectiveFrequencyMs - userRandomWindow;
+      const userMaxTime = now.getTime() - effectiveFrequencyMs + userRandomWindow;
+
       // Get the user's last simulation from SimulationEmail records
       const lastSim = await prisma.simulationEmail.findFirst({
         where: { userId: user.id },
@@ -64,7 +79,7 @@ export async function selectEligibleUsers() {
       const timeSinceLastSim = now.getTime() - lastSimMs;
 
       // User is eligible if time since last sim is within the window
-      if (timeSinceLastSim >= minTime && timeSinceLastSim <= maxTime) {
+      if (timeSinceLastSim >= userMinTime && timeSinceLastSim <= userMaxTime) {
         eligibleUsers.push({ ...user, schoolId: school.id });
       }
     }

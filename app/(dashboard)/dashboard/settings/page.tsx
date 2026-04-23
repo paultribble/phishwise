@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { User, Lock, School, Copy, Check, Eye, EyeOff } from "lucide-react";
+import { User, Lock, School, Copy, Check, Eye, EyeOff, Radio } from "lucide-react";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -79,9 +79,16 @@ export default function SettingsPage() {
   const [schoolData, setSchoolData] = useState<{
     name: string;
     inviteCode: string;
+    frequency?: string;
   } | null>(null);
 
-  const fetchSchoolData = useCallback(async () => {
+  // Simulation preferences state
+  const [simulationFrequencyOverride, setSimulationFrequencyOverride] = useState<string | null>(null);
+  const [unsubscribedAt, setUnsubscribedAt] = useState<string | null>(null);
+  const [simMessage, setSimMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [simLoading, setSimLoading] = useState(false);
+
+  const fetchUserData = useCallback(async () => {
     try {
       const res = await fetch("/api/users");
       if (res.ok) {
@@ -89,9 +96,11 @@ export default function SettingsPage() {
         if (data.user?.school) {
           setSchoolData(data.user.school);
         }
+        setSimulationFrequencyOverride(data.user?.simulationFrequencyOverride || null);
+        setUnsubscribedAt(data.user?.unsubscribedAt || null);
       }
     } catch {
-      // Silently fail — school data is supplementary
+      // Silently fail — supplementary data
     }
   }, []);
 
@@ -99,10 +108,10 @@ export default function SettingsPage() {
     if (session?.user?.name) {
       setName(session.user.name);
     }
-    if (session?.user?.schoolId) {
-      fetchSchoolData();
+    if (session?.user?.id) {
+      fetchUserData();
     }
-  }, [session, fetchSchoolData]);
+  }, [session, fetchUserData]);
 
   if (status === "loading") {
     return (
@@ -191,6 +200,51 @@ export default function SettingsPage() {
       });
     } finally {
       setPasswordSaving(false);
+    }
+  };
+
+  const handleFrequencyChange = async (value: string | null) => {
+    setSimLoading(true);
+    setSimMessage(null);
+    try {
+      const res = await fetch("/api/users/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ simulationFrequencyOverride: value }),
+      });
+      if (!res.ok) throw new Error("Failed to update frequency");
+      const data = await res.json();
+      setSimulationFrequencyOverride(data.user?.simulationFrequencyOverride ?? null);
+      setSimMessage({ type: "success", text: "Simulation frequency updated." });
+      setTimeout(() => setSimMessage(null), 3000);
+    } catch {
+      setSimMessage({ type: "error", text: "Failed to update frequency." });
+    } finally {
+      setSimLoading(false);
+    }
+  };
+
+  const handleSubscriptionToggle = async () => {
+    setSimLoading(true);
+    setSimMessage(null);
+    try {
+      const res = await fetch("/api/users/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeSimulations: !!unsubscribedAt }),
+      });
+      if (!res.ok) throw new Error("Failed to update subscription");
+      const data = await res.json();
+      setUnsubscribedAt(data.user?.unsubscribedAt ?? null);
+      setSimMessage({
+        type: "success",
+        text: unsubscribedAt ? "Simulations resumed." : "Simulations paused.",
+      });
+      setTimeout(() => setSimMessage(null), 3000);
+    } catch {
+      setSimMessage({ type: "error", text: "Failed to update subscription." });
+    } finally {
+      setSimLoading(false);
     }
   };
 
@@ -372,6 +426,78 @@ export default function SettingsPage() {
               </p>
             )}
           </div>
+        </GlassCard>
+
+        {/* Simulation Preferences Section */}
+        <GlassCard>
+          <div className="mb-6 flex items-center gap-3">
+            <Radio className="h-5 w-5 text-blue-400" />
+            <h2 className="text-lg font-semibold text-white">
+              Simulation Preferences
+            </h2>
+          </div>
+
+          <div className="space-y-6">
+            {/* Frequency Override */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-300">
+                Simulation Frequency
+              </label>
+              <select
+                value={simulationFrequencyOverride || ""}
+                onChange={(e) => handleFrequencyChange(e.target.value || null)}
+                disabled={simLoading}
+                className="w-full rounded-lg border border-white/10 bg-[#252540] px-3 py-2 text-white placeholder-slate-500 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600/50 disabled:opacity-50"
+              >
+                <option value="">Use school default</option>
+                <option value="weekly">Weekly</option>
+                <option value="random">Random</option>
+                <option value="off">Opt out (pause simulations)</option>
+              </select>
+              <p className="mt-2 text-xs text-gray-400">
+                Your school is set to &ldquo;{schoolData?.frequency || "weekly"}&rdquo; frequency. You can override it here.
+              </p>
+            </div>
+
+            {/* Subscription Status */}
+            <div className="border-t border-white/10 pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-300">Simulation Status:</span>
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                      unsubscribedAt
+                        ? "bg-amber-500/20 text-amber-400"
+                        : "bg-green-500/20 text-green-400"
+                    }`}
+                  >
+                    {unsubscribedAt ? "Paused" : "Active"}
+                  </span>
+                </div>
+                <button
+                  onClick={handleSubscriptionToggle}
+                  disabled={simLoading}
+                  className="rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white shadow-[0_0_15px_rgba(29,78,216,0.3)] transition-colors hover:bg-blue-600 disabled:opacity-50"
+                >
+                  {unsubscribedAt ? "Resume Simulations" : "Pause Simulations"}
+                </button>
+              </div>
+              <p className="mt-3 text-xs text-gray-400">
+                {unsubscribedAt
+                  ? "You will not receive new simulations until you resume."
+                  : "You are enrolled to receive phishing awareness simulations."}
+              </p>
+            </div>
+          </div>
+
+          {/* Feedback Message */}
+          {simMessage && (
+            <div className="mt-6 rounded-lg border border-white/10 p-3">
+              <p className={`text-sm ${simMessage.type === "success" ? "text-green-400" : "text-red-400"}`}>
+                {simMessage.text}
+              </p>
+            </div>
+          )}
         </GlassCard>
 
         {/* School Section */}

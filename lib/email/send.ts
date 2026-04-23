@@ -9,6 +9,7 @@ interface PhishingEmailOptions {
   fromAddress?: string;
   fromName?: string; // Friendly sender name (e.g., "Amazon Account Security")
   clickTrackingUrl?: string;
+  userId?: string; // Used to generate unsubscribe link in email footer
 }
 
 /**
@@ -29,6 +30,7 @@ export async function sendPhishingEmail({
   fromAddress,
   fromName,
   clickTrackingUrl,
+  userId,
 }: PhishingEmailOptions) {
   try {
     // Validate required fields
@@ -90,6 +92,8 @@ export async function sendPhishingEmail({
       html: processedHtml,
       replyTo: replyToAddress,
       fromName: senderName,
+      isSimulation: true,
+      userId,
     });
 
     return { success: true };

@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { Menu, X, LogOut } from "lucide-react";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,13 +64,31 @@ export function Navbar() {
         </div>
 
         {/* Desktop CTA Button */}
-        <div className="hidden md:block">
-          <Link
-            href="/login"
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-600 transition-colors"
-          >
-            Log In / Sign Up
-          </Link>
+        <div className="hidden md:flex items-center gap-4">
+          {session?.user ? (
+            <>
+              <Link
+                href="/dashboard/user"
+                className="text-sm text-gray-400 hover:text-gray-200 transition-colors"
+              >
+                Dashboard
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-700 rounded-md hover:bg-red-600 transition-colors flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Log Out
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-600 transition-colors"
+            >
+              Log In / Sign Up
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -89,34 +109,59 @@ export function Navbar() {
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-white/10 bg-black/80 backdrop-blur-md">
           <div className="px-6 py-4 space-y-4">
-            <a
-              href="#features"
-              className="block text-sm text-gray-400 hover:text-gray-200 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Features
-            </a>
-            <a
-              href="#how-it-works"
-              className="block text-sm text-gray-400 hover:text-gray-200 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              How It Works
-            </a>
-            <a
-              href="#faq"
-              className="block text-sm text-gray-400 hover:text-gray-200 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              FAQ
-            </a>
-            <Link
-              href="/login"
-              className="block w-full text-center px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-600 transition-colors"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Log In / Sign Up
-            </Link>
+            {!session?.user && (
+              <>
+                <a
+                  href="#features"
+                  className="block text-sm text-gray-400 hover:text-gray-200 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Features
+                </a>
+                <a
+                  href="#how-it-works"
+                  className="block text-sm text-gray-400 hover:text-gray-200 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  How It Works
+                </a>
+                <a
+                  href="#faq"
+                  className="block text-sm text-gray-400 hover:text-gray-200 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  FAQ
+                </a>
+              </>
+            )}
+            {session?.user ? (
+              <>
+                <Link
+                  href="/dashboard/user"
+                  className="block w-full text-center px-4 py-2 text-sm font-medium text-gray-400 hover:text-gray-200 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    signOut({ callbackUrl: "/" });
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block w-full text-center px-4 py-2 text-sm font-medium text-white bg-red-700 rounded-md hover:bg-red-600 transition-colors"
+                >
+                  Log Out
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="block w-full text-center px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-600 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Log In / Sign Up
+              </Link>
+            )}
           </div>
         </div>
       )}

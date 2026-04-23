@@ -50,15 +50,6 @@ export default function CaughtPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="border-b border-gray-700 bg-phish-navy/90 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary-500" />
-            <span className="text-lg font-bold text-gray-200">PhishWise</span>
-          </Link>
-        </div>
-      </header>
-
       <main className="flex-1 px-4 py-12">
         <div className="mx-auto max-w-2xl space-y-8">
           <div className="text-center">

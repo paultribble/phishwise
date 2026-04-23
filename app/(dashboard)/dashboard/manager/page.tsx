@@ -23,6 +23,9 @@ import {
   Settings,
   Send,
   Download,
+  Users,
+  Target,
+  BookOpen,
 } from "lucide-react";
 import { bebas, playfair } from "@/lib/fonts";
 import { AmbientBackground } from "@/components/landing/AmbientBackground";
@@ -48,7 +51,7 @@ type UserPerformance = {
   clickRate: number;
   lastSimulation: string | null;
   trainingsCompleted: number;
-  trend: number;
+  riskScore: number;
 };
 
 type AnalyticsData = {
@@ -117,16 +120,6 @@ export default function ManagerDashboard() {
       moduleName: string;
     }>
   >([]);
-  const [selectedTemplateDetails, setSelectedTemplateDetails] = useState<{
-    id: string;
-    name: string;
-    subject: string;
-    body: string;
-    fromAddress: string;
-    moduleName: string;
-  } | null>(null);
-  const [previewLoading, setPreviewLoading] = useState(false);
-  const [debugOutput, setDebugOutput] = useState<string[]>([]);
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -194,39 +187,12 @@ export default function ManagerDashboard() {
         }))
       );
       setTemplates(templateList);
-      addDebugLog(`Loaded ${templateList.length} templates from ${data.modules.length} modules`);
     } catch (error) {
-      addDebugLog(`Failed to load templates: ${error}`);
+      console.error("Failed to load templates:", error);
     }
   }
 
-  async function loadTemplatePreview(templateId: string) {
-    try {
-      setPreviewLoading(true);
-      const res = await fetch(`/api/templates/${templateId}`);
-      const data = await res.json();
 
-      if (res.ok && data.template) {
-        setSelectedTemplateDetails({
-          id: data.template.id,
-          name: data.template.name,
-          subject: data.template.subject,
-          body: data.template.body,
-          fromAddress: data.template.fromAddress || "security@verify-account.com",
-          moduleName: data.template.module?.name || "Unknown Module",
-        });
-      }
-    } catch (error) {
-      console.error("Failed to load template preview:", error);
-    } finally {
-      setPreviewLoading(false);
-    }
-  }
-
-  function addDebugLog(msg: string) {
-    const timestamp = new Date().toLocaleTimeString();
-    setDebugOutput((prev) => [...prev, `[${timestamp}] ${msg}`]);
-  }
 
   function getFilteredUsers() {
     if (!analytics?.userPerformance) return [];
@@ -242,54 +208,36 @@ export default function ManagerDashboard() {
 
   async function handleTriggerSimulation() {
     setTriggeringSimulation(true);
-    setDebugOutput([]);
-    addDebugLog("Preparing to send simulations...");
 
     if (!selectedTemplateId) {
-      addDebugLog("ERROR: No template selected");
       setTriggeringSimulation(false);
       return;
     }
 
     const usersToSend = Array.from(selectedUsers);
     if (usersToSend.length === 0) {
-      addDebugLog("ERROR: No users selected");
       setTriggeringSimulation(false);
       return;
     }
 
-    addDebugLog(`Selected ${usersToSend.length} user(s) to receive simulation`);
-    addDebugLog(`Template ID: ${selectedTemplateId}`);
-
     try {
-      addDebugLog("Sending simulations to API...");
       const res = await fetch("/api/simulations/send-batch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userIds: usersToSend,
           templateId: selectedTemplateId,
-          debug: true,
         }),
       });
 
-      const data = await res.json();
-      addDebugLog(`API Response Status: ${res.status}`);
-
-      if (data.debug?.logs) {
-        data.debug.logs.forEach((log: string) => addDebugLog(log));
-      }
-
       if (res.ok) {
-        addDebugLog(`✅ Successfully sent to ${data.sent} user(s)`);
-        if (data.failed > 0) {
-          addDebugLog(`⚠️ Failed to send to ${data.failed} user(s)`);
-        }
-      } else {
-        addDebugLog(`ERROR: ${data.error || "Failed to send simulations"}`);
+        setShowTriggerModal(false);
+        setSelectedUsers(new Set());
+        setSelectAll(false);
+        setSelectedTemplateId("");
       }
     } catch (error) {
-      addDebugLog(`ERROR: ${error instanceof Error ? error.message : String(error)}`);
+      console.error("Failed to send simulations:", error);
     } finally {
       setTriggeringSimulation(false);
     }
@@ -417,17 +365,14 @@ export default function ManagerDashboard() {
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-white">
-                Welcome back,{" "}
-                <span className={`${bebas.className} tracking-widest text-4xl`}>
-                  {session?.user?.name ?? "Manager"}
-                </span>
+              <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-2">
+                School Management
+              </p>
+              <h1 className={`text-4xl font-bold text-white ${playfair.className}`}>
+                {analytics?.school.name}
               </h1>
-              <p className="mt-1 text-slate-300">
-                <span className={`${playfair.className} text-white`}>
-                  {analytics?.school.name}
-                </span>
-                {" "}&mdash; phishing awareness overview
+              <p className="mt-2 text-slate-300">
+                Oversee phishing awareness training for {analytics?.school.totalUsers ?? 0} members
               </p>
             </div>
             <div className="flex gap-2 shrink-0 flex-wrap">
@@ -442,7 +387,6 @@ export default function ManagerDashboard() {
                 onClick={() => {
                   setShowTriggerModal(true);
                   loadTemplates();
-                  setDebugOutput([]);
                 }}
                 className="rounded-md bg-blue-700 px-4 py-2 text-sm font-medium text-white shadow-[0_0_15px_rgba(29,78,216,0.3)] transition-colors hover:bg-blue-600"
               >
@@ -496,10 +440,10 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      {/* Quick Stats */}
+      {/* School Health Metrics */}
       <div>
         <h2 className="mb-4 text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
-          School Performance
+          School Health Metrics
         </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <div className={`${glassCard} p-5 relative overflow-hidden`}>
@@ -517,7 +461,7 @@ export default function ManagerDashboard() {
         <div className={`${glassCard} p-5 relative overflow-hidden`}>
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Simulations Clicked</span>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Clicked</span>
               <MousePointerClick className="h-4 w-4 text-red-400" />
             </div>
             <div className="text-2xl font-bold text-red-400">
@@ -529,7 +473,7 @@ export default function ManagerDashboard() {
         <div className={`${glassCard} p-5 relative overflow-hidden`}>
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Avg Click Rate</span>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">School Click Rate</span>
               <TrendingDown className="h-4 w-4 text-amber-400" />
             </div>
             <div className="text-2xl font-bold text-amber-400">
@@ -541,7 +485,7 @@ export default function ManagerDashboard() {
         <div className={`${glassCard} p-5 relative overflow-hidden`}>
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Users at Risk</span>
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">High Risk Members</span>
               <ShieldAlert className="h-4 w-4 text-red-400" />
             </div>
             <div className="text-2xl font-bold text-red-400">
@@ -555,15 +499,19 @@ export default function ManagerDashboard() {
       {/* Team Performance Section */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
-            Team Performance
-          </h2>
+          <div>
+            <h2 className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-1">
+              School Members
+            </h2>
+            <p className="text-sm text-slate-400">
+              Performance metrics for all school members
+            </p>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={() => {
                 setShowTriggerModal(true);
                 loadTemplates();
-                setDebugOutput([]);
               }}
               className="text-sm px-3 py-1.5 rounded border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors cursor-pointer"
             >
@@ -577,9 +525,9 @@ export default function ManagerDashboard() {
           <div className="p-6 border-b border-white/[0.06]">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-white">User Performance</h3>
+                <h3 className="text-lg font-semibold text-white">Performance by Member</h3>
                 <p className="mt-1 text-sm text-slate-300">
-                  Click rates and training completion for all users
+                  Awareness score and training progress across all members
                 </p>
               </div>
             </div>
@@ -604,52 +552,72 @@ export default function ManagerDashboard() {
                     </td>
                   </tr>
                 ) : (
-                  analytics.userPerformance.map((user) => {
-                    let riskColor = "text-emerald-400";
-                    let riskLabel = "Low";
-                    if (user.clickRate > 50) {
-                      riskColor = "text-red-400";
-                      riskLabel = "High";
-                    } else if (user.clickRate > 30) {
-                      riskColor = "text-amber-400";
-                      riskLabel = "Medium";
-                    }
+                  analytics.userPerformance
+                    .filter((user) => {
+                      const isManager = user.email === session?.user?.email;
+                      const hasParticipated = user.totalSent > 0;
+                      return !isManager || hasParticipated;
+                    })
+                    .length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-slate-500">
+                        No participant data yet. Invite and send simulations to users to see performance metrics.
+                      </td>
+                    </tr>
+                  ) : (
+                    analytics.userPerformance
+                      .filter((user) => {
+                        const isManager = user.email === session?.user?.email;
+                        const hasParticipated = user.totalSent > 0;
+                        return !isManager || hasParticipated;
+                      })
+                      .map((user) => {
+                        const risk = user.riskScore ?? user.clickRate;
+                        let riskColor = "text-emerald-400";
+                        let riskLabel = "Low";
+                        if (risk >= 60) { riskColor = "text-red-400"; riskLabel = "High"; }
+                        else if (risk >= 30) { riskColor = "text-amber-400"; riskLabel = "Medium"; }
+                        const isManager = user.email === session?.user?.email;
 
-                    return (
-                      <tr
-                        key={user.userId}
-                        className="border-b border-white/[0.03] last:border-0 hover:bg-white/[0.02] transition-colors"
-                      >
-                        <td className="px-6 py-3">
-                          <div>
-                            <div className="font-medium text-white">{user.name}</div>
-                            <div className="text-xs text-slate-400">{user.email}</div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-3 text-slate-300">{user.totalSent}</td>
-                        <td className="px-6 py-3 text-slate-300">{user.totalClicked}</td>
-                        <td className="px-6 py-3">
-                          <div className="flex items-center gap-2">
-                            <Progress
-                              value={user.clickRate}
-                              className="h-2 w-16 bg-gray-700"
-                            />
-                            <span className={riskColor}>
-                              {user.clickRate}%
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-3 text-slate-300">
-                          {user.trainingsCompleted}
-                        </td>
-                        <td className="px-6 py-3">
-                          <Badge variant={riskLabel === "Low" ? "success" : riskLabel === "Medium" ? "warning" : "danger"}>
-                            {riskLabel}
-                          </Badge>
-                        </td>
-                      </tr>
-                    );
-                  })
+                        return (
+                          <tr
+                            key={user.userId}
+                            className={`border-b border-white/[0.03] last:border-0 hover:bg-white/[0.02] transition-colors ${isManager ? "bg-blue-500/10" : ""}`}
+                          >
+                            <td className="px-6 py-3">
+                              <div className="flex items-center gap-2">
+                                <div>
+                                  <div className="font-medium text-white">{user.name}</div>
+                                  <div className="text-xs text-slate-400">{user.email}</div>
+                                </div>
+                                {isManager && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    Manager
+                                  </Badge>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-3 text-slate-300">{user.totalSent}</td>
+                            <td className="px-6 py-3 text-slate-300">{user.totalClicked}</td>
+                            <td className="px-6 py-3">
+                              <div className="flex items-center gap-2">
+                                <Progress value={user.clickRate} className="h-2 w-16 bg-gray-700" />
+                                <span className={riskColor}>{user.clickRate}%</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-3 text-slate-300">{user.trainingsCompleted}</td>
+                            <td className="px-6 py-3">
+                              <div className="flex flex-col gap-1">
+                                <Badge variant={riskLabel === "Low" ? "success" : riskLabel === "Medium" ? "warning" : "danger"}>
+                                  {riskLabel}
+                                </Badge>
+                                <span className="text-[10px] text-slate-500">Risk: {risk}/100</span>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                  )
                 )}
               </tbody>
             </table>
@@ -744,6 +712,86 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
+      {/* Re-training Queue */}
+      {analytics?.userPerformance && analytics.userPerformance.filter((u) => (u.riskScore ?? u.clickRate) >= 60).length > 0 && (
+        <div>
+          <h2 className="mb-4 text-xs uppercase tracking-[0.18em] font-semibold text-red-400">
+            Re-training Queue
+          </h2>
+          <div className={glassCard}>
+            <div className="p-6 border-b border-white/[0.06]">
+              <h3 className="text-lg font-semibold text-white">High-Risk Users</h3>
+              <p className="mt-1 text-sm text-slate-300">
+                Users with a risk score ≥ 60 who need targeted training
+              </p>
+            </div>
+            <div className="divide-y divide-white/[0.03]">
+              {analytics.userPerformance
+                .filter((u) => (u.riskScore ?? u.clickRate) >= 60)
+                .sort((a, b) => (b.riskScore ?? b.clickRate) - (a.riskScore ?? a.clickRate))
+                .map((user) => {
+                  const score = user.riskScore ?? user.clickRate;
+                  const scoreColor = score >= 80 ? "#ef4444" : "#f59e0b";
+                  return (
+                    <div key={user.userId} className="flex items-center gap-4 px-6 py-4">
+                      <div
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                        style={{ background: `conic-gradient(${scoreColor} ${score * 3.6}deg, #1e3058 0deg)` }}
+                      >
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0c1220]">
+                          <span className="text-xs" style={{ color: scoreColor }}>{score}</span>
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-white truncate">{user.name}</p>
+                        <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-xs text-slate-400">{user.totalClicked} clicks / {user.totalSent} sent</p>
+                        <p className="text-xs text-slate-500">{user.trainingsCompleted} training done</p>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Recent Activity Feed */}
+      {analytics?.recentActivity && analytics.recentActivity.length > 0 && (
+        <div>
+          <h2 className="mb-4 text-xs uppercase tracking-[0.18em] font-semibold text-blue-400">
+            Recent Activity
+          </h2>
+          <div className={glassCard}>
+            <div className="divide-y divide-white/[0.03]">
+              {analytics.recentActivity.slice(0, 10).map((event, i) => {
+                const isClick = event.type === "simulation_clicked" || event.type === "phishing_failed";
+                const isComplete = event.type === "training_completed";
+                return (
+                  <div key={i} className="flex items-start gap-3 px-6 py-3">
+                    <div
+                      className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${isClick ? "bg-red-400" : isComplete ? "bg-emerald-400" : "bg-blue-400"}`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-slate-300">
+                        <span className="font-medium text-white">{event.userName}</span>{" "}
+                        {isClick ? "clicked a phishing link" : isComplete ? "completed training" : event.type.replace(/_/g, " ")}
+                        {event.details && <span className="text-slate-500"> — {event.details}</span>}
+                      </p>
+                    </div>
+                    <span className="text-xs text-slate-500 shrink-0">
+                      {new Date(event.timestamp).toLocaleDateString()}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Advanced Trigger Simulation Modal */}
       {showTriggerModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -762,14 +810,7 @@ export default function ManagerDashboard() {
               </label>
               <select
                 value={selectedTemplateId}
-                onChange={(e) => {
-                  setSelectedTemplateId(e.target.value);
-                  if (e.target.value) {
-                    loadTemplatePreview(e.target.value);
-                  } else {
-                    setSelectedTemplateDetails(null);
-                  }
-                }}
+                onChange={(e) => setSelectedTemplateId(e.target.value)}
                 className="w-full rounded-md border border-white/10 bg-[#252540] px-3 py-2 text-sm text-white focus:border-blue-600 focus:outline-none"
               >
                 <option value="">-- Select a template --</option>
@@ -800,64 +841,6 @@ export default function ManagerDashboard() {
                 )}
               </select>
             </div>
-
-            {/* Email Preview */}
-            {selectedTemplateDetails && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Email Preview
-                </label>
-                <div className={`${glassCard} p-4 border-l-4 border-blue-500`}>
-                  {previewLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-1">
-                          From
-                        </p>
-                        <p className="text-sm text-white font-mono">
-                          {selectedTemplateDetails.fromAddress}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-1">
-                          Subject
-                        </p>
-                        <p className="text-sm text-white">{selectedTemplateDetails.subject}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-1">
-                          Module
-                        </p>
-                        <p className="text-sm text-slate-300">{selectedTemplateDetails.moduleName}</p>
-                      </div>
-                      <div className="mt-4 pt-4 border-t border-white/[0.06]">
-                        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-2">
-                          Preview
-                        </p>
-                        <div className="bg-[#0f0f1a] rounded border border-white/[0.06] p-3 max-h-48 overflow-y-auto">
-                          <div className="text-sm text-slate-300 whitespace-pre-wrap font-mono text-xs leading-relaxed">
-                            {selectedTemplateDetails.body}
-                          </div>
-                          <div className="mt-3 text-center">
-                            <a
-                              href="#"
-                              onClick={(e) => e.preventDefault()}
-                              className="inline-block px-3 py-1 bg-blue-700 text-white text-xs font-semibold rounded hover:bg-blue-600 transition-colors"
-                            >
-                              [Click Here - Tracking Link]
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
 
             {/* Risk Category Filter */}
             <div>
@@ -954,33 +937,6 @@ export default function ManagerDashboard() {
               </div>
             </div>
 
-            {/* Debug Output */}
-            {debugOutput.length > 0 && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Debug Output
-                </label>
-                <div className="max-h-48 overflow-y-auto rounded-md border border-white/[0.06] bg-[#0f0f1a] p-3 font-mono text-xs space-y-1">
-                  {debugOutput.map((log, i) => (
-                    <div
-                      key={i}
-                      className={
-                        log.includes("ERROR") || log.includes("❌")
-                          ? "text-red-400"
-                          : log.includes("✅")
-                          ? "text-emerald-400"
-                          : log.includes("⚠️")
-                          ? "text-amber-400"
-                          : "text-slate-300"
-                      }
-                    >
-                      {log}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Buttons */}
             <div className="flex gap-2">
               <button
@@ -1000,7 +956,6 @@ export default function ManagerDashboard() {
                   setShowTriggerModal(false);
                   setSelectedUsers(new Set());
                   setSelectAll(false);
-                  setDebugOutput([]);
                   setSelectedTemplateId("");
                 }}
                 disabled={triggeringSimulation}

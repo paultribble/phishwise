@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { BookOpen, Lightbulb, Shield, Zap, Lock, Eye } from "lucide-react";
+import { Navbar } from "@/components/landing/Navbar";
+import { AmbientBackground } from "@/components/landing/AmbientBackground";
 
 function GlassCard({
   children,
@@ -20,35 +22,18 @@ function GlassCard({
 export default function LearnPage() {
   return (
     <div className="min-h-screen flex flex-col bg-[#0f0f1a] text-white">
-      {/* Header */}
-      <header className="border-b border-white/[0.06] bg-[#1a1a2e]/60 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-white">
-            PhishWise
-          </Link>
-          <nav className="flex gap-6">
-            <Link href="/train" className="text-slate-300 hover:text-white transition-colors">
-              Train
-            </Link>
-            <Link href="/login" className="text-slate-300 hover:text-white transition-colors">
-              Log In
-            </Link>
-            <Link href="/signup" className="text-white bg-purple-700 px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">
-              Sign Up
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Main Content */}
-      <main className="flex-1 px-6 py-12">
-        <div className="max-w-4xl mx-auto space-y-12">
+      <main className="flex-1 px-6 py-12 pt-32">
+        <div className="max-w-4xl mx-auto space-y-12 relative">
           {/* Hero Section */}
-          <div className="text-center space-y-4">
-            <h1 className="text-5xl font-bold text-white">
+          <div className="relative text-center space-y-4">
+            <AmbientBackground variant="subtle" />
+            <h1 className="text-5xl font-bold text-white relative z-10">
               Expand Your Security Knowledge
             </h1>
-            <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+            <p className="text-xl text-slate-300 max-w-2xl mx-auto relative z-10">
               Go beyond phishing. Explore the broader cybersecurity landscape and understand the diverse threats organizations face today.
             </p>
           </div>

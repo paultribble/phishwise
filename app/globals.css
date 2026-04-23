@@ -119,22 +119,26 @@
 }
 @keyframes floatA {
   0%, 100% { transform: translateY(0px) translateX(0px); }
-  33%       { transform: translateY(-28px) translateX(14px); }
-  66%       { transform: translateY(14px) translateX(-10px); }
+  25%      { transform: translateY(-18px) translateX(8px); }
+  50%      { transform: translateY(-28px) translateX(14px); }
+  75%      { transform: translateY(8px) translateX(-8px); }
 }
 @keyframes floatB {
   0%, 100% { transform: translateY(0px) translateX(0px); }
-  40%       { transform: translateY(20px) translateX(-18px); }
-  70%       { transform: translateY(-14px) translateX(12px); }
+  25%      { transform: translateY(12px) translateX(-10px); }
+  50%      { transform: translateY(20px) translateX(-18px); }
+  75%      { transform: translateY(-8px) translateX(8px); }
 }
 @keyframes floatC {
   0%, 100% { transform: translateY(0px) scale(1); }
-  50%       { transform: translateY(-20px) scale(1.05); }
+  25%      { transform: translateY(-10px) scale(1.02); }
+  50%      { transform: translateY(-20px) scale(1.05); }
+  75%      { transform: translateY(-5px) scale(1.02); }
 }
 @keyframes scanline {
   0%   { transform: translateY(-100%); opacity: 0; }
-  10%  { opacity: 0.04; }
-  90%  { opacity: 0.04; }
+  5%   { opacity: 0.04; }
+  95%  { opacity: 0.04; }
   100% { transform: translateY(100vh); opacity: 0; }
 }
 @keyframes shimmerBorder {
@@ -205,10 +209,10 @@
 .anim-fade-in {
   animation: fadeIn 0.5s ease-out both;
 }
-.anim-float-a { animation: floatA 9s ease-in-out infinite; }
-.anim-float-b { animation: floatB 12s ease-in-out infinite; }
-.anim-float-c { animation: floatC 7s ease-in-out infinite; }
-.anim-scanline { animation: scanline 8s linear infinite; }
+.anim-float-a { animation: floatA 16s cubic-bezier(0.4, 0.0, 0.2, 1) infinite; }
+.anim-float-b { animation: floatB 20s cubic-bezier(0.4, 0.0, 0.2, 1) infinite; }
+.anim-float-c { animation: floatC 14s cubic-bezier(0.4, 0.0, 0.2, 1) infinite; }
+.anim-scanline { animation: scanline 12s cubic-bezier(0.4, 0.0, 0.6, 1) infinite; }
 .anim-pulse-ring { animation: pulsRing 2.5s ease-out infinite; }
 
 /* Threat Intelligence Terminal Utilities */

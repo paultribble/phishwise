@@ -85,28 +85,40 @@ export default function ScanPage() {
     setError("");
     setResult(null);
 
-    // DEMO MODE: Simulate analysis for 2-3 seconds without calling API
-    setTimeout(() => {
-      const demoResult: AnalysisResult = {
-        riskLevel: "HIGH",
-        confidence: 0.96,
-        verdict: "This is a phishing attempt impersonating Amazon",
-        redFlags: [
-          "Suspicious sender domain - does not match official Amazon.com",
-          "Urgent language: 'Verify your account immediately' to pressure action",
-          "Generic greeting 'Dear Customer' instead of personalized name",
-          "Request to click link and enter credentials - legitimate companies don't do this",
-          "Email footer missing official Amazon contact information",
-          "Link points to suspicious domain, not amazon.com",
-          "Threats of account suspension used as scare tactic",
-        ],
-        explanation:
-          "This email exhibits classic phishing characteristics impersonating Amazon. It uses urgency and fear tactics to pressure you into clicking a malicious link and entering your login credentials. Amazon will never ask you to verify your account via email links. Always navigate directly to amazon.com by typing the URL yourself, or call Amazon customer service for account issues.",
-      };
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const base64 = (e.target?.result as string).split(",")[1];
 
-      setResult(demoResult);
+        const response = await fetch("/api/scan/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            imageBase64: base64,
+            imageType: image.type,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || data.error);
+        }
+
+        setResult(data.analysis);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Analysis failed");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    reader.onerror = () => {
+      setError("Failed to read file");
       setLoading(false);
-    }, 2500);
+    };
+
+    reader.readAsDataURL(image);
   };
 
   const getRiskColor = (level: string) => {

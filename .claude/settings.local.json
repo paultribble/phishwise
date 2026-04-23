@@ -62,7 +62,8 @@
       "Bash(cat)",
       "Bash(bash /tmp/interactive-test.sh)",
       "Bash(npm test *)",
-      "Bash(grep -E \"^\\(✓|✗|$\\)\")"
+      "Bash(grep -E \"^\\(✓|✗|$\\)\")",
+      "Bash(xargs grep *)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -209,10 +209,10 @@
 .anim-fade-in {
   animation: fadeIn 0.5s ease-out both;
 }
-.anim-float-a { animation: floatA 16s cubic-bezier(0.4, 0.0, 0.2, 1) infinite; }
-.anim-float-b { animation: floatB 20s cubic-bezier(0.4, 0.0, 0.2, 1) infinite; }
-.anim-float-c { animation: floatC 14s cubic-bezier(0.4, 0.0, 0.2, 1) infinite; }
-.anim-scanline { animation: scanline 12s cubic-bezier(0.4, 0.0, 0.6, 1) infinite; }
+.anim-float-a { animation: floatA 40s cubic-bezier(0.4, 0.0, 0.2, 1) infinite; }
+.anim-float-b { animation: floatB 50s cubic-bezier(0.4, 0.0, 0.2, 1) infinite; }
+.anim-float-c { animation: floatC 35s cubic-bezier(0.4, 0.0, 0.2, 1) infinite; }
+.anim-scanline { animation: scanline 30s cubic-bezier(0.4, 0.0, 0.6, 1) infinite; }
 .anim-pulse-ring { animation: pulsRing 2.5s ease-out infinite; }
 
 /* Threat Intelligence Terminal Utilities */

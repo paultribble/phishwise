@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -24,6 +25,8 @@ import {
   Sparkles,
   ArrowRight,
   Lock,
+  Eye,
+  Copy,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getEmbedUrl } from "@/lib/video-embed";
@@ -56,6 +59,16 @@ interface TrainingModuleContent {
   quiz: TrainingQuiz;
 }
 
+interface Template {
+  id: string;
+  moduleId: string;
+  name: string;
+  subject: string;
+  body: string;
+  fromAddress: string;
+  difficulty: number;
+}
+
 const SECTIONS = [
   { id: "overview", title: "Overview", icon: BookOpen },
   { id: "tactics", title: "Tactics", icon: Users },
@@ -78,6 +91,7 @@ export default function TrainingModulePage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const moduleId = params.moduleId as string;
   const token = searchParams.get("token");
 
@@ -97,6 +111,9 @@ export default function TrainingModulePage() {
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [revealedFlags, setRevealedFlags] = useState<Set<number>>(new Set());
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
+  const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchModule() {
@@ -122,6 +139,28 @@ export default function TrainingModulePage() {
     }
     fetchModule();
   }, [moduleId]);
+
+  useEffect(() => {
+    async function fetchTemplates() {
+      if (!session?.user || session.user.role !== "MANAGER" || !module?.id) return;
+
+      try {
+        setTemplatesLoading(true);
+        const res = await fetch("/api/admin/templates");
+        if (res.ok) {
+          const data = await res.json();
+          const moduleTemplates = data.templates?.filter((t: Template) => t.moduleId === module.id) || [];
+          setTemplates(moduleTemplates);
+        }
+      } catch (err) {
+        console.error("Failed to fetch templates:", err);
+      } finally {
+        setTemplatesLoading(false);
+      }
+    }
+
+    fetchTemplates();
+  }, [module?.id, session?.user]);
 
   const handleComplete = async () => {
     setCompleting(true);
@@ -954,6 +993,123 @@ export default function TrainingModulePage() {
               )}
             </div>
           </div>
+
+          {/* Manager: Email Templates Section */}
+          {session?.user?.role === "MANAGER" && module && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+                  <Mail className="h-6 w-6" style={{ color: "var(--accent-primary)" }} />
+                  Email Templates for This Module
+                </h2>
+                <p style={{ color: "var(--text-secondary)" }}>
+                  Preview all phishing email templates associated with this training module
+                </p>
+              </div>
+
+              {templatesLoading ? (
+                <div
+                  className="rounded-xl border p-8 flex items-center justify-center"
+                  style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}
+                >
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                </div>
+              ) : templates.length === 0 ? (
+                <div
+                  className="rounded-xl border p-8 text-center"
+                  style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border-subtle)" }}
+                >
+                  <Mail className="h-8 w-8 mx-auto mb-3 opacity-50" style={{ color: "var(--text-muted)" }} />
+                  <p style={{ color: "var(--text-secondary)" }}>No email templates available for this module</p>
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {templates.map((template) => (
+                    <div
+                      key={template.id}
+                      className="rounded-xl border overflow-hidden transition-all duration-300 hover:border-blue-500/50"
+                      style={{
+                        backgroundColor: "var(--bg-surface)",
+                        borderColor: expandedTemplate === template.id ? "var(--accent-primary)" : "var(--border-subtle)",
+                      }}
+                    >
+                      <div className="p-4 space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-white truncate">{template.name}</h3>
+                            <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+                              Difficulty: <Badge variant="outline" className="ml-1">
+                                Level {template.difficulty}
+                              </Badge>
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 text-sm">
+                          <div>
+                            <p style={{ color: "var(--text-muted)", fontSize: "0.75rem" }} className="uppercase tracking-wider mb-1">
+                              From
+                            </p>
+                            <p className="font-mono text-xs" style={{ color: "var(--text-secondary)" }}>
+                              {template.fromAddress}
+                            </p>
+                          </div>
+                          <div>
+                            <p style={{ color: "var(--text-muted)", fontSize: "0.75rem" }} className="uppercase tracking-wider mb-1">
+                              Subject
+                            </p>
+                            <p className="text-xs truncate" style={{ color: "var(--text-secondary)" }}>
+                              {template.subject}
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() =>
+                            setExpandedTemplate(expandedTemplate === template.id ? null : template.id)
+                          }
+                          className="w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2"
+                          style={{
+                            backgroundColor: "rgba(34, 211, 238, 0.1)",
+                            color: "var(--accent-primary)",
+                            border: "1px solid rgba(34, 211, 238, 0.3)",
+                          }}
+                          onMouseEnter={(e) => {
+                            (e.target as HTMLElement).style.backgroundColor = "rgba(34, 211, 238, 0.15)";
+                          }}
+                          onMouseLeave={(e) => {
+                            (e.target as HTMLElement).style.backgroundColor = "rgba(34, 211, 238, 0.1)";
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                          {expandedTemplate === template.id ? "Hide Preview" : "View Preview"}
+                        </button>
+
+                        {expandedTemplate === template.id && (
+                          <div
+                            className="rounded-lg p-4 space-y-3 border mt-3"
+                            style={{ backgroundColor: "var(--bg-elevated)", borderColor: "var(--border-subtle)" }}
+                          >
+                            <div>
+                              <p style={{ color: "var(--text-muted)", fontSize: "0.75rem" }} className="uppercase tracking-wider mb-2">
+                                Email Preview
+                              </p>
+                              <div
+                                className="rounded bg-black p-3 max-h-48 overflow-y-auto text-xs"
+                                style={{ color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}
+                              >
+                                <pre className="whitespace-pre-wrap break-words">{template.body}</pre>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
 

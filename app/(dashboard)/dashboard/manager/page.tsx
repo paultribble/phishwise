@@ -120,15 +120,6 @@ export default function ManagerDashboard() {
       moduleName: string;
     }>
   >([]);
-  const [selectedTemplateDetails, setSelectedTemplateDetails] = useState<{
-    id: string;
-    name: string;
-    subject: string;
-    body: string;
-    fromAddress: string;
-    moduleName: string;
-  } | null>(null);
-  const [previewLoading, setPreviewLoading] = useState(false);
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -201,28 +192,6 @@ export default function ManagerDashboard() {
     }
   }
 
-  async function loadTemplatePreview(templateId: string) {
-    try {
-      setPreviewLoading(true);
-      const res = await fetch(`/api/templates/${templateId}`);
-      const data = await res.json();
-
-      if (res.ok && data.template) {
-        setSelectedTemplateDetails({
-          id: data.template.id,
-          name: data.template.name,
-          subject: data.template.subject,
-          body: data.template.body,
-          fromAddress: data.template.fromAddress || "security@verify-account.com",
-          moduleName: data.template.module?.name || "Unknown Module",
-        });
-      }
-    } catch (error) {
-      console.error("Failed to load template preview:", error);
-    } finally {
-      setPreviewLoading(false);
-    }
-  }
 
 
   function getFilteredUsers() {
@@ -841,14 +810,7 @@ export default function ManagerDashboard() {
               </label>
               <select
                 value={selectedTemplateId}
-                onChange={(e) => {
-                  setSelectedTemplateId(e.target.value);
-                  if (e.target.value) {
-                    loadTemplatePreview(e.target.value);
-                  } else {
-                    setSelectedTemplateDetails(null);
-                  }
-                }}
+                onChange={(e) => setSelectedTemplateId(e.target.value)}
                 className="w-full rounded-md border border-white/10 bg-[#252540] px-3 py-2 text-sm text-white focus:border-blue-600 focus:outline-none"
               >
                 <option value="">-- Select a template --</option>
@@ -879,64 +841,6 @@ export default function ManagerDashboard() {
                 )}
               </select>
             </div>
-
-            {/* Email Preview */}
-            {selectedTemplateDetails && (
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Email Preview
-                </label>
-                <div className={`${glassCard} p-4 border-l-4 border-blue-500`}>
-                  {previewLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-1">
-                          From
-                        </p>
-                        <p className="text-sm text-white font-mono">
-                          {selectedTemplateDetails.fromAddress}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-1">
-                          Subject
-                        </p>
-                        <p className="text-sm text-white">{selectedTemplateDetails.subject}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-1">
-                          Module
-                        </p>
-                        <p className="text-sm text-slate-300">{selectedTemplateDetails.moduleName}</p>
-                      </div>
-                      <div className="mt-4 pt-4 border-t border-white/[0.06]">
-                        <p className="text-xs uppercase tracking-[0.18em] font-semibold text-blue-400 mb-2">
-                          Preview
-                        </p>
-                        <div className="bg-[#0f0f1a] rounded border border-white/[0.06] p-3 max-h-48 overflow-y-auto">
-                          <div className="text-sm text-slate-300 whitespace-pre-wrap font-mono text-xs leading-relaxed">
-                            {selectedTemplateDetails.body}
-                          </div>
-                          <div className="mt-3 text-center">
-                            <a
-                              href="#"
-                              onClick={(e) => e.preventDefault()}
-                              className="inline-block px-3 py-1 bg-blue-700 text-white text-xs font-semibold rounded hover:bg-blue-600 transition-colors"
-                            >
-                              [Click Here - Tracking Link]
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
 
             {/* Risk Category Filter */}
             <div>

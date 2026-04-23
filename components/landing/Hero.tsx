@@ -200,13 +200,13 @@ export function Hero() {
 
 function FloatingParticles() {
   const particles = [
-    { top: "20%", left: "10%", delay: "0s", dur: "6s", size: 2, opacity: 0.4 },
-    { top: "45%", left: "88%", delay: "1.5s", dur: "8s", size: 3, opacity: 0.3 },
-    { top: "70%", left: "15%", delay: "3s", dur: "7s", size: 2, opacity: 0.35 },
-    { top: "30%", left: "75%", delay: "0.8s", dur: "9s", size: 2, opacity: 0.25 },
-    { top: "60%", left: "55%", delay: "2.2s", dur: "6.5s", size: 3, opacity: 0.2 },
-    { top: "15%", left: "50%", delay: "4s", dur: "11s", size: 2, opacity: 0.3 },
-    { top: "80%", left: "70%", delay: "1s", dur: "8.5s", size: 2, opacity: 0.25 },
+    { top: "20%", left: "10%", delay: "0s", anim: "anim-float-a", size: 2, opacity: 0.4 },
+    { top: "45%", left: "88%", delay: "1.5s", anim: "anim-float-b", size: 3, opacity: 0.3 },
+    { top: "70%", left: "15%", delay: "3s", anim: "anim-float-c", size: 2, opacity: 0.35 },
+    { top: "30%", left: "75%", delay: "0.8s", anim: "anim-float-a", size: 2, opacity: 0.25 },
+    { top: "60%", left: "55%", delay: "2.2s", anim: "anim-float-b", size: 3, opacity: 0.2 },
+    { top: "15%", left: "50%", delay: "4s", anim: "anim-float-c", size: 2, opacity: 0.3 },
+    { top: "80%", left: "70%", delay: "1s", anim: "anim-float-a", size: 2, opacity: 0.25 },
   ];
 
   return (
@@ -214,7 +214,7 @@ function FloatingParticles() {
       {particles.map((p, i) => (
         <div
           key={i}
-          className="absolute rounded-full bg-blue-400 anim-float-a"
+          className={`absolute rounded-full bg-blue-400 ${p.anim}`}
           style={{
             top: p.top,
             left: p.left,
@@ -222,7 +222,6 @@ function FloatingParticles() {
             height: `${p.size * 4}px`,
             opacity: p.opacity,
             animationDelay: p.delay,
-            animationDuration: p.dur,
             filter: "blur(1px)",
           }}
         />

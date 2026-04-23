@@ -44,7 +44,6 @@ export function AmbientBackground({ variant = "default" }: { variant?: "default"
         className="anim-scanline absolute left-0 right-0 h-[2px] pointer-events-none"
         style={{
           background: "linear-gradient(90deg, transparent 0%, rgba(37,99,235,0.15) 30%, rgba(59,130,246,0.25) 50%, rgba(37,99,235,0.15) 70%, transparent 100%)",
-          animationDuration: "12s",
         }}
       />
     </div>

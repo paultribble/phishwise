@@ -27,6 +27,7 @@ export default function AdminModulesPage() {
     name: "",
     description: "",
     content: "",
+    videoUrl: "",
     orderIndex: 0,
   });
 
@@ -68,7 +69,7 @@ export default function AdminModulesPage() {
 
     if (res.ok) {
       setShowForm(false);
-      setForm({ name: "", description: "", content: "", orderIndex: 0 });
+      setForm({ name: "", description: "", content: "", videoUrl: "", orderIndex: 0 });
       fetchModules();
     } else {
       const err = await res.json();
@@ -166,6 +167,21 @@ export default function AdminModulesPage() {
                 }
                 placeholder="Full training module content..."
                 className="w-full rounded-lg border border-white/[0.08] bg-[#0f0f1a] px-3 py-2 text-sm text-white placeholder-slate-600 focus:border-blue-500 focus:outline-none transition-colors resize-y"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-400">
+                Video URL (Optional)
+              </label>
+              <input
+                type="url"
+                value={form.videoUrl}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, videoUrl: e.target.value }))
+                }
+                placeholder="e.g. https://youtube.com/watch?v=... or https://vimeo.com/..."
+                className="w-full rounded-lg border border-white/[0.08] bg-[#0f0f1a] px-3 py-2 text-sm text-white placeholder-slate-600 focus:border-blue-500 focus:outline-none transition-colors"
               />
             </div>
 

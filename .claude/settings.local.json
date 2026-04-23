@@ -61,7 +61,8 @@
       "WebSearch",
       "Bash(cat)",
       "Bash(bash /tmp/interactive-test.sh)",
-      "Bash(npm test *)"
+      "Bash(npm test *)",
+      "Bash(grep -E \"^\\(✓|✗|$\\)\")"
     ]
   },
   "enableAllProjectMcpServers": true,

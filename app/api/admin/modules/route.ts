@@ -8,6 +8,7 @@ const createSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().min(1, "Description is required"),
   content: z.string().min(1, "Content is required"),
+  videoUrl: z.string().url().optional().or(z.literal("")),
   orderIndex: z.number().int().min(0),
 });
 

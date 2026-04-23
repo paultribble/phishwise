@@ -26,6 +26,7 @@ import {
   Lock,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { getEmbedUrl } from "@/lib/video-embed";
 
 interface TrainingTactic {
   name: string;
@@ -87,6 +88,7 @@ export default function TrainingModulePage() {
     name: string;
     description: string;
     content: TrainingModuleContent;
+    videoUrl?: string | null;
   } | null>(null);
   const [userStatus, setUserStatus] = useState<{ completed: boolean } | null>(null);
   const [isRequired, setIsRequired] = useState(false);
@@ -348,6 +350,17 @@ export default function TrainingModulePage() {
               {/* Content Sections */}
               {currentSection === 0 && (
                 <div className="space-y-6">
+                  {module.videoUrl && getEmbedUrl(module.videoUrl) && (
+                    <div className="relative w-full rounded-lg overflow-hidden bg-black" style={{ paddingBottom: "56.25%", height: 0 }}>
+                      <iframe
+                        src={getEmbedUrl(module.videoUrl) || ""}
+                        className="absolute top-0 left-0 w-full h-full border-0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        title={`Video for ${module.name}`}
+                      />
+                    </div>
+                  )}
                   <p style={{ color: "var(--text-secondary)", lineHeight: "1.6", whiteSpace: "pre-line" }}>
                     {content.overview}
                   </p>

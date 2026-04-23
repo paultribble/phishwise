@@ -59,6 +59,7 @@ export async function GET(
         name: trainingModule.name,
         description: trainingModule.description,
         content,
+        videoUrl: trainingModule.videoUrl,
       },
       userStatus: userTraining
         ? {

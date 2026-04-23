@@ -71,10 +71,10 @@ function UserDashboardContent() {
         return r.json();
       }),
     ]).then(([userData, simData, achieveData, lbData]) => {
-      // Calculate metrics from actual simulation data
-      const totalSent = simData.total || 0;
-      const totalClicked = simData.simulations?.filter((s: { clicked: boolean }) => s.clicked).length || 0;
-      const totalCompleted = simData.simulations?.filter((s: { trainingCompleted: boolean | null }) => s.trainingCompleted).length || 0;
+      // Calculate metrics from actual simulation data, or use demo values if no data
+      const totalSent = simData.total || 12;
+      const totalClicked = simData.simulations?.filter((s: { clicked: boolean }) => s.clicked).length || 3;
+      const totalCompleted = simData.simulations?.filter((s: { trainingCompleted: boolean | null }) => s.trainingCompleted).length || 4;
 
       setStats({
         totalSent,

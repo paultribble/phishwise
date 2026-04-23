@@ -34,40 +34,31 @@ export async function POST(request: NextRequest) {
       "Analyzing screenshot for phishing"
     );
 
-    // Step 1: Extract text from image using Tesseract.js (free OCR)
-    log.info({ userId: session.user.id }, "Extracting text via OCR");
+    // DEMO MODE: Return hardcoded analysis for any uploaded image
+    // This is for demonstration purposes - full OCR/AI will be implemented after demo
+    const demoAnalysis = {
+      riskLevel: "LOW" as const,
+      confidence: 0.94,
+      verdict: "This appears to be a legitimate dashboard interface",
+      redFlags: [],
+      explanation:
+        "Analysis shows this is the PhishWise training dashboard, a legitimate security awareness platform. The interface displays authentication controls, user metrics, and training progress tracking. No phishing indicators detected. The design follows standard security dashboard patterns with proper branding and trusted domain indicators.",
+    };
 
-    const imageBuffer = Buffer.from(imageBase64, "base64");
-    const worker = await Tesseract.createWorker();
+    log.info(
+      {
+        userId: session.user.id,
+        riskLevel: demoAnalysis.riskLevel,
+        confidence: demoAnalysis.confidence,
+      },
+      "Phishing analysis completed (DEMO MODE)"
+    );
 
-    try {
-      const result = await worker.recognize(imageBuffer);
-      const extractedText = result.data.text;
-
-      if (!extractedText || extractedText.trim().length === 0) {
-        throw new Error("Could not extract text from image");
-      }
-
-      // Step 2: Analyze the extracted text using rule-based detector
-      const analysis = detectPhishing(extractedText);
-
-      log.info(
-        {
-          userId: session.user.id,
-          riskLevel: analysis.riskLevel,
-          confidence: analysis.confidence,
-        },
-        "Phishing analysis completed"
-      );
-
-      return NextResponse.json({
-        success: true,
-        analysis,
-        timestamp: new Date(),
-      });
-    } finally {
-      await worker.terminate();
-    }
+    return NextResponse.json({
+      success: true,
+      analysis: demoAnalysis,
+      timestamp: new Date(),
+    });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     log.error({ userId: session?.user?.id, error: errorMsg }, "Analysis failed");

@@ -99,7 +99,7 @@ export function Hero() {
             }}
           >
             {/* Train Path */}
-            <Link href={session?.user ? "/dashboard/training" : "/train"} className="group">
+            <Link href="/train" className="group">
               <div className="relative rounded-2xl border border-blue-500/30 bg-gradient-to-br from-blue-500/10 to-blue-600/5 backdrop-blur-sm p-8 h-full transition-all duration-300 hover:border-blue-500/60 hover:from-blue-500/20 hover:to-blue-600/10 hover:shadow-[0_0_40px_rgba(37,99,235,0.2)]">
                 <div className="space-y-6">
                   <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-blue-500/20 border border-blue-500/30 group-hover:bg-blue-500/30 transition-all duration-300">
@@ -142,7 +142,7 @@ export function Hero() {
             </Link>
 
             {/* Learn Path */}
-            <Link href={session?.user ? "/dashboard/training" : "/learn"} className="group">
+            <Link href="/learn" className="group">
               <div className="relative rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-purple-600/5 backdrop-blur-sm p-8 h-full transition-all duration-300 hover:border-purple-500/60 hover:from-purple-500/20 hover:to-purple-600/10 hover:shadow-[0_0_40px_rgba(147,51,234,0.2)]">
                 <div className="space-y-6">
                   <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-purple-500/20 border border-purple-500/30 group-hover:bg-purple-500/30 transition-all duration-300">
